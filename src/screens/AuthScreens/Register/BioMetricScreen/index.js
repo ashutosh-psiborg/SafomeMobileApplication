@@ -3,7 +3,7 @@ import React from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {useTranslation} from 'react-i18next';
-import {useTheme} from '../../../../theme/ThemeContext';
+import {useSelector} from 'react-redux';
 import Spacing from '../../../../components/Spacing';
 import CustomButton from '../../../../components/CustomButton';
 import {BioMetricStyles} from './Styles/BioMetricStyles';
@@ -13,7 +13,7 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 
 const BioMetricScreen = ({route, navigation}) => {
-  const {theme} = useTheme();
+  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
   const {t} = useTranslation();
   const styles = BioMetricStyles(theme);
 

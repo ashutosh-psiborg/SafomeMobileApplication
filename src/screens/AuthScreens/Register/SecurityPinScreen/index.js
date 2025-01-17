@@ -4,12 +4,12 @@ import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import Spacing from '../../../../components/Spacing';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
-import {useTheme} from '../../../../theme/ThemeContext';
+import {useSelector} from 'react-redux';
 import {useTranslation} from 'react-i18next';
 import {useNavigation} from '@react-navigation/native';
 import {BioMetricStyles} from '../BioMetricScreen/Styles/BioMetricStyles';
 const SecurityPinScreen = () => {
-  const {theme} = useTheme();
+  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
   const navigation = useNavigation();
   const [pin, setPin] = useState('');
   const {t} = useTranslation();

@@ -5,12 +5,15 @@ import {ImageConstants} from '../../../constants/ImageConstants';
 import Spacing from '../../../components/Spacing';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
 import {useTranslation} from 'react-i18next';
-import {useTheme} from '../../../theme/ThemeContext';
+import {useSelector} from 'react-redux';
 import CustomButton from '../../../components/CustomButton';
 const WelcomeScreen = ({navigation}) => {
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
+
   const {t} = useTranslation();
-  const { theme } = useTheme();
-  
+
   return (
     <MainBackground>
       <Spacing height={DimensionConstants.fourteen} />
@@ -37,10 +40,13 @@ const WelcomeScreen = ({navigation}) => {
       </View>
       <Spacing height={DimensionConstants.thirtyTwo} />
 
-      <CustomButton text={t('Sign in')} onPress = {()=>navigation.navigate("LoginScreen")} />
       <CustomButton
-        borderColor={ theme.borderColor }
-        onPress = {()=>navigation.navigate('RegisterScreen')}
+        text={t('Sign in')}
+        onPress={() => navigation.navigate('LoginScreen')}
+      />
+      <CustomButton
+        borderColor={theme.borderColor}
+        onPress={() => navigation.navigate('RegisterScreen')}
         color={'#fff'}
         textColor={'#000'}
         text={t('Create account')}

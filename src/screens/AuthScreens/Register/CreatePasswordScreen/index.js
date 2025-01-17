@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {useTranslation} from 'react-i18next';
-import {useTheme} from '../../../../theme/ThemeContext';
+import {useSelector} from 'react-redux';
 import Spacing from '../../../../components/Spacing';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import CustomButton from '../../../../components/CustomButton';
@@ -11,7 +11,7 @@ import GlobeIcon from '../../../../assets/icons/GlobeIcon';
 import {VerifyMailOtpStyles} from '../VerifyMailOtpScreen/Styles/VerifyMailOtpStyles';
 
 const CreatePasswordScreen = ({route, navigation}) => {
-  const {theme} = useTheme();
+  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
 

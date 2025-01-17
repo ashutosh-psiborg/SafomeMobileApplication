@@ -1,35 +1,32 @@
-import {View, Text, TextInput, TouchableOpacity, Button} from 'react-native';
-import React, {useState} from 'react';
+import {View, Text, TextInput, TouchableOpacity} from 'react-native';
+import React, {useState, useRef} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import {useTranslation} from 'react-i18next';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import MailIcon from '../../../../assets/icons/MailIcon';
-import PasswordIcon from '../../../../assets/icons/PasswordIcon';
 import CustomButton from '../../../../components/CustomButton';
 import GoogleIcon from '../../../../assets/icons/GoogleIcon';
 import AppleIcon from '../../../../assets/icons/AppleIcon';
 import Spacing from '../../../../components/Spacing';
 import {loginStyles} from '../Styles/LoginStyles';
-import {useTheme} from '../../../../theme/ThemeContext';
-import {
-  GoogleSignin,
-  statusCodes,
-} from '@react-native-google-signin/google-signin';
+import {useSelector} from 'react-redux';
+import {GoogleSignin, statusCodes} from '@react-native-google-signin/google-signin';
 import CustomHeader from '../../../../components/CustomHeader';
 import CustomModal from '../../../../components/CustomModal';
+
 const LoginWithMobileScreen = ({navigation}) => {
   const {t, i18n} = useTranslation();
-  const {theme} = useTheme();
+  const theme = useSelector(state => state.theme.themes[state.theme.currentTheme]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
+  const [otp, setOtp] = useState(['', '', '', '']); // assuming OTP is 4 digits
 
   const Styles = loginStyles(theme);
-  GoogleSignin.configure({
-    webClientId:
-      '941818245261-e8bdhhubjhpmdcq5duahq57el0e84hmm.apps.googleusercontent.com',
-    scope: ['email', 'profile'],
-  });
+
+  // Create refs for OTP input boxes to manage focus
+  const otpRefs = useRef([]);
+
   const signIn = async () => {
     try {
       console.log('Checking Play Services...');
@@ -57,6 +54,21 @@ const LoginWithMobileScreen = ({navigation}) => {
     }
   };
 
+  const handleOtpChange = (text, index) => {
+    const newOtp = [...otp];
+    newOtp[index] = text;
+    setOtp(newOtp);
+
+    if (text.length === 1 && index < otp.length - 1) {
+      const nextInput = index + 1;
+      otpRefs.current[nextInput].focus(); 
+    }
+    if (text.length === 0 && index > 0) {
+      const prevInput = index - 1;
+      otpRefs.current[prevInput].focus(); 
+    }
+  };
+
   const handleEmailChange = text => {
     setEmail(text);
   };
@@ -64,6 +76,7 @@ const LoginWithMobileScreen = ({navigation}) => {
   const handlePasswordChange = text => {
     setPassword(text);
   };
+
   return (
     <MainBackground>
       <View style={{flex: 1, justifyContent: 'space-between'}}>
@@ -123,10 +136,33 @@ const LoginWithMobileScreen = ({navigation}) => {
             and <Text style={Styles.termBlue}>Privacy policy</Text>
           </Text>
         </View>
+
         <CustomModal
           isVisible={isModalVisible}
           onClose={() => setModalVisible(false)}>
-          <Text>Verify phone number</Text>
+          <View style={Styles.modalContent}>
+            <Text style={Styles.modalTitle}>Verify Phone Number</Text>
+
+            <View style={Styles.otpContainer}>
+              {otp.map((digit, index) => (
+                <TextInput
+                  key={index}
+                  ref={el => otpRefs.current[index] = el}  // Assign ref to each TextInput
+                  style={Styles.otpInput}
+                  value={digit}
+                  onChangeText={text => handleOtpChange(text, index)}
+                  keyboardType="numeric"
+                  maxLength={1}
+                  textAlign="center"
+                />
+              ))}
+            </View>
+            <TouchableOpacity
+              style={Styles.submitButton}
+              onPress={() => console.log('Submit OTP:', otp)}>
+              <Text style={Styles.submitText}>Submit OTP</Text>
+            </TouchableOpacity>
+          </View>
         </CustomModal>
       </View>
     </MainBackground>

@@ -10,11 +10,11 @@ import {
 import Spacing from '../../../components/Spacing';
 import CustomButton from '../../../components/CustomButton';
 import {DimensionConstants, width} from '../../../constants/DimensionConstants';
-import {useTheme} from '../../../theme/ThemeContext';
+import {useSelector} from 'react-redux';
 import {useTranslation} from 'react-i18next';
 import {OnboardingStyles} from './Styles/OnboardingStyles';
 const OnboardingScreen = ({navigation}) => {
-  const {theme} = useTheme();
+  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
   const {t} = useTranslation();
   const styles = OnboardingStyles(theme);
   const slides = [

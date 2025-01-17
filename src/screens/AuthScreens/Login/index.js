@@ -11,7 +11,7 @@ import GoogleIcon from '../../../assets/icons/GoogleIcon';
 import AppleIcon from '../../../assets/icons/AppleIcon';
 import Spacing from '../../../components/Spacing';
 import {loginStyles} from './Styles/LoginStyles';
-import {useTheme} from '../../../theme/ThemeContext';
+import {useSelector} from 'react-redux';
 import {
   GoogleSignin,
   statusCodes,
@@ -19,21 +19,24 @@ import {
 import CustomHeader from '../../../components/CustomHeader';
 
 const LoginScreen = ({navigation}) => {
-  const {t, i18n} = useTranslation();
-  const {theme} = useTheme();
+  const {t} = useTranslation();
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const Styles = loginStyles(theme);
   GoogleSignin.configure({
-    webClientId: '303533365458-a3a7d2lgdlfa13t1pu2f0dtmev6pv2ca.apps.googleusercontent.com',
+    webClientId:
+      '303533365458-a3a7d2lgdlfa13t1pu2f0dtmev6pv2ca.apps.googleusercontent.com',
   });
-  
+
   const signIn = async () => {
     try {
       console.log('Checking Play Services...');
       await GoogleSignin.hasPlayServices();
       console.log('Play Services are available.');
-  
+
       const response = await GoogleSignin.signIn();
       console.log('Sign-in successful:', response);
     } catch (error) {

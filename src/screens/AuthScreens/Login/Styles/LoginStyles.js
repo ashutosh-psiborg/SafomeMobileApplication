@@ -3,6 +3,38 @@ import {StyleSheet} from 'react-native';
 
 export const loginStyles = theme =>
   StyleSheet.create({
+    modalContent: {
+      padding: 20,
+      alignItems: 'center',
+    },
+    modalTitle: {
+      fontSize: 20,
+      fontWeight: 'bold',
+    },
+    otpContainer: {
+      flexDirection: 'row',
+      marginVertical: 20,
+    },
+    otpInput: {
+      width: 50,
+      height: 50,
+      borderWidth: 1,
+      borderColor: '#ccc',
+      margin: 5,
+      fontSize: 24,
+      textAlign: 'center',
+      borderRadius: 8,
+    },
+    submitButton: {
+      backgroundColor: '#4CAF50',
+      padding: 10,
+      borderRadius: 8,
+      marginTop: 20,
+    },
+    submitText: {
+      color: 'white',
+      fontSize: 18,
+    },
     textInputView: {
       marginTop: DimensionConstants.ten,
       borderColor: theme.borderColor,

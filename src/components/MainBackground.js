@@ -1,9 +1,9 @@
 import React from 'react';
 import { SafeAreaView, StyleSheet, View } from 'react-native';
-import { useTheme } from '../theme/ThemeContext'; // Assuming you have a ThemeContext
+import { useSelector } from 'react-redux'; // Assuming you have a ThemeContext
 
 const MainBackground = ({ children, style }) => {
-  const { theme } = useTheme(); // Get the current theme (dark/light)
+  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: theme.background }]}>

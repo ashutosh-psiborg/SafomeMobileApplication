@@ -3,16 +3,16 @@ import React, {useState} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {useTranslation} from 'react-i18next';
-import {useTheme} from '../../../../theme/ThemeContext';
 import Spacing from '../../../../components/Spacing';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import CustomButton from '../../../../components/CustomButton';
 import GlobeIcon from '../../../../assets/icons/GlobeIcon';
 import {VerifyMailOtpStyles} from '../VerifyMailOtpScreen/Styles/VerifyMailOtpStyles';
+import {useSelector} from 'react-redux';
 
 const VerifyPhoneOtpScreen = ({route, navigation}) => {
-  const {theme} = useTheme();
-  const {phoneNumber} = route.params;
+  const user = useSelector(state => state.user);
+  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
   const [code, setCode] = useState('');
   const {t} = useTranslation();
   const styles = VerifyMailOtpStyles(theme);
@@ -33,7 +33,7 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
       <View style={{maxWidth: '80%'}}>
         <Text style={styles.infoText}>{t('We have sent OTP to')} </Text>
         <View style={{alignItems: 'center', flexDirection: 'row'}}>
-          <Text style={styles.emailText}>{`+91 ${phoneNumber}`} </Text>
+          <Text style={styles.emailText}>{`+91 ${user.phoneNumber}`} </Text>
           <TouchableOpacity>
             <Text style={styles.edit}>Edit</Text>
           </TouchableOpacity>
@@ -55,8 +55,7 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
         />
       </View>
       <CustomButton
-        onPress={ () =>
-          navigation.navigate('CreatePasswordScreen') }
+        onPress={() => navigation.navigate('CreatePasswordScreen')}
         text={t('Continue')}
       />
       <Spacing height={DimensionConstants.sixteen} />
