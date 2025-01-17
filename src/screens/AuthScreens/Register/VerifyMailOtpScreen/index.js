@@ -25,7 +25,6 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
     setCode(value);
   };
 
-  // ✅ API to trigger when screen loads (POST /sendOtp)
   const sendOtpMutation = useMutation({
     mutationFn: async () => {
       return fetcher({
@@ -34,7 +33,7 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
         data: {
           email: 'true',
           phoneNumber: 'false',
-        }, // Pass email in the request body
+        },
       });
     },
     onSuccess: data => {
@@ -45,12 +44,11 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
     },
   });
 
-  // ✅ Trigger OTP API when the screen loads
   useEffect(() => {
     if (user.email) {
       sendOtpMutation.mutate();
     }
-  }, []);
+  }, [user.email]);
 
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {

@@ -1,5 +1,5 @@
-import {View, Text, TextInput, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import {View, Text, TextInput, TouchableOpacity, Alert} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {useTranslation} from 'react-i18next';
@@ -9,10 +9,13 @@ import CustomButton from '../../../../components/CustomButton';
 import GlobeIcon from '../../../../assets/icons/GlobeIcon';
 import {VerifyMailOtpStyles} from '../VerifyMailOtpScreen/Styles/VerifyMailOtpStyles';
 import {useSelector} from 'react-redux';
-
+import {useMutation} from '@tanstack/react-query';
+import fetcher from '../../../../utils/ApiService';
 const VerifyPhoneOtpScreen = ({route, navigation}) => {
   const user = useSelector(state => state.user);
-  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
   const [code, setCode] = useState('');
   const {t} = useTranslation();
   const styles = VerifyMailOtpStyles(theme);
@@ -20,7 +23,57 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
   const handleChange = value => {
     setCode(value);
   };
+  const sendOtpMutation = useMutation({
+    mutationFn: async () => {
+      return fetcher({
+        method: 'POST',
+        url: '/sendOtp',
+        data: {
+          email: 'false',
+          phoneNumber: 'true',
+        },
+      });
+    },
+    onSuccess: data => {
+      console.log('OTP sent successfully:', data);
+    },
+    onError: error => {
+      console.error('Failed to send OTP:', error);
+    },
+  });
 
+  useEffect(() => {
+    if (user.phoneNumber) {
+      sendOtpMutation.mutate();
+    }
+  }, [user.phoneNumber]);
+
+  const verifyOtpMutation = useMutation({
+    mutationFn: async () => {
+      return fetcher({
+        method: 'GET',
+        url: '/verifyEmail',
+        params: {phoneNumber: true, otp: code},
+      });
+    },
+    onSuccess: data => {
+      console.log('Email verification successful:', data);
+      Alert.alert('Success', 'Email verified successfully!');
+      navigation.navigate('CreatePasswordScreen');
+    },
+    onError: error => {
+      console.error('Email verification failed:', error);
+      Alert.alert('Error', 'Invalid OTP. Please try again.');
+    },
+  });
+
+  const handleVerify = () => {
+    if (code.length < 4) {
+      Alert.alert('Error', 'Please enter a valid 6-digit OTP.');
+      return;
+    }
+    verifyOtpMutation.mutate();
+  };
   return (
     <MainBackground>
       <CustomHeader
@@ -54,10 +107,7 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
           maxLength={6}
         />
       </View>
-      <CustomButton
-        onPress={() => navigation.navigate('CreatePasswordScreen')}
-        text={t('Continue')}
-      />
+      <CustomButton onPress={handleVerify} text={t('Continue')} />
       <Spacing height={DimensionConstants.sixteen} />
       <View style={styles.footerContainer}>
         <Text style={styles.footerText}>{t('OTP not recieved?')}</Text>

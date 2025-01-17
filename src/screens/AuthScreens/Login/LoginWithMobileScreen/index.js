@@ -147,7 +147,7 @@ const LoginWithMobileScreen = ({navigation}) => {
               {otp.map((digit, index) => (
                 <TextInput
                   key={index}
-                  ref={el => otpRefs.current[index] = el}  // Assign ref to each TextInput
+                  ref={el => otpRefs.current[index] = el}  
                   style={Styles.otpInput}
                   value={digit}
                   onChangeText={text => handleOtpChange(text, index)}
