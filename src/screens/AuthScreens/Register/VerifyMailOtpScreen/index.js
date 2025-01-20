@@ -103,7 +103,7 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
           onChangeText={handleChange}
           keyboardType="number-pad"
           placeholderTextColor={theme.placeHolderText}
-          maxLength={6}
+          maxLength={4}
         />
       </View>
       <CustomButton onPress={handleVerify} text={t('Continue')} />

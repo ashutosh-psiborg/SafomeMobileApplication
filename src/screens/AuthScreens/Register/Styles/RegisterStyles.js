@@ -8,7 +8,7 @@ export const RegisterStyles = theme =>
   StyleSheet.create({
     container: {flex: 1, justifyContent: 'space-between'},
     formContainer: {
-      marginTop: DimensionConstants.thirtyTwo,
+      marginTop: DimensionConstants.twelve,
       paddingHorizontal: DimensionConstants.fifteen,
     },
     textInput: {
@@ -18,7 +18,7 @@ export const RegisterStyles = theme =>
       borderRadius: DimensionConstants.thirty,
       paddingHorizontal: DimensionConstants.sixteen,
       height: DimensionConstants.fortyEight,
-      marginBottom: DimensionConstants.twenty,
+      marginTop: DimensionConstants.twenty,
       fontSize: DimensionConstants.fourteen,
       flexDirection: 'row',
     },
@@ -34,4 +34,8 @@ export const RegisterStyles = theme =>
       paddingVertical: 0,
       marginLeft: DimensionConstants.six,
     },
+    errorText:{
+      color: 'red',
+      fontSize : DimensionConstants.ten
+    }
   });

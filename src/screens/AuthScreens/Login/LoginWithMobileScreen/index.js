@@ -1,4 +1,4 @@
-import {View, Text, TextInput, TouchableOpacity,Alert} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Alert} from 'react-native';
 import React, {useState, useRef} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import {useTranslation} from 'react-i18next';
@@ -25,9 +25,9 @@ const LoginWithMobileScreen = ({navigation}) => {
   );
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
-  const [otp, setOtp] = useState(['', '', '', '']); // assuming OTP is 4 digits
-  const num = parseInt(otp.join(''), 10);
-  console.log(num, '++++');
+  const [otp, setOtp] = useState(['', '', '', '']);
+  const num = otp.join('');
+
   const Styles = loginStyles(theme);
 
   const otpRefs = useRef([]);
@@ -54,21 +54,20 @@ const LoginWithMobileScreen = ({navigation}) => {
       return fetcher({
         method: 'POST',
         url: '/loginVerifyOTP',
-        data: { phoneNumber:phoneNumber, otp: num.toString() },
-        noAuth: true, // 🚀 This prevents the token from being sent
+        data: {phoneNumber: phoneNumber, otp: num},
+        noAuth: true,
       });
     },
     onSuccess: data => {
       console.log('Phone verification successful:', data);
       Alert.alert('Success', 'Phone verified successfully!');
-      navigation.navigate('MainApp');
+      navigation.replace('AddDeviceScreen');
     },
     onError: error => {
       console.error('Phone verification failed:', error);
       Alert.alert('Error', 'Invalid OTP. Please try again.');
     },
   });
-  
 
   const handleSubmit = () => {
     sendOtpMutation.mutate();

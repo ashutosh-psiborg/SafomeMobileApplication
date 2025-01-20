@@ -23,7 +23,7 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
   const handleChange = value => {
     setCode(value);
   };
-  
+
   const sendOtpMutation = useMutation({
     mutationFn: async () => {
       return fetcher({
@@ -105,14 +105,14 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
           onChangeText={text => handleChange(text)}
           keyboardType="phone-pad"
           placeholderTextColor={theme.placeHolderText}
-          maxLength={6}
+          maxLength={4}
         />
       </View>
       <CustomButton onPress={handleVerify} text={t('Continue')} />
       <Spacing height={DimensionConstants.sixteen} />
       <View style={styles.footerContainer}>
         <Text style={styles.footerText}>{t('OTP not recieved?')}</Text>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={()=>sendOtpMutation.mutate()}>
           <Text style={styles.resendText}> {t('Resend OTP')}</Text>
         </TouchableOpacity>
       </View>

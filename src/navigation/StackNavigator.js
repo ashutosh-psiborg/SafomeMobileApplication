@@ -11,6 +11,7 @@ import BioMetricScreen from '../screens/AuthScreens/Register/BioMetricScreen/ind
 import SecurityPinScreen from '../screens/AuthScreens/Register/SecurityPinScreen/index';
 import LoginWithMobileScreen from '../screens/AuthScreens/Login/LoginWithMobileScreen/index';
 import TabNavigator from './TabNavigator';
+import AddDeviceScreen from '../screens/AddDeviceScreens/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -62,13 +63,18 @@ const StackNavigator = () => {
         name="LoginWithMobileScreen"
         component={LoginWithMobileScreen}
       />
+       <Stack.Screen
+        options={{headerShown: false}}
+        name="AddDeviceScreen"
+        component={AddDeviceScreen}
+      />
       <Stack.Screen
         options={{headerShown: false}}
         name="OnboardingScreen"
         component={OnboardingScreen}
       />
       <Stack.Screen
-        options={{headerShown: false}} // Disable header for this screen
+        options={{headerShown: false}}
         name="WelcomeScreen"
         component={WelcomeScreen}
       />

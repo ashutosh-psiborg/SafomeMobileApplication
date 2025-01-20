@@ -78,7 +78,7 @@ const LoginScreen = ({navigation}) => {
     onSuccess: async data => {
       console.log(' login successful:', data);
       Alert.alert('Success', 'Account login successfully!');
-      navigation.navigate('MainApp');
+      navigation.navigate('AddDeviceScreen');
     },
     onError: error => {
       console.error('login error:', error);
