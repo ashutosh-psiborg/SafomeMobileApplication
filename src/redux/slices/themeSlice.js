@@ -14,6 +14,7 @@ const initialState = {
       placeHolderText: '#5E6368',
       borderColor: '#6B737A1A',
       blackText: '#000000',
+      otpBox: "#F2F7FC",
       grey: '#889CA3',
       darkBorderColor: '#6B737A',
     },

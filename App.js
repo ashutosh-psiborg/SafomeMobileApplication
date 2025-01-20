@@ -1,5 +1,4 @@
-import React, {useState} from 'react';
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import React from 'react';
 import AppNavigator from './src/navigation/AppNavigator';
 import {I18nextProvider} from 'react-i18next';
 import i18n from './i18n';
@@ -11,13 +10,13 @@ export default function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        refetchOnWindowFocus: false,  // Optional: Avoids auto refetching
-        retry: false, // Prevents retries on errors
+        refetchOnWindowFocus: false,  
+        retry: false, 
       },
     },
   });  console.log('QueryClient:', queryClient);
 
-  const Tab = createBottomTabNavigator();
+  
 
   return (
     <QueryClientProvider client={queryClient}>

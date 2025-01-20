@@ -2,12 +2,15 @@ import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { DimensionConstants } from '../constants/DimensionConstants';
 
-const CustomButton = ({ text, color, textColor, onPress, icon: Icon, borderColor }) => {
+const CustomButton = ({ text, color, textColor, onPress, icon: Icon, borderColor, width }) => {
   return (
     <TouchableOpacity
       style={[
         styles.button,
-        { backgroundColor: color || '#005BBB' },
+        { 
+          backgroundColor: color || '#005BBB',
+          width: width || 'auto', // ✅ Default width if not provided
+        },
         borderColor && { borderWidth: 1, borderColor },
       ]}
       onPress={onPress}
@@ -23,12 +26,11 @@ const CustomButton = ({ text, color, textColor, onPress, icon: Icon, borderColor
 
 const styles = StyleSheet.create({
   button: {
-    // paddingVertical: DimensionConstants.sixteen,
     borderRadius: DimensionConstants.fifty,
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: DimensionConstants.fifteen,
-    height : DimensionConstants.fortyEight
+    height: DimensionConstants.fortyEight,
   },
   content: {
     flexDirection: 'row',
@@ -39,11 +41,10 @@ const styles = StyleSheet.create({
     marginRight: 8, 
   },
   text: {
-    fontSize: 16, // Increase font size
+    fontSize: 16,
     fontWeight: '500',
     textAlign: 'center',
   },
 });
-
 
 export default CustomButton;

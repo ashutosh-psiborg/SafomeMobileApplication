@@ -10,6 +10,7 @@ import CreatePasswordScreen from '../screens/AuthScreens/Register/CreatePassword
 import BioMetricScreen from '../screens/AuthScreens/Register/BioMetricScreen/index';
 import SecurityPinScreen from '../screens/AuthScreens/Register/SecurityPinScreen/index';
 import LoginWithMobileScreen from '../screens/AuthScreens/Login/LoginWithMobileScreen/index';
+import TabNavigator from './TabNavigator';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +21,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="LoginScreen"
         component={LoginScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="MainApp"
+        component={TabNavigator}
       />
       <Stack.Screen
         options={{headerShown: false}}
@@ -51,7 +57,7 @@ const StackNavigator = () => {
         name="SecurityPinScreen"
         component={SecurityPinScreen}
       />
-       <Stack.Screen
+      <Stack.Screen
         options={{headerShown: false}}
         name="LoginWithMobileScreen"
         component={LoginWithMobileScreen}
@@ -66,7 +72,6 @@ const StackNavigator = () => {
         name="WelcomeScreen"
         component={WelcomeScreen}
       />
-
     </Stack.Navigator>
   );
 };

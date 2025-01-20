@@ -23,6 +23,7 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
   const handleChange = value => {
     setCode(value);
   };
+  
   const sendOtpMutation = useMutation({
     mutationFn: async () => {
       return fetcher({

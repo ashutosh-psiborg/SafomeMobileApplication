@@ -1,8 +1,11 @@
-import {View, Text, TextInput, TouchableOpacity} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity,Alert} from 'react-native';
 import React, {useState, useRef} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import {useTranslation} from 'react-i18next';
-import {DimensionConstants} from '../../../../constants/DimensionConstants';
+import {
+  DimensionConstants,
+  width,
+} from '../../../../constants/DimensionConstants';
 import MailIcon from '../../../../assets/icons/MailIcon';
 import CustomButton from '../../../../components/CustomButton';
 import GoogleIcon from '../../../../assets/icons/GoogleIcon';
@@ -10,50 +13,74 @@ import AppleIcon from '../../../../assets/icons/AppleIcon';
 import Spacing from '../../../../components/Spacing';
 import {loginStyles} from '../Styles/LoginStyles';
 import {useSelector} from 'react-redux';
-import {GoogleSignin, statusCodes} from '@react-native-google-signin/google-signin';
 import CustomHeader from '../../../../components/CustomHeader';
 import CustomModal from '../../../../components/CustomModal';
+import {useMutation} from '@tanstack/react-query';
+import fetcher from '../../../../utils/ApiService';
 
 const LoginWithMobileScreen = ({navigation}) => {
   const {t, i18n} = useTranslation();
-  const theme = useSelector(state => state.theme.themes[state.theme.currentTheme]);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [isModalVisible, setModalVisible] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']); // assuming OTP is 4 digits
-
+  const num = parseInt(otp.join(''), 10);
+  console.log(num, '++++');
   const Styles = loginStyles(theme);
 
-  // Create refs for OTP input boxes to manage focus
   const otpRefs = useRef([]);
 
-  const signIn = async () => {
-    try {
-      console.log('Checking Play Services...');
-      await GoogleSignin.hasPlayServices();
-      console.log('Play Services are available.');
-      const response = await GoogleSignin.signIn();
-      console.log('Sign-in successful:', response);
-    } catch (error) {
-      console.error('Google Sign-In Error:', error);
-      if (error.code) {
-        switch (error.code) {
-          case statusCodes.SIGN_IN_CANCELLED:
-            console.error('User cancelled the login flow.');
-            break;
-          case statusCodes.IN_PROGRESS:
-            console.error('Sign-in is already in progress.');
-            break;
-          case statusCodes.PLAY_SERVICES_NOT_AVAILABLE:
-            console.error('Play Services not available or outdated.');
-            break;
-          default:
-            console.error('Other error:', error);
-        }
-      }
-    }
-  };
+  const sendOtpMutation = useMutation({
+    mutationFn: async () => {
+      return fetcher({
+        method: 'POST',
+        url: '/loginWithPhoneNumber',
+        data: {
+          phoneNumber: phoneNumber,
+        },
+      });
+    },
+    onSuccess: data => {
+      console.log('OTP sent successfully:', data);
+    },
+    onError: error => {
+      console.error('Failed to send OTP:', error);
+    },
+  });
+  const verifyOtpMutation = useMutation({
+    mutationFn: async () => {
+      return fetcher({
+        method: 'POST',
+        url: '/loginVerifyOTP',
+        data: { phoneNumber:phoneNumber, otp: num.toString() },
+        noAuth: true, // 🚀 This prevents the token from being sent
+      });
+    },
+    onSuccess: data => {
+      console.log('Phone verification successful:', data);
+      Alert.alert('Success', 'Phone verified successfully!');
+      navigation.navigate('MainApp');
+    },
+    onError: error => {
+      console.error('Phone verification failed:', error);
+      Alert.alert('Error', 'Invalid OTP. Please try again.');
+    },
+  });
+  
 
+  const handleSubmit = () => {
+    sendOtpMutation.mutate();
+    setModalVisible(true);
+  };
+  const handleVerify = () => {
+    if (otp.length < 4) {
+      Alert.alert('Error', 'Please enter a valid 4-digit OTP.');
+      return;
+    }
+    verifyOtpMutation.mutate();
+  };
   const handleOtpChange = (text, index) => {
     const newOtp = [...otp];
     newOtp[index] = text;
@@ -61,20 +88,16 @@ const LoginWithMobileScreen = ({navigation}) => {
 
     if (text.length === 1 && index < otp.length - 1) {
       const nextInput = index + 1;
-      otpRefs.current[nextInput].focus(); 
+      otpRefs.current[nextInput].focus();
     }
     if (text.length === 0 && index > 0) {
       const prevInput = index - 1;
-      otpRefs.current[prevInput].focus(); 
+      otpRefs.current[prevInput].focus();
     }
   };
 
-  const handleEmailChange = text => {
-    setEmail(text);
-  };
-
-  const handlePasswordChange = text => {
-    setPassword(text);
+  const handlePhoneNumber = text => {
+    setPhoneNumber(text);
   };
 
   return (
@@ -94,18 +117,15 @@ const LoginWithMobileScreen = ({navigation}) => {
             <TextInput
               style={{flex: 1}}
               placeholder="Phone number"
-              keyboardType="email-address"
-              value={email}
-              onChangeText={handleEmailChange}
+              keyboardType="phone-pad"
+              value={phoneNumber}
+              onChangeText={handlePhoneNumber}
               autoCapitalize="none"
               placeholderTextColor={theme.placeHolderText}
             />
           </View>
           <Spacing height={DimensionConstants.nine} />
-          <CustomButton
-            text={t('Login')}
-            onPress={() => setModalVisible(true)}
-          />
+          <CustomButton text={t('Login')} onPress={handleSubmit} />
           <Spacing height={DimensionConstants.sixteen} />
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <Text style={Styles.loginWithPhone}>Login with email</Text>
@@ -120,7 +140,6 @@ const LoginWithMobileScreen = ({navigation}) => {
             color={theme.background}
             text={t('Continue with Google')}
             icon={<GoogleIcon />}
-            onPress={signIn}
           />
           <CustomButton
             textColor={theme.blackText}
@@ -147,7 +166,7 @@ const LoginWithMobileScreen = ({navigation}) => {
               {otp.map((digit, index) => (
                 <TextInput
                   key={index}
-                  ref={el => otpRefs.current[index] = el}  
+                  ref={el => (otpRefs.current[index] = el)}
                   style={Styles.otpInput}
                   value={digit}
                   onChangeText={text => handleOtpChange(text, index)}
@@ -157,11 +176,27 @@ const LoginWithMobileScreen = ({navigation}) => {
                 />
               ))}
             </View>
-            <TouchableOpacity
-              style={Styles.submitButton}
-              onPress={() => console.log('Submit OTP:', otp)}>
-              <Text style={Styles.submitText}>Submit OTP</Text>
-            </TouchableOpacity>
+            <Text style={Styles.enterMailText}>
+              OTP not recieved? <Text style={Styles.resetWord}>Resend OTP</Text>
+            </Text>
+          </View>
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <CustomButton
+              width={width / 2.25}
+              textColor={theme.text}
+              borderColor={theme.borderColor}
+              color={theme.background}
+              text={'Cancel'}
+            />
+            <CustomButton
+              width={width / 2.25}
+              text={'Verify'}
+              onPress={handleVerify}
+            />
           </View>
         </CustomModal>
       </View>

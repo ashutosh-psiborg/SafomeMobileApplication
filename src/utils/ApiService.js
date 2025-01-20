@@ -12,22 +12,26 @@ const api = axios.create({
   },
 });
 
-// ✅ Add request interceptor to include token dynamically
+// ✅ Modify request interceptor to exclude token when `noAuth: true`
 api.interceptors.request.use(
   async config => {
     try {
-      const token = await AsyncStorage.getItem('authToken'); // Retrieve token
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`; // Set Authorization header
+      if (!config.noAuth) {  // <-- Skip Authorization header when `noAuth` is true
+        const token = await AsyncStorage.getItem('authToken');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
     } catch (error) {
       console.error('Error retrieving token:', error);
     }
+
     console.log(`Outgoing request to ${config.url}`, {
       method: config.method,
       headers: config.headers,
       data: config.data,
     });
+    
     return config;
   },
   error => {
@@ -36,12 +40,13 @@ api.interceptors.request.use(
   },
 );
 
-// ✅ Add response interceptor to store token when registering or logging in
 api.interceptors.response.use(
   async response => {
+    // ✅ Automatically store token when logging in or verifying OTP
     if (
       response.config.url.includes('/register') ||
-      response.config.url.includes('/login')
+      response.config.url.includes('/login') ||
+      response.config.url.includes('/loginVerifyOTP') // <-- Added this
     ) {
       const token = response.data?.token;
       if (token) {
@@ -53,10 +58,12 @@ api.interceptors.response.use(
         }
       }
     }
+
     console.log(`Response from ${response.config.url}`, {
       status: response.status,
       data: response.data,
     });
+
     return response;
   },
   error => {
@@ -68,12 +75,15 @@ api.interceptors.response.use(
   },
 );
 
-const fetcher = async ({method, url, data, params}) => {
+
+// ✅ Modify fetcher to accept `noAuth`
+const fetcher = async ({ method, url, data, params, noAuth = false }) => {
   const response = await api({
     method,
     url,
     data,
     params,
+    noAuth,  // Pass `noAuth` to the interceptor
   });
   return response.data;
 };

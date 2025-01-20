@@ -36,7 +36,6 @@ const RegisterScreen = ({navigation}) => {
     onSuccess: async data => {
       console.log('Registration successful:', data);
 
-      // ✅ Extract and store the token
       if (data?.token) {
         try {
           await AsyncStorage.setItem('authToken', data.token);

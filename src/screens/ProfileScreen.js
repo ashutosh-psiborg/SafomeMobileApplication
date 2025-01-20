@@ -1,13 +1,11 @@
 import React from 'react';
 import {View, Text, StyleSheet, Switch} from 'react-native';
-import {useTheme} from '../theme/ThemeContext';
 
 const ProfileScreen = () => {
-  const {theme} = useTheme();
 
   return (
-    <View style={[styles.container, {backgroundColor: theme.background}]}>
-      <Text style={{color: theme.text}}>Hi Ashutosh</Text>
+    <View style={styles.container}>
+      <Text style={{color: 'black'}}>Hi Ashutosh</Text>
     </View>
   );
 };

@@ -1,14 +1,11 @@
-import { View, Text ,StyleSheet,Switch} from 'react-native'
-import React from 'react'
-import LanguagePicker from '../components/LanguagePicker';
-import { useTheme } from '../theme/ThemeContext';
+import {View, Text, StyleSheet, Switch} from 'react-native';
+import React from 'react';
 const SettingsScreen = () => {
-  const { theme, toggleTheme, isDarkTheme } = useTheme();
-
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}> 
-      <LanguagePicker />
-      <Switch value={isDarkTheme} onValueChange={toggleTheme} />
+    <View style={styles.container}>
+      {/* <LanguagePicker />
+      <Switch value={isDarkTheme} onValueChange={toggleTheme} /> */}
+      <Text>SettingsScreen</Text>
     </View>
   );
 };
@@ -25,5 +22,4 @@ const styles = StyleSheet.create({
   },
 });
 
-
-export default SettingsScreen
+export default SettingsScreen;

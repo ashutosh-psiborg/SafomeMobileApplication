@@ -1,7 +1,6 @@
-import {View, Text, TextInput, TouchableOpacity} from 'react-native';
+import {View, Text, TextInput, TouchableOpacity, Alert} from 'react-native';
 import React, {useState} from 'react';
 import MainBackground from '../../../components/MainBackground';
-import BackIcon from '../../../assets/icons/BackIcon';
 import {useTranslation} from 'react-i18next';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
 import MailIcon from '../../../assets/icons/MailIcon';
@@ -11,12 +10,15 @@ import GoogleIcon from '../../../assets/icons/GoogleIcon';
 import AppleIcon from '../../../assets/icons/AppleIcon';
 import Spacing from '../../../components/Spacing';
 import {loginStyles} from './Styles/LoginStyles';
+import {useMutation} from '@tanstack/react-query';
+import fetcher from '../../../utils/ApiService';
 import {useSelector} from 'react-redux';
 import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import CustomHeader from '../../../components/CustomHeader';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({navigation}) => {
   const {t} = useTranslation();
@@ -65,6 +67,31 @@ const LoginScreen = ({navigation}) => {
   const handlePasswordChange = text => {
     setPassword(text);
   };
+  const mutation = useMutation({
+    mutationFn: async data => {
+      return fetcher({
+        method: 'POST',
+        url: '/login',
+        data,
+      });
+    },
+    onSuccess: async data => {
+      console.log(' login successful:', data);
+      Alert.alert('Success', 'Account login successfully!');
+      navigation.navigate('MainApp');
+    },
+    onError: error => {
+      console.error('login error:', error);
+      Alert.alert('Error', 'Failed to login. Please try again.');
+    },
+  });
+  const handleSubmit = () => {
+    const payload = {
+      email: email,
+      password: password,
+    };
+    mutation.mutate(payload);
+  };
   return (
     <MainBackground>
       <CustomHeader title={t('Welcome')} />
@@ -100,7 +127,7 @@ const LoginScreen = ({navigation}) => {
         I don’t remember password? <Text style={Styles.resetWord}>Reset</Text>
       </Text>
       <Spacing height={DimensionConstants.nine} />
-      <CustomButton text={t('Login')} />
+      <CustomButton text={t('Login')} onPress={handleSubmit} />
       <Spacing height={DimensionConstants.sixteen} />
       <TouchableOpacity
         onPress={() => navigation.navigate('LoginWithMobileScreen')}>
