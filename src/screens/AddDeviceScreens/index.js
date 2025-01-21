@@ -13,7 +13,7 @@ import CustomModal from '../../components/CustomModal';
 import {AddDeviceStyles} from './Styles/AddDeviceStyles';
 import GlobeIcon from '../../assets/icons/GlobeIcon';
 
-const AddDeviceScreen = () => {
+const AddDeviceScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [inputModalVisible, setInputModalVisible] = useState(false);
   const [deviceName, setDeviceName] = useState('');
@@ -134,7 +134,11 @@ const AddDeviceScreen = () => {
                 borderColor={theme.otpBox}
                 textColor={theme.text}
               />
-              <CustomButton text={t('Add')} width={'48%'} />
+              <CustomButton
+                text={t('Add')}
+                width={'48%'}
+                onPress={() => navigation.navigate('PairNewDeviceScreen')}
+              />
             </View>
           </View>
         </CustomModal>

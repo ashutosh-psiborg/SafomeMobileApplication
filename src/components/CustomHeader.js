@@ -3,9 +3,20 @@ import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import BackIcon from '../assets/icons/BackIcon';
 import {DimensionConstants} from '../constants/DimensionConstants';
 
-const CustomHeader = ({title, navigation, backPress, skip, onSkipPress}) => {
+const CustomHeader = ({
+  title,
+  navigation,
+  backPress,
+  skip,
+  onSkipPress,
+  backgroundColor, // New prop for background color
+}) => {
   return (
-    <View style={styles.header}>
+    <View
+      style={[
+        styles.header,
+        {backgroundColor: backgroundColor || 'transparent'}, // Use passed backgroundColor or default to transparent
+      ]}>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <TouchableOpacity onPress={backPress}>
           <BackIcon />
@@ -25,8 +36,9 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginLeft: DimensionConstants.fifteen,
-    marginTop: DimensionConstants.fourteen,
+    paddingLeft: DimensionConstants.fifteen,
+    paddingTop: DimensionConstants.fourteen,
+    paddingBottom: DimensionConstants.nine,
     justifyContent: 'space-between',
   },
   headerText: {

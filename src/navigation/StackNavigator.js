@@ -12,6 +12,7 @@ import SecurityPinScreen from '../screens/AuthScreens/Register/SecurityPinScreen
 import LoginWithMobileScreen from '../screens/AuthScreens/Login/LoginWithMobileScreen/index';
 import TabNavigator from './TabNavigator';
 import AddDeviceScreen from '../screens/AddDeviceScreens/index';
+import PairNewDeviceScreen from '../screens/AddDeviceScreens/PairNewDeviceScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -67,6 +68,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="AddDeviceScreen"
         component={AddDeviceScreen}
+      />
+       <Stack.Screen
+        options={{headerShown: false}}
+        name="PairNewDeviceScreen"
+        component={PairNewDeviceScreen}
       />
       <Stack.Screen
         options={{headerShown: false}}
