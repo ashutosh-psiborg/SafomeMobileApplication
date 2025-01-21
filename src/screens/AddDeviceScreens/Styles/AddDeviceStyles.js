@@ -10,6 +10,19 @@ export const AddDeviceStyles = theme =>
       height: height,
       width: width,
       position: 'absolute',
+    }, textInput: {
+      borderWidth: 1,
+      borderColor: theme.borderColor,
+      alignItems: 'center',
+      borderRadius: DimensionConstants.thirty,
+      paddingHorizontal: DimensionConstants.sixteen,
+      height: DimensionConstants.fortyEight,
+      marginTop: DimensionConstants.twenty,
+      fontSize: DimensionConstants.fourteen,
+      flexDirection: 'row',
+    },
+    inputField: {
+      marginLeft: DimensionConstants.ten,
     },
     container: {
       padding: DimensionConstants.sixteen,
