@@ -1,18 +1,19 @@
 import React from 'react';
-import {Modal, View, StyleSheet, TouchableWithoutFeedback} from 'react-native';
-import {height} from '../constants/DimensionConstants';
+import { Modal, View, StyleSheet, TouchableWithoutFeedback } from 'react-native';
+import { height as screenHeight } from '../constants/DimensionConstants';
 
-const CustomModal = ({isVisible, onClose, children}) => {
+const CustomModal = ({ isVisible, onClose, children, modalHeight }) => {
   return (
     <Modal
       animationType="slide"
       transparent={true}
       visible={isVisible}
-      onRequestClose={onClose}>
+      onRequestClose={onClose}
+    >
       <TouchableWithoutFeedback onPress={onClose}>
         <View style={styles.overlay}>
           <TouchableWithoutFeedback>
-            <View style={styles.modalContent}>
+            <View style={[styles.modalContent, { height: modalHeight || screenHeight * 0.35 }]}>
               <View style={styles.bar}></View>
               {children}
             </View>
@@ -30,13 +31,12 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-end',
   },
   modalContent: {
-    height: height * 0.35,
     backgroundColor: 'white',
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 16,
     shadowColor: '#000',
-    shadowOffset: {width: 0, height: -2},
+    shadowOffset: { width: 0, height: -2 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
@@ -46,6 +46,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     height: 2,
     width: 48,
+    marginBottom: 8,
   },
 });
 

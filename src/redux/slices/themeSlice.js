@@ -6,7 +6,7 @@ const initialState = {
     light: {
       background: '#ffffff',
       text: '#000000',
-      primary: '#005BBB',
+      primary: '#0279E1',
       secondary: '#323A51',
       lightText: 'rgba(0, 0, 0, 0.4)',
       textInputColor: 'rgba(107, 115, 122, 1)',
@@ -17,6 +17,7 @@ const initialState = {
       otpBox: "#F2F7FC",
       grey: '#889CA3',
       darkBorderColor: '#6B737A',
+      midBorderColor : 'rgba(107, 115, 122, 0.2)'
     },
     dark: {
       background: '#000000',

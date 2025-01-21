@@ -1,14 +1,18 @@
 import React from 'react';
 import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import { DimensionConstants } from '../constants/DimensionConstants';
+import {useSelector} from 'react-redux';
 
 const CustomButton = ({ text, color, textColor, onPress, icon: Icon, borderColor, width }) => {
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
   return (
     <TouchableOpacity
       style={[
         styles.button,
         { 
-          backgroundColor: color || '#005BBB',
+          backgroundColor: color || theme.primary,
           width: width || 'auto', // ✅ Default width if not provided
         },
         borderColor && { borderWidth: 1, borderColor },
