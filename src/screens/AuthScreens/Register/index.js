@@ -15,7 +15,6 @@ import fetcher from '../../../utils/ApiService';
 import {validationSchema} from '../../../utils/Validations';
 import Spacing from '../../../components/Spacing';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
-// Define validation schema
 
 const RegisterScreen = ({navigation}) => {
   const theme = useSelector(
@@ -61,8 +60,8 @@ const RegisterScreen = ({navigation}) => {
 
   const handleSubmit = async () => {
     try {
-      await validationSchema.validate(userData, {abortEarly: false});
-      console.log('Submitting form data:', userData);
+      console.log("++++++++++++=")
+    //  await validationSchema.validate(userData, {abortEarly: false});
       mutation.mutate(userData);
     } catch (error) {
       let newErrors = {};

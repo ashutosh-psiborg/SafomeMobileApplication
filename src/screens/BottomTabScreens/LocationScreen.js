@@ -1,11 +1,11 @@
 import React from 'react';
 import {View, Text, StyleSheet, Switch} from 'react-native';
 
-const ProfileScreen = () => {
+const LocationScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={{color: 'black'}}>Hi Ashutosh</Text>
+      <Text style={{color: 'black'}}>this is location screen</Text>
     </View>
   );
 };
@@ -22,4 +22,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ProfileScreen;
+export default LocationScreen;

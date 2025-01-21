@@ -1,6 +1,5 @@
 import {View, Text, TextInput, TouchableOpacity, Alert} from 'react-native';
 import React, {useState} from 'react';
-import * as Yup from 'yup';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {useTranslation} from 'react-i18next';
@@ -12,7 +11,7 @@ import GlobeIcon from '../../../../assets/icons/GlobeIcon';
 import {VerifyMailOtpStyles} from '../VerifyMailOtpScreen/Styles/VerifyMailOtpStyles';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
-
+import {validationSchema} from '../../../../utils/Validations';
 const CreatePasswordScreen = ({route, navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -20,30 +19,10 @@ const CreatePasswordScreen = ({route, navigation}) => {
   const {t} = useTranslation();
   const styles = VerifyMailOtpStyles(theme);
 
-  // State management
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
 
-  // Password validation schema using Yup
-  const validationSchema = Yup.object().shape({
-    password: Yup.string()
-      .required('Password is required')
-      .min(8, 'Password must be at least 8 characters long')
-      .matches(/[A-Z]/, 'Password must contain at least one uppercase letter')
-      .matches(/[a-z]/, 'Password must contain at least one lowercase letter')
-      .matches(/[0-9]/, 'Password must contain at least one number')
-      .matches(
-        /[@$!%*?&]/,
-        'Password must contain at least one special character (@, $, !, %, *, ?, &)',
-      ),
-
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref('password'), null], 'Passwords must match')
-      .required('Confirm Password is required'),
-  });
-
-  // React Query mutation for API call
   const mutation = useMutation({
     mutationFn: async newPassword => {
       return fetcher({
@@ -65,17 +44,15 @@ const CreatePasswordScreen = ({route, navigation}) => {
 
   const handleCreatePassword = async () => {
     try {
-      // Validate inputs
+      console.log("+++____")
       await validationSchema.validate(
         {password, confirmPassword},
         {abortEarly: false},
       );
-      setErrors({}); // Clear previous errors
+      setErrors({});
 
-      // Proceed with API call if validation passes
       mutation.mutate(password);
     } catch (validationError) {
-      // Handle validation errors
       const newErrors = {};
       validationError.inner.forEach(err => {
         newErrors[err.path] = err.message;

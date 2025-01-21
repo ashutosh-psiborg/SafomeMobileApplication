@@ -1,4 +1,4 @@
-import {View, Text, Image, TextInput} from 'react-native';
+import {View, Text, Image, TextInput, Alert} from 'react-native';
 import React, {useState} from 'react';
 import MainBackground from '../../components/MainBackground';
 import {ImageConstants} from '../../constants/ImageConstants';
@@ -12,7 +12,8 @@ import {useSelector} from 'react-redux';
 import CustomModal from '../../components/CustomModal';
 import {AddDeviceStyles} from './Styles/AddDeviceStyles';
 import GlobeIcon from '../../assets/icons/GlobeIcon';
-
+import {useMutation} from '@tanstack/react-query';
+import fetcher from '../../utils/ApiService';
 const AddDeviceScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [inputModalVisible, setInputModalVisible] = useState(false);
@@ -24,7 +25,30 @@ const AddDeviceScreen = ({navigation}) => {
   );
   const {t} = useTranslation();
   const styles = AddDeviceStyles(theme);
-
+  const mutation = useMutation({
+    mutationFn: async data => {
+      return fetcher({
+        method: 'POST',
+        url: '/devices/addDevices',
+        data: {deviceName: deviceName, macId: macAddress},
+      });
+    },
+    onSuccess: async data => {
+      console.log('Device Added successfully', data);
+      Alert.alert('Success', 'Device Added successfully');
+      navigation.navigate('MainApp');
+    },
+    onError: error => {
+      const errorMessage = error?.response?.data?.message || 'Unknown error';
+      console.log('=====', errorMessage);
+      console.error('error:', error);
+      Alert.alert(
+        'Error',
+        'Failed to register. Please try again.',
+        errorMessage,
+      );
+    },
+  });
   return (
     <MainBackground noPadding>
       <Image
@@ -34,7 +58,10 @@ const AddDeviceScreen = ({navigation}) => {
 
       <View style={styles.container}>
         <View>
-          <CustomHeader skip />
+          <CustomHeader
+            skip
+            onSkipPress={() => navigation.navigate('MainApp')}
+          />
           <Spacing height={DimensionConstants.twentyEight} />
           <Text style={styles.title}>Add device</Text>
           <Text style={styles.title}>details</Text>
@@ -137,7 +164,7 @@ const AddDeviceScreen = ({navigation}) => {
               <CustomButton
                 text={t('Add')}
                 width={'48%'}
-                onPress={() => navigation.navigate('PairNewDeviceScreen')}
+                onPress={() => mutation.mutate()}
               />
             </View>
           </View>

@@ -10,7 +10,10 @@ import Spacing from '../../../components/Spacing';
 const PairNewDeviceScreen = ({navigation}) => {
   return (
     <MainBackground style={{backgroundColor: '#F2F7FC'}} noPadding>
-      <CustomHeader title={'Pair new device'} backgroundColor={'#Ffffff'} />
+      <CustomHeader
+        title={'Pair new device'}
+        backgroundColor={'#Ffffff'}
+      />
       <Spacing height={DimensionConstants.oneHundred} />
       <View
         style={{
