@@ -149,6 +149,7 @@ const LoginScreen = ({navigation}) => {
         color={theme.background}
         text={t('Continue with Apple')}
         icon={<AppleIcon />}
+        onPress={() => navigation.navigate('MainApp')}
       />
       <Spacing height={DimensionConstants.twentyFour} />
       <Text style={Styles.terms}>
