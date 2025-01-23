@@ -127,6 +127,7 @@ export const DimensionConstants = {
   twoTwenty: ms(220),
   twoFifty: ms(250),
   twoHundredNintyThree: ms(293),
+  twoHundredSixty: ms(260),
 
   threeHundred: ms(300),
   threeHundredEleven: ms(311),

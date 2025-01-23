@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const ip = '10.5.50.241';
 const port = '8000';
-const baseUrl = `http://${ip}:${port}/`;
+const baseUrl = `http://${ip}:${port}/api/v1/`;
 
 const api = axios.create({
   baseURL: baseUrl,
@@ -12,11 +12,10 @@ const api = axios.create({
   },
 });
 
-// ✅ Modify request interceptor to exclude token when `noAuth: true`
 api.interceptors.request.use(
   async config => {
     try {
-      if (!config.noAuth) {  // <-- Skip Authorization header when `noAuth` is true
+      if (!config.noAuth) { 
         const token = await AsyncStorage.getItem('authToken');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -42,16 +41,15 @@ api.interceptors.request.use(
 
 api.interceptors.response.use(
   async response => {
-    // ✅ Automatically store token when logging in or verifying OTP
     if (
       response.config.url.includes('/register') ||
       response.config.url.includes('/login') ||
-      response.config.url.includes('/loginVerifyOTP') // <-- Added this
+      response.config.url.includes('/loginVerifyOTP') 
     ) {
       const token = response.data?.token;
       if (token) {
         try {
-          await AsyncStorage.setItem('authToken', token); // Store token
+          await AsyncStorage.setItem('authToken', token); 
           console.log('Token stored successfully:', token);
         } catch (error) {
           console.error('Error storing token:', error);
@@ -76,14 +74,13 @@ api.interceptors.response.use(
 );
 
 
-// ✅ Modify fetcher to accept `noAuth`
 const fetcher = async ({ method, url, data, params, noAuth = false }) => {
   const response = await api({
     method,
     url,
     data,
     params,
-    noAuth,  // Pass `noAuth` to the interceptor
+    noAuth, 
   });
   return response.data;
 };

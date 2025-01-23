@@ -1,17 +1,14 @@
-import {View, Text, StyleSheet} from 'react-native';
-import React from 'react';
-import { useTranslation } from 'react-i18next';
+import { View, Text } from 'react-native'
+import React from 'react'
+import CardStack from '../../components/CardStack'
 
 const DevicesScreen = () => {
-  const {t, i18n} = useTranslation();
   return (
     <View>
-      <Text style={{color:'black'}}>
-       this is devices screen
-      </Text>
+      <Text>DevicesScreen</Text>
+      <CardStack/>
     </View>
-  );
-};
+  )
+}
 
-
-export default DevicesScreen;
+export default DevicesScreen
