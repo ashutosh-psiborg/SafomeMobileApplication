@@ -1,7 +1,15 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import Geolocation from '@react-native-community/geolocation';
 import Geocoder from 'react-native-geocoding';
-import {View, Text, StyleSheet, ScrollView, Image} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Animated,
+} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {DimensionConstants, height} from '../../constants/DimensionConstants';
 import SafomeLogo from '../../assets/icons/SafomeLogo';
@@ -16,10 +24,24 @@ import {useSelector} from 'react-redux';
 import {ImageConstants} from '../../constants/ImageConstants';
 import PhoneIcon from '../../assets/icons/PhoneIcon';
 import CallIcon from '../../assets/icons/CallIcon';
+import CardStack from '../../components/CardStack';
+import RightArrowIcon from '../../assets/icons/RightArrowIcon';
 
 Geocoder.init('AIzaSyBrsCdS1KEJ9QDOgnl5gwnemCuLJDKzp9Y');
-const data = [{id: 1}, {id: 2}, {id: 3}, {id: 4, line: 'no'}];
 const HomeScreen = () => {
+  const [expanded, setExpanded] = useState(false);
+  const animation = useRef(new Animated.Value(0)).current;
+  const toggleCards = () => {
+    Animated.timing(animation, {
+      toValue: expanded ? 0 : 1,
+      duration: 400,
+      useNativeDriver: false,
+    }).start();
+    setExpanded(!expanded);
+  };
+
+  const data = [{id: 1}, {id: 2}, {id: 3}, {id: 4, line: 'no'}];
+
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -44,7 +66,7 @@ const HomeScreen = () => {
         console.log('Error getting location:', error);
         setErrorMsg(error.message);
       },
-      {enableHighAccuracy: true, timeout: 60000, maximumAge: 1000},
+      {enableHighAccuracy: true, timeout: 200000, maximumAge: 1000},
     );
   }, []);
 
@@ -81,7 +103,7 @@ const HomeScreen = () => {
         <Text style={styles.statisticsTitle}>Statistics</Text>
 
         <View style={styles.cardsContainer}>
-          <CustomCard style={{width: DimensionConstants.oneHundredFortyFive}}>
+          <CustomCard style={{width: '48%'}}>
             <View>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <RevenueIcon />
@@ -96,7 +118,7 @@ const HomeScreen = () => {
                       },
                     ],
                   }}
-                  width={280}
+                  width={320}
                   height={40}
                   chartConfig={{
                     backgroundColor: 'white',
@@ -222,9 +244,125 @@ const HomeScreen = () => {
         <Spacing height={DimensionConstants.twentyFour} />
         <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <Text style={styles.statisticsTitle}>Recent Notifications</Text>
-          <Text style={{color: '#808080', fontSize: 12, fontWeight: '500'}}>
-            View all
-          </Text>
+          <TouchableOpacity onPress={toggleCards}>
+            <Text style={{color: '#808080', fontSize: 12, fontWeight: '500'}}>
+              View all
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <CardStack
+          expanded={expanded}
+          animation={animation}
+          toggleCards={toggleCards}
+        />
+        <Spacing height={DimensionConstants.twentyFour} />
+
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <Text style={styles.statisticsTitle}>My contacts</Text>
+          <TouchableOpacity onPress={toggleCards}>
+            <Text style={{color: '#808080', fontSize: 12, fontWeight: '500'}}>
+              View all
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <Spacing height={DimensionConstants.ten} />
+
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          <CustomCard
+            style={{
+              width: '48%',
+              backgroundColor: theme.primary,
+            }}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <Image source={ImageConstants.avatar} style={styles.imageOne} />
+              <Image source={ImageConstants.avatar2} style={styles.imageTwo} />
+              <Image source={ImageConstants.avatar3} style={styles.imageTwo} />
+              <Text
+                style={{
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  fontSize: DimensionConstants.fourteen,
+                  fontWeight: '500',
+                  marginLeft: DimensionConstants.ten,
+                }}>
+                +57
+              </Text>
+            </View>
+            <Spacing height={DimensionConstants.ten} />
+            <Text
+              style={{
+                color: theme.background,
+                fontSize: DimensionConstants.fourteen,
+                fontWeight: '500',
+              }}>
+              Family
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+              <Text
+                style={{
+                  color: theme.background,
+                  fontSize: DimensionConstants.twentyEight,
+                  fontWeight: '500',
+                }}>
+                60
+              </Text>
+              <RightArrowIcon />
+            </View>
+          </CustomCard>
+          <CustomCard
+            style={{
+              width: '48%',
+              backgroundColor: '#FE605D',
+            }}>
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <Image source={ImageConstants.avatar} style={styles.imageOne} />
+              <Image source={ImageConstants.avatar2} style={styles.imageTwo} />
+              <Image source={ImageConstants.avatar3} style={styles.imageTwo} />
+              <Text
+                style={{
+                  color: 'rgba(255, 255, 255, 0.7)',
+                  fontSize: DimensionConstants.fourteen,
+                  fontWeight: '500',
+                  marginLeft: DimensionConstants.ten,
+                }}>
+                +52
+              </Text>
+            </View>
+            <Spacing height={DimensionConstants.ten} />
+
+            <Text
+              style={{
+                color: theme.background,
+                fontSize: DimensionConstants.fourteen,
+                fontWeight: '500',
+              }}>
+              Friends
+            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}>
+              <Text
+                style={{
+                  color: theme.background,
+                  fontSize: DimensionConstants.twentyEight,
+                  fontWeight: '500',
+                }}>
+                55
+              </Text>
+              <RightArrowIcon />
+            </View>
+          </CustomCard>
         </View>
       </ScrollView>
     </MainBackground>
@@ -289,5 +427,20 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '500',
     marginTop: 5,
+  },
+  imageTwo: {
+    height: DimensionConstants.thirtyTwo,
+    width: DimensionConstants.thirtyTwo,
+    marginLeft: -DimensionConstants.fifteen,
+    borderColor: 'white',
+    borderWidth: 1,
+    borderRadius: 50,
+  },
+  imageOne: {
+    height: DimensionConstants.thirtyTwo,
+    width: DimensionConstants.thirtyTwo,
+    borderColor: 'white',
+    borderWidth: 1,
+    borderRadius: 50,
   },
 });

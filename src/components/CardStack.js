@@ -1,92 +1,96 @@
-import React, {useRef, useState} from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  Animated,
-  StyleSheet,
-  Dimensions,
-} from 'react-native';
+import React from 'react';
+import {View, Text, TouchableOpacity, Animated, StyleSheet} from 'react-native';
+import BlueBellIcon from '../assets/icons/BlueBellIcon';
+import RightArrowIcon from '../assets/icons/RightArrowIcon';
 import {width, DimensionConstants} from '../constants/DimensionConstants';
 
 const cardData = [
-  {id: 1, text: 'Card 1', color: '#FCE285'}, // Yellow
-  {id: 2, text: 'Card 2', color: '#BCE7F0'}, // Light Blue
-  {id: 3, text: 'Card 3', color: '#45A0FF'}, // Blue (Fully Visible)
+  {
+    id: 1,
+    text: 'Low Battery',
+    description: '20 % Battery is left, Charge ...',
+    color: '#FCE285',
+  },
+  {
+    id: 2,
+    text: 'Out from geofence',
+    description: '20 % Battery is left, Charge ...',
+    color: '#BCE7F0',
+  },
+  {
+    id: 3,
+    text: 'Out from geofence',
+    description: '20 % Battery is left, Charge ...',
+    color: '#45A0FF',
+  },
 ];
 
-const CardStack = () => {
-  const [expanded, setExpanded] = useState(false);
-  const animation = useRef(new Animated.Value(0)).current;
-
-  const toggleCards = () => {
-    Animated.timing(animation, {
-      toValue: expanded ? 0 : 1,
-      duration: 500,
-      useNativeDriver: false,
-    }).start();
-    setExpanded(!expanded);
-  };
+const CardStack = ({expanded, animation, toggleCards}) => {
+  const containerHeight = animation.interpolate({
+    inputRange: [0, 1],
+    outputRange: [110, cardData.length * 120], // Adjusted height based on state
+  });
 
   return (
     <View style={styles.container}>
-      <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-        <Text
-          style={{
-            fontWeight: '700',
-            fontSize: DimensionConstants.fourteen,
-          }}>
-          Recent Notifications
-        </Text>
+      <Animated.View style={{height: containerHeight}} />
 
-        <TouchableOpacity onPress = {toggleCards}>
-          <Text style={{color: '#808080', fontSize: 12, fontWeight: '500'}}>
-            View all
-          </Text>
-        </TouchableOpacity>
+      <View style={styles.cardStack}>
+        {cardData.map((item, index) => {
+          const topPosition = animation.interpolate({
+            inputRange: [0, 1],
+            outputRange: [
+              index === cardData.length - 1
+                ? 0
+                : (cardData.length - index - 1) * -10,
+              index * 120,
+            ],
+          });
+
+          const widthSize = animation.interpolate({
+            inputRange: [0, 1],
+            outputRange: [
+              index === cardData.length - 1
+                ? width * 0.9
+                : width * 0.9 - (cardData.length - index - 1) * 20,
+              width * 0.9,
+            ],
+          });
+
+          return (
+            <Animated.View
+              key={item.id}
+              style={[
+                styles.card,
+                {
+                  top: topPosition,
+                  width: widthSize,
+                  zIndex: item.id,
+                  backgroundColor: item.color,
+                },
+              ]}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}>
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <BlueBellIcon />
+                  <View style={{paddingLeft: 15}}>
+                    <Text style={styles.cardText}>{item.text}</Text>
+                    <Text style={styles.cardDescription}>
+                      {item.description}
+                    </Text>
+                    <Text style={styles.cardTime}>9:45 am</Text>
+                  </View>
+                </View>
+                <RightArrowIcon />
+              </View>
+            </Animated.View>
+          );
+        })}
       </View>
-      {cardData.map((item, index) => {
-        const topPosition = animation.interpolate({
-          inputRange: [0, 1],
-          outputRange: [
-            index === cardData.length - 1
-              ? 0
-              : (cardData.length - index - 1) * -10, // Only 10px of each card visible
-            index * 120, // Expand to normal list
-          ],
-        });
-
-        const widthSize = animation.interpolate({
-          inputRange: [0, 1],
-          outputRange: [
-            index === cardData.length - 1
-              ? width * 0.8
-              : width * 0.8 - (cardData.length - index - 1) * 20, // Last card takes 80%, others decrease in size
-            width * 0.8, // All cards will have same width (80%) when expanded
-          ],
-        });
-
-        return (
-          <Animated.View
-            key={item.id}
-            style={[
-              styles.card,
-              {
-                top: topPosition,
-                width: widthSize,
-                zIndex: item.id, // Ensuring last card is on top
-                backgroundColor: item.color,
-              },
-            ]}>
-            <Text style={styles.cardText}>{item.text}</Text>
-          </Animated.View>
-        );
-      })}
-      {/* <TouchableOpacity style={styles.button} onPress={toggleCards}>
-        <Text style={styles.buttonText}>
-          {expanded ? 'Stack Cards' : 'Expand Cards'}
-        </Text>
-      </TouchableOpacity> */}
     </View>
   );
 };
@@ -94,15 +98,34 @@ const CardStack = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 50,
+    marginTop: DimensionConstants.twentyFive,
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: DimensionConstants.twenty,
+  },
+  title: {
+    fontWeight: '700',
+    fontSize: DimensionConstants.fourteen,
+  },
+  viewAll: {
+    color: '#808080',
+    fontSize: DimensionConstants.twelve,
+    fontWeight: '500',
+  },
+  cardStack: {
+    position: 'absolute',
+    alignItems: 'center',
   },
   card: {
     position: 'absolute',
-    height: 100,
-    justifyContent: 'center',
-    alignItems: 'center',
+    height: DimensionConstants.oneHundred,
+    // justifyContent: 'center',
+    // alignItems: 'center',
+    padding: DimensionConstants.fifteen,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOpacity: 0.2,
@@ -110,18 +133,21 @@ const styles = StyleSheet.create({
   },
   cardText: {
     color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: 14,
+    fontWeight: '600',
+    lineHeight: 22,
   },
-  button: {
-    marginTop: 250,
-    padding: 10,
-    backgroundColor: '#e74c3c',
-    borderRadius: 5,
+  cardDescription: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 13,
+    fontWeight: '500',
+    lineHeight: 22,
   },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
+  cardTime: {
+    color: 'rgba(255, 255, 255, 0.8)',
+    fontSize: 12,
+    fontWeight: '400',
+    marginTop: 10,
   },
 });
 
