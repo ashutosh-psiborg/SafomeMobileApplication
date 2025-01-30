@@ -1,6 +1,6 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import HomeScreen from '../screens/BottomTabScreens/HomeScreen';
+import HomeScreen from '../screens/BottomTabScreens/HomeScreen/HomeScreen';
 import SettingsScreen from '../screens/BottomTabScreens/SettingsScreen';
 import HomeIcon from '../assets/icons/HomeIcon';
 import SettingsIcon from '../assets/icons/SettingsIcon';

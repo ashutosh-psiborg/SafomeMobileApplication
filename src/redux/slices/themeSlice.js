@@ -16,6 +16,7 @@ const initialState = {
       blackText: '#000000',
       otpBox: "#F2F7FC",
       grey: '#889CA3',
+      darkGrey : "#8B8B8B",
       darkBorderColor: '#6B737A',
       midBorderColor : 'rgba(107, 115, 122, 0.2)'
     },

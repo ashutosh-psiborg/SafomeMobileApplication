@@ -18,7 +18,6 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import CustomHeader from '../../../components/CustomHeader';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginScreen = ({navigation}) => {
   const {t} = useTranslation();
