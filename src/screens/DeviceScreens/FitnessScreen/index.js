@@ -55,7 +55,10 @@ const FitnessScreen = () => {
   ];
   return (
     <MainBackground style={styles.mainBackground} noPadding>
-      <CustomHeader title={'Fitness & Health'} backgroundColor={'#fff'} />
+      <CustomHeader
+        title={'Fitness & Health'}
+        backgroundColor={theme.background}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <View style={styles.filterContainer}>
@@ -76,7 +79,9 @@ const FitnessScreen = () => {
                 </Text>
               </TouchableOpacity>
             ))}
-            <EditIcon />
+            <TouchableOpacity>
+              <EditIcon />
+            </TouchableOpacity>
             <Spacing width={DimensionConstants.three} />
           </View>
           <Spacing height={DimensionConstants.twentyFour} />
@@ -92,7 +97,7 @@ const FitnessScreen = () => {
                 activeStrokeColor={'#FF310C'}
                 activeStrokeWidth={DimensionConstants.twenty}
                 inActiveStrokeWidth={DimensionConstants.twenty}
-                inActiveStrokeColor={'#F2F7FC'}
+                inActiveStrokeColor={theme.otpBox}
                 showProgressValue={false}
               />
               <View style={styles.stepsTextContainer}>
@@ -104,18 +109,18 @@ const FitnessScreen = () => {
 
             <CustomCard style={styles.statisticsCard}>
               <View style={styles.statisticsContainer}>
-                {data.map(item => (
+                {data?.map(item => (
                   <View style={styles.statisticsItem} key={item.id}>
                     <View>
                       {item?.component}
                       <Text style={styles.statisticsLabel}>{item.label}</Text>
                       <Text style={styles.statisticsValue}>{item.value}</Text>
                       <Text style={styles.statisticsMaxValue}>
-                        {item.maxValue}
+                        {item?.maxValue}
                       </Text>
                     </View>
                     <Spacing width={DimensionConstants.twenty} />
-                    {item.line !== 'no' && <View style={styles.divider} />}
+                    {item?.line !== 'no' && <View style={styles.divider} />}
                   </View>
                 ))}
               </View>
