@@ -36,8 +36,8 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingLeft: DimensionConstants.fifteen,
-    paddingTop: DimensionConstants.fourteen,
+    paddingLeft: DimensionConstants.thirty,
+    paddingTop: DimensionConstants.twenty,
     paddingBottom: DimensionConstants.nine,
     justifyContent: 'space-between',
   },

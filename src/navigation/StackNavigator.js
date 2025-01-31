@@ -13,6 +13,7 @@ import LoginWithMobileScreen from '../screens/AuthScreens/Login/LoginWithMobileS
 import TabNavigator from './TabNavigator';
 import AddDeviceScreen from '../screens/AddDeviceScreens/index';
 import PairNewDeviceScreen from '../screens/AddDeviceScreens/PairNewDeviceScreen/index';
+import FitnessScreen from '../screens/DeviceScreens/FitnessScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -64,12 +65,12 @@ const StackNavigator = () => {
         name="LoginWithMobileScreen"
         component={LoginWithMobileScreen}
       />
-       <Stack.Screen
+      <Stack.Screen
         options={{headerShown: false}}
         name="AddDeviceScreen"
         component={AddDeviceScreen}
       />
-       <Stack.Screen
+      <Stack.Screen
         options={{headerShown: false}}
         name="PairNewDeviceScreen"
         component={PairNewDeviceScreen}
@@ -83,6 +84,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="WelcomeScreen"
         component={WelcomeScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="FitnessScreen"
+        component={FitnessScreen}
       />
     </Stack.Navigator>
   );

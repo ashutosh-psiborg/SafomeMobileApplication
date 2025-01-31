@@ -1,7 +1,7 @@
-import * as React from "react"
-import Svg, { Path } from "react-native-svg"
+import * as React from "react";
+import Svg, { Path } from "react-native-svg";
 
-function RightArrowIcon(props) {
+function RightArrowIcon({ color = "#fff", ...props }) {
   return (
     <Svg
       width={8}
@@ -13,10 +13,10 @@ function RightArrowIcon(props) {
     >
       <Path
         d="M.452 12.42l1.061 1.06 5.779-5.777a.996.996 0 000-1.413L1.513.51.453 1.57l5.424 5.425L.452 12.42z"
-        fill="#fff"
+        fill={color}
       />
     </Svg>
-  )
+  );
 }
 
-export default RightArrowIcon
+export default RightArrowIcon;

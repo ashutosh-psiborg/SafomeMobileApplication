@@ -27,6 +27,7 @@ import LogoHeader from '../../../components/LogoHeader';
 import HomeMidHeader from '../../../components/HomeMidHeader';
 import RefreshIcon from '../../../assets/icons/RefreshIcon';
 import {HomeScreenStyles} from './Styles/HomeScreenStyles';
+import StatisticsCards from '../../../components/StatisticsCards';
 
 Geocoder.init('AIzaSyBrsCdS1KEJ9QDOgnl5gwnemCuLJDKzp9Y');
 const HomeScreen = () => {
@@ -120,7 +121,7 @@ const HomeScreen = () => {
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title={'Statistics'} showViewAll={false} />
 
-        <View style={styles.cardsContainer}>
+        {/* <View style={styles.cardsContainer}>
           <CustomCard style={{width: '48%'}}>
             <View>
               <View style={styles.rowContainer}>
@@ -192,7 +193,8 @@ const HomeScreen = () => {
               </View>
             </CustomCard>
           </View>
-        </View>
+        </View> */}
+        <StatisticsCards/>
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title={'Recent calls'} />
         <Spacing height={DimensionConstants.sixteen} />
