@@ -17,7 +17,6 @@ import FeaturesIcon from '../../assets/icons/FeaturesIcon';
 import RightArrowIcon from '../../assets/icons/RightArrowIcon';
 
 const DevicesScreen = ({navigation}) => {
- 
   const icons = [
     {
       component: <DeviceCallIcon />,
@@ -29,7 +28,11 @@ const DevicesScreen = ({navigation}) => {
       navigation: () => navigation.navigate('FitnessScreen'),
     },
     {component: <AppsIcon />, label: 'Apps'},
-    {component: <SystemIcon />, label: 'System'},
+    {
+      component: <SystemIcon />,
+      label: 'System',
+      navigation: () => navigation.navigate('SystemScreen'),
+    },
     {component: <FeaturesIcon />, label: 'Features', line: 'no'},
   ];
 

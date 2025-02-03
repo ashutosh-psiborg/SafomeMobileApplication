@@ -14,6 +14,7 @@ import TabNavigator from './TabNavigator';
 import AddDeviceScreen from '../screens/AddDeviceScreens/index';
 import PairNewDeviceScreen from '../screens/AddDeviceScreens/PairNewDeviceScreen/index';
 import FitnessScreen from '../screens/DeviceScreens/FitnessScreen/index';
+import SystemScreen from '../screens/DeviceScreens/SystemScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -89,6 +90,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="FitnessScreen"
         component={FitnessScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="SystemScreen"
+        component={SystemScreen}
       />
     </Stack.Navigator>
   );

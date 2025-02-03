@@ -25,18 +25,18 @@ const RegisterScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const userData = useSelector(state => state.user);
 
-  const [errors, setErrors] = useState({}); // State to store validation errors
+  const [errors, setErrors] = useState({}); 
 
   const handleChange = (field, value) => {
     dispatch(setUserData({...userData, [field]: value}));
-    setErrors(prevErrors => ({...prevErrors, [field]: ''})); // Clear error on change
+    setErrors(prevErrors => ({...prevErrors, [field]: ''})); 
   };
 
   const mutation = useMutation({
     mutationFn: async data => {
       return fetcher({
         method: 'POST',
-        url: '/register',
+        url: '/auth/register',
         data,
         noAuth: true,
       });
@@ -60,8 +60,8 @@ const RegisterScreen = ({navigation}) => {
 
   const handleSubmit = async () => {
     try {
-      console.log("++++++++++++=")
-    //  await validationSchema.validate(userData, {abortEarly: false});
+      console.log('++++++++++++=');
+      //  await validationSchema.validate(userData, {abortEarly: false});
       mutation.mutate(userData);
     } catch (error) {
       let newErrors = {};

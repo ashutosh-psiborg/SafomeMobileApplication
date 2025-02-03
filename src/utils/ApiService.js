@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
-const ip = '10.5.50.241';
-const port = '8000';
+const ip = '52.65.120.67';
+const port = '8080';
 const baseUrl = `http://${ip}:${port}/api/v1/`;
 
 const api = axios.create({
@@ -15,7 +15,7 @@ const api = axios.create({
 api.interceptors.request.use(
   async config => {
     try {
-      if (!config.noAuth) { 
+      if (!config.noAuth) {
         const token = await AsyncStorage.getItem('authToken');
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
@@ -30,7 +30,7 @@ api.interceptors.request.use(
       headers: config.headers,
       data: config.data,
     });
-    
+
     return config;
   },
   error => {
@@ -44,12 +44,12 @@ api.interceptors.response.use(
     if (
       response.config.url.includes('/register') ||
       response.config.url.includes('/login') ||
-      response.config.url.includes('/loginVerifyOTP') 
+      response.config.url.includes('/loginVerifyOTP')
     ) {
       const token = response.data?.token;
       if (token) {
         try {
-          await AsyncStorage.setItem('authToken', token); 
+          await AsyncStorage.setItem('authToken', token);
           console.log('Token stored successfully:', token);
         } catch (error) {
           console.error('Error storing token:', error);
@@ -73,14 +73,13 @@ api.interceptors.response.use(
   },
 );
 
-
-const fetcher = async ({ method, url, data, params, noAuth = false }) => {
+const fetcher = async ({method, url, data, params, noAuth = false}) => {
   const response = await api({
     method,
     url,
     data,
     params,
-    noAuth, 
+    noAuth,
   });
   return response.data;
 };

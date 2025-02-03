@@ -20,7 +20,7 @@ import BlueClockIcon from '../../../assets/icons/BlueClockIcon';
 import HomeMidHeader from '../../../components/HomeMidHeader';
 import StatisticsCards from '../../../components/StatisticsCards';
 
-const FitnessScreen = () => {
+const FitnessScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -58,6 +58,7 @@ const FitnessScreen = () => {
       <CustomHeader
         title={'Fitness & Health'}
         backgroundColor={theme.background}
+        backPress={() => navigation.goBack()}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
