@@ -70,7 +70,7 @@ const LoginScreen = ({navigation}) => {
     mutationFn: async data => {
       return fetcher({
         method: 'POST',
-        url: '/login',
+        url: 'auth/login',
         data,
       });
     },

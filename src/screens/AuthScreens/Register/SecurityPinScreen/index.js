@@ -8,18 +8,44 @@ import {useSelector} from 'react-redux';
 import {useTranslation} from 'react-i18next';
 import {useNavigation} from '@react-navigation/native';
 import {BioMetricStyles} from '../BioMetricScreen/Styles/BioMetricStyles';
+import fetcher from '../../../../utils/ApiService';
+
 const SecurityPinScreen = () => {
-  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
   const navigation = useNavigation();
   const [pin, setPin] = useState('');
   const {t} = useTranslation();
   const styles = BioMetricStyles(theme);
 
-  const handlePinChange = text => {
+  const handlePinChange = async (text) => {
     if (/^\d*$/.test(text) && text.length <= 4) {
       setPin(text);
+      console.log(text);
       if (text.length === 4) {
-        navigation.navigate('LoginScreen');
+        try {
+          const payload = {
+            mPin: text, 
+          };
+
+          const response = await fetcher({
+            method: 'POST',
+            url: 'auth/bioMetric', 
+            data: payload,
+          });
+
+          Alert.alert('Success', 'mPin authenticated successfully!');
+          console.log('mPin response:', response);
+
+          navigation.navigate('LoginScreen'); 
+        } catch (error) {
+          console.error('mPin API error:', error);
+          Alert.alert(
+            'Error',
+            'Failed to authenticate mPin. Please try again.',
+          );
+        }
       }
     }
   };
@@ -39,7 +65,6 @@ const SecurityPinScreen = () => {
         <TextInput
           style={styles.pinInput}
           keyboardType="number-pad"
-          secureTextEntry
           value={pin}
           onChangeText={handlePinChange}
           maxLength={4}

@@ -22,12 +22,12 @@ const CreatePasswordScreen = ({route, navigation}) => {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [errors, setErrors] = useState({});
-
+console.log(password)
   const mutation = useMutation({
     mutationFn: async newPassword => {
       return fetcher({
         method: 'POST',
-        url: '/createNewPassword',
+        url: 'auth/createNewPassword',
         data: {
           newPassword: newPassword,
         },
@@ -45,11 +45,11 @@ const CreatePasswordScreen = ({route, navigation}) => {
   const handleCreatePassword = async () => {
     try {
       console.log("+++____")
-      await validationSchema.validate(
-        {password, confirmPassword},
-        {abortEarly: false},
-      );
-      setErrors({});
+      // await validationSchema.validate(
+      //   {password, confirmPassword},
+      //   {abortEarly: false},
+      // );
+      // setErrors({});
 
       mutation.mutate(password);
     } catch (validationError) {

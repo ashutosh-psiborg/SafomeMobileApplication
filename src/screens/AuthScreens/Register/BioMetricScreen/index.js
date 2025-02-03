@@ -11,58 +11,116 @@ import {ImageConstants} from '../../../../constants/ImageConstants';
 import SecurityTickIcon from '../../../../assets/icons/SecurityTickIcon';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
+import fetcher from '../../../../utils/ApiService';
+import {useMutation} from '@tanstack/react-query';
 
 const BioMetricScreen = ({route, navigation}) => {
-  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
   const {t} = useTranslation();
   const styles = BioMetricStyles(theme);
-
-  const authenticateWithBiometrics = async () => {
+  const authenticateAndSendBiometric = async () => {
     const rnBiometrics = new ReactNativeBiometrics();
-
+  
     try {
-      const {available, biometryType} = await rnBiometrics.isSensorAvailable();
-
+      // Check if biometrics is available
+      const { available, biometryType } = await rnBiometrics.isSensorAvailable();
+  
       if (!available) {
-        Alert.alert(
-          'Biometric',
-          'Biometric authentication is not available on this device.',
-        );
+        Alert.alert('Biometric', 'Biometric authentication is not available.');
         return;
       }
-
-      if (biometryType === ReactNativeBiometrics.TouchID) {
-        console.log('Using Touch ID');
-      } else if (biometryType === ReactNativeBiometrics.FaceID) {
-        console.log('Using Face ID');
-      } else {
-        console.log('Using generic biometric sensor');
+  
+      console.log(`Using ${biometryType || 'generic biometric sensor'}`);
+  
+      // Ensure a key pair exists
+      const { keysExist } = await rnBiometrics.biometricKeysExist();
+  
+      if (!keysExist) {
+        console.log('No biometric keys exist, creating new ones...');
+        await rnBiometrics.createKeys();
       }
-
-      const {success} = await rnBiometrics.simplePrompt({
+  
+      // Generate biometric signature
+      const payload = 'your_unique_identifier'; // Replace with a meaningful identifier
+      const { success, signature } = await rnBiometrics.createSignature({
         promptMessage: 'Authenticate with Biometrics',
-        cancelButtonText: 'Cancel',
+        payload,
       });
-
-      if (success) {
-        Alert.alert('Success', 'Biometric authentication successful!');
-        setTimeout(() => {
-          navigation.navigate('SecurityPinScreen');
-        }, 1500);
-      } else {
-        Alert.alert(
-          'Failed',
-          'Biometric authentication failed or was canceled.',
-        );
+  
+      if (!success || !signature) {
+        Alert.alert('Failed', 'Biometric authentication failed or was canceled.');
+        return;
       }
+  
+      console.log('Biometric Signature:', signature);
+  
+      // Send the biometric token to the backend
+      const response = await fetcher({
+        method: 'POST',
+        url: 'auth/bioMetric',
+        data: { bioMetricToken: signature },
+      });
+  
+      // Handle API success
+      console.log('Biometric login successful:', response);
+      Alert.alert('Success', 'Biometric authentication successful!');
+      setTimeout(() => {
+        navigation.navigate('SecurityPinScreen');
+      }, 1500);
+  
     } catch (error) {
       console.error('Biometric authentication error:', error);
-      Alert.alert(
-        'Error',
-        'An error occurred during biometric authentication.',
-      );
+      Alert.alert('Error', 'An error occurred during biometric authentication.');
     }
   };
+  // const authenticateWithBiometrics = async () => {
+  //   const rnBiometrics = new ReactNativeBiometrics();
+
+  //   try {
+  //     const {available, biometryType} = await rnBiometrics.isSensorAvailable();
+
+  //     if (!available) {
+  //       Alert.alert(
+  //         'Biometric',
+  //         'Biometric authentication is not available on this device.',
+  //       );
+  //       return;
+  //     }
+
+  //     if (biometryType === ReactNativeBiometrics.TouchID) {
+  //       console.log('Using Touch ID');
+  //     } else if (biometryType === ReactNativeBiometrics.FaceID) {
+  //       console.log('Using Face ID');
+  //     } else {
+  //       console.log('Using generic biometric sensor');
+  //     }
+
+  //     const {success} = await rnBiometrics.simplePrompt({
+  //       promptMessage: 'Authenticate with Biometrics',
+  //       cancelButtonText: 'Cancel',
+  //     });
+
+  //     if (success) {
+  //       Alert.alert('Success', 'Biometric authentication successful!');
+  //       setTimeout(() => {
+  //         navigation.navigate('SecurityPinScreen');
+  //       }, 1500);
+  //     } else {
+  //       Alert.alert(
+  //         'Failed',
+  //         'Biometric authentication failed or was canceled.',
+  //       );
+  //     }
+  //   } catch (error) {
+  //     console.error('Biometric authentication error:', error);
+  //     Alert.alert(
+  //       'Error',
+  //       'An error occurred during biometric authentication.',
+  //     );
+  //   }
+  // };
 
   return (
     <MainBackground>
@@ -104,7 +162,7 @@ const BioMetricScreen = ({route, navigation}) => {
           </View>
         </View>
 
-        <CustomButton onPress={authenticateWithBiometrics} text={t('Enable')} />
+        <CustomButton onPress={authenticateAndSendBiometric} text={t('Enable')} />
       </View>
     </MainBackground>
   );

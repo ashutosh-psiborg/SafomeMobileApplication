@@ -29,7 +29,7 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: '/sendOtp',
+        url: '/auth/sendOtp',
         data: {
           email: 'true',
           phoneNumber: 'false',
@@ -54,7 +54,7 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'GET',
-        url: '/verifyEmail',
+        url: 'auth/verifyEmail',
         params: {email: true, otp: code},
       });
     },
