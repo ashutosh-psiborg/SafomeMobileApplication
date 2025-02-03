@@ -15,6 +15,7 @@ import AddDeviceScreen from '../screens/AddDeviceScreens/index';
 import PairNewDeviceScreen from '../screens/AddDeviceScreens/PairNewDeviceScreen/index';
 import FitnessScreen from '../screens/DeviceScreens/FitnessScreen/index';
 import SystemScreen from '../screens/DeviceScreens/SystemScreen/index';
+import TrackingFrequencyScreen from '../screens/DeviceScreens/SystemScreen/TrackingFrequencyScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -95,6 +96,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="SystemScreen"
         component={SystemScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="TrackingFrequencyScreen"
+        component={TrackingFrequencyScreen}
       />
     </Stack.Navigator>
   );

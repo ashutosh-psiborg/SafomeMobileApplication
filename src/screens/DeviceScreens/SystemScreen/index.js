@@ -19,7 +19,7 @@ import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
 import SystemLocation from '../../../assets/icons/SystemLocation';
 import SystemCallIcon from '../../../assets/icons/SystemCallIcon';
 import Spacing from '../../../components/Spacing';
-const SystemScreen = () => {
+const SystemScreen = ({navigation}) => {
   const icons = [
     {
       component: <SystemCallIcon />,
@@ -29,7 +29,11 @@ const SystemScreen = () => {
       component: <SleepIcon />,
       label: 'Sleep mode',
     },
-    {component: <TrackingIcon />, label: 'Tracking frequency'},
+    {
+      component: <TrackingIcon />,
+      label: 'Tracking frequency',
+      navigation: () => navigation.navigate('TrackingFrequencyScreen'),
+    },
     {
       component: <DisableIcon />,
       label: 'Disable Functions',
