@@ -3,7 +3,6 @@ import React, {useState} from 'react';
 import MainBackground from '../../components/MainBackground';
 import {ImageConstants} from '../../constants/ImageConstants';
 import {DimensionConstants, height} from '../../constants/DimensionConstants';
-import WatchIcon from '../../assets/icons/WatchIcon';
 import CustomHeader from '../../components/CustomHeader';
 import Spacing from '../../components/Spacing';
 import CustomButton from '../../components/CustomButton';
@@ -68,7 +67,7 @@ const AddDeviceScreen = ({navigation}) => {
         </View>
 
         <View style={styles.iconContainer}>
-          <WatchIcon />
+          <Image source={ImageConstants.watch} />
         </View>
 
         <CustomButton text={t('Next')} onPress={() => setModalVisible(true)} />

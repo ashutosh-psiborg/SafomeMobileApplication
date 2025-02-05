@@ -1,9 +1,8 @@
 import * as Yup from 'yup';
-import {View, Text, TextInput, Alert} from 'react-native';
+import {yupResolver} from '@hookform/resolvers/yup';
+import {View, Text, Alert} from 'react-native';
 import React, {useState} from 'react';
 import MainBackground from '../../../components/MainBackground';
-import GlobeIcon from '../../../assets/icons/GlobeIcon';
-import RNPickerSelect from 'react-native-picker-select';
 import CustomButton from '../../../components/CustomButton';
 import CustomHeader from '../../../components/CustomHeader';
 import {RegisterStyles} from './Styles/RegisterStyles';
@@ -15,22 +14,64 @@ import fetcher from '../../../utils/ApiService';
 import {validationSchema} from '../../../utils/Validations';
 import Spacing from '../../../components/Spacing';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
+import {useForm} from 'react-hook-form';
+import CommonForm from '../../../utils/CommonForm';
+import MailIcon from '../../../assets/icons/MailIcon';
+import DeviceCallIcon from '../../../assets/icons/DeviceCallIcon';
+import CountryIcon from '../../../assets/icons/CountryIcon';
+import FullNameIcon from '../../../assets/icons/FullNameIcon';
 
 const RegisterScreen = ({navigation}) => {
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+  } = useForm({
+    resolver: yupResolver(
+      validationSchema.pick(['fullName', 'email', 'phoneNumber', 'country']),
+    ),
+  });
+
+  const {t} = useTranslation();
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
-  const {t} = useTranslation();
   const styles = RegisterStyles(theme);
   const dispatch = useDispatch();
   const userData = useSelector(state => state.user);
 
-  const [errors, setErrors] = useState({}); 
-
-  const handleChange = (field, value) => {
-    dispatch(setUserData({...userData, [field]: value}));
-    setErrors(prevErrors => ({...prevErrors, [field]: ''})); 
-  };
+  const fields = [
+    {
+      name: 'fullName',
+      icon: <FullNameIcon />,
+      placeholder: 'Full name',
+      maxLength: 20,
+      keyboardType: 'default',
+    },
+    {
+      name: 'email',
+      placeholder: 'Email address',
+      icon: <MailIcon />,
+      maxLength: 50,
+      keyboardType: 'email-address',
+    },
+    {
+      name: 'phoneNumber',
+      placeholder: 'Phone Number',
+      icon: <DeviceCallIcon />,
+      maxLength: 10,
+      keyboardType: 'phone-pad',
+    },
+    {
+      name: 'country',
+      options: [
+        {label: 'Country', value: ''},
+        {label: 'India', value: 'India'},
+        {label: 'Australia', value: 'Australia'},
+      ],
+      icon: <CountryIcon />,
+    },
+  ];
 
   const mutation = useMutation({
     mutationFn: async data => {
@@ -41,170 +82,55 @@ const RegisterScreen = ({navigation}) => {
         noAuth: true,
       });
     },
-    onSuccess: async data => {
-      console.log('Registration successful:', data);
+    onSuccess: () => {
       Alert.alert('Success', 'Account created successfully!');
       navigation.navigate('VerifyMailOtpScreen');
     },
     onError: error => {
       const errorMessage = error?.response?.data?.message || 'Unknown error';
-      console.log('=====', errorMessage);
-      console.error('Registration error:', error);
-      Alert.alert(
-        'Error',
-        'Failed to register. Please try again.',
-        errorMessage,
-      );
+      Alert.alert('Error', errorMessage);
     },
   });
 
-  const handleSubmit = async () => {
-    try {
-      console.log('++++++++++++=');
-      //  await validationSchema.validate(userData, {abortEarly: false});
-      mutation.mutate(userData);
-    } catch (error) {
-      let newErrors = {};
-      error.inner.forEach(err => {
-        newErrors[err.path] = err.message;
-      });
-      setErrors(newErrors);
-    }
+  const onSubmit = async data => {
+    console.log('🚀 Submitting Data:', data);
+    mutation.mutate(data);
+    dispatch(setUserData(data));
   };
 
   return (
     <MainBackground>
+      <CustomHeader
+        backPress={() => navigation.goBack()}
+        title={t('Create account')}
+      />
+      <Spacing height={DimensionConstants.twenty} />
       <View style={styles.container}>
         <View>
-          <CustomHeader
-            backPress={() => navigation.goBack()}
-            title={t('Create account')}
-          />
-          <View style={styles.formContainer}>
-            <View
-              style={[
-                styles.textInput,
-                errors.fullName && {borderColor: 'red'},
-              ]}>
-              <GlobeIcon />
-              <TextInput
-                style={[styles.inputField, errors.fullName && {color: 'red'}]}
-                placeholder={t('Full name')}
-                value={userData.fullName}
-                onChangeText={text => handleChange('fullName', text)}
-                placeholderTextColor={theme.placeHolderText}
-              />
-            </View>
-            {errors.fullName && (
-              <Text style={styles.errorText}>{errors.fullName}</Text>
-            )}
+          <CommonForm control={control} fields={fields} errors={errors} />
 
-            {/* Email Input */}
-            <View
-              style={[styles.textInput, errors.email && {borderColor: 'red'}]}>
-              <GlobeIcon />
-              <TextInput
-                style={[styles.inputField, errors.email && {color: 'red'}]}
-                placeholder={t('Email Address')}
-                value={userData.email}
-                onChangeText={text => handleChange('email', text)}
-                keyboardType="email-address"
-                placeholderTextColor={theme.placeHolderText}
-              />
-            </View>
-            {errors.email && (
-              <Text style={styles.errorText}>{errors.email}</Text>
-            )}
-
-            {/* Phone Number Input */}
-            <View
-              style={[
-                styles.textInput,
-                errors.phoneNumber && {borderColor: 'red'},
-              ]}>
-              <GlobeIcon />
-              <TextInput
-                style={[
-                  styles.inputField,
-                  errors.phoneNumber && {color: 'red'},
-                ]}
-                placeholder={t('Phone number')}
-                value={userData.phoneNumber}
-                onChangeText={text => handleChange('phoneNumber', text)}
-                keyboardType="phone-pad"
-                placeholderTextColor={theme.placeHolderText}
-                maxLength={10}
-              />
-            </View>
-            {errors.phoneNumber && (
-              <Text style={styles.errorText}>{errors.phoneNumber}</Text>
-            )}
-
-            {/* Country Picker */}
-            <View
-              style={[
-                styles.textInput,
-                errors.country && {borderColor: 'red'},
-              ]}>
-              <GlobeIcon />
-              <View style={styles.pickerContainer}>
-                <RNPickerSelect
-                  onValueChange={value => handleChange('country', value)}
-                  items={[
-                    {label: 'India', value: 'India'},
-                    {label: 'Australia', value: 'Australia'},
-                  ]}
-                  style={{
-                    inputAndroid: {
-                      ...styles.pickerInput,
-                      color: userData.country
-                        ? theme.text
-                        : theme.placeHolderText,
-                    },
-                    inputIOS: {
-                      ...styles.pickerInput,
-                      color: userData.country
-                        ? theme.text
-                        : theme.placeHolderText,
-                    },
-                    placeholder: {
-                      color: theme.placeHolderText,
-                    },
-                  }}
-                  placeholder={{
-                    label: t('Country'),
-                    value: null,
-                  }}
-                />
-              </View>
-            </View>
-            {errors.country && (
-              <Text style={styles.errorText}>{errors.country}</Text>
-            )}
-            <Spacing height={DimensionConstants.twenty} />
-            {/* Terms and Conditions */}
-            <Text
-              style={{
-                fontSize: 12,
-                lineHeight: 22,
-                fontWeight: '400',
-                color: theme.grey,
-              }}>
-              {t('By creating an account , I agree to')}
-              <Text style={{fontSize: 12, fontWeight: '500', color: '#005BBB'}}>
-                {' '}
-                {t('Terms of use')}{' '}
-              </Text>
-              {t('and')}{' '}
-              <Text style={{fontSize: 12, fontWeight: '500', color: '#005BBB'}}>
-                {t('Privacy policy')}
-              </Text>
+          <Text
+            style={{
+              fontSize: 12,
+              lineHeight: 22,
+              fontWeight: '400',
+              color: theme.grey,
+            }}>
+            {t('By creating an account, I agree to')}
+            <Text style={{fontSize: 12, fontWeight: '500', color: '#005BBB'}}>
+              {' '}
+              {t('Terms of use')}{' '}
             </Text>
-          </View>
+            {t('and ')}
+            <Text style={{fontSize: 12, fontWeight: '500', color: '#005BBB'}}>
+              {t('Privacy policy')}
+            </Text>
+          </Text>
         </View>
-
-        {/* Submit Button */}
-        <CustomButton text={t('Create account')} onPress={handleSubmit} />
+        <CustomButton
+          text={t('Create account')}
+          onPress={handleSubmit(onSubmit)}
+        />
       </View>
     </MainBackground>
   );

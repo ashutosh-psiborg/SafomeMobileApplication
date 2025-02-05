@@ -10,6 +10,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@hookform/resolvers": "^3.10.0",
     "@react-native-async-storage/async-storage": "^2.1.0",
     "@react-native-community/geolocation": "^3.4.0",
     "@react-native-google-signin/google-signin": "^13.1.0",
@@ -22,6 +23,7 @@
     "axios": "^1.7.9",
     "i18next": "^24.2.1",
     "react": "^18.3.1",
+    "react-hook-form": "^7.54.2",
     "react-i18next": "^15.4.0",
     "react-native": "^0.76.6",
     "react-native-biometrics": "^3.0.1",
