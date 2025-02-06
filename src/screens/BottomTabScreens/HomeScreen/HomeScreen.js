@@ -28,6 +28,7 @@ import HomeMidHeader from '../../../components/HomeMidHeader';
 import RefreshIcon from '../../../assets/icons/RefreshIcon';
 import {HomeScreenStyles} from './Styles/HomeScreenStyles';
 import StatisticsCards from '../../../components/StatisticsCards';
+import ContactCards from '../../../components/ContactCards';
 
 // Geocoder.init('AIzaSyBrsCdS1KEJ9QDOgnl5gwnemCuLJDKzp9Y');
 const HomeScreen = () => {
@@ -130,7 +131,14 @@ const HomeScreen = () => {
             <>
               <View key={item.id} style={styles.callContainer}>
                 <View style={styles.rowContainer}>
-                  <Image source={ImageConstants.girlImage} />
+                  <Image
+                    source={ImageConstants.girlImage}
+                    style={{
+                      height: DimensionConstants.fortyTwo,
+                      width: DimensionConstants.fortyTwo,
+                      borderRadius: DimensionConstants.twentyOne,
+                    }}
+                  />
                   <View style={{marginLeft: DimensionConstants.ten}}>
                     <Text style={{fontWeight: '500'}}>Amit Singh</Text>
                     <View style={styles.rowContainer}>
@@ -184,45 +192,7 @@ const HomeScreen = () => {
         <HomeMidHeader title={'My contacts'} />
         <Spacing height={DimensionConstants.ten} />
 
-        <View style={styles.callContainer}>
-          <CustomCard
-            style={{
-              width: '48%',
-              backgroundColor: theme.primary,
-            }}>
-            <View style={styles.rowContainer}>
-              <Image source={ImageConstants.avatar} style={styles.imageOne} />
-              <Image source={ImageConstants.avatar2} style={styles.imageTwo} />
-              <Image source={ImageConstants.avatar3} style={styles.imageTwo} />
-              <Text style={styles.plusNumberText}>+57</Text>
-            </View>
-            <Spacing height={DimensionConstants.ten} />
-            <Text style={styles.contactCardTitle}>Family</Text>
-            <View style={styles.cardRowContainer}>
-              <Text style={styles.cardNumber}>60</Text>
-              <RightArrowIcon />
-            </View>
-          </CustomCard>
-          <CustomCard
-            style={{
-              width: '48%',
-              backgroundColor: '#FE605D',
-            }}>
-            <View style={styles.rowContainer}>
-              <Image source={ImageConstants.avatar} style={styles.imageOne} />
-              <Image source={ImageConstants.avatar2} style={styles.imageTwo} />
-              <Image source={ImageConstants.avatar3} style={styles.imageTwo} />
-              <Text style={styles.plusNumberText}>+52</Text>
-            </View>
-            <Spacing height={DimensionConstants.ten} />
-
-            <Text style={styles.contactCardTitle}>Friends</Text>
-            <View style={styles.cardRowContainer}>
-              <Text style={styles.cardNumber}>55</Text>
-              <RightArrowIcon />
-            </View>
-          </CustomCard>
-        </View>
+        <ContactCards />
       </ScrollView>
     </MainBackground>
   );
