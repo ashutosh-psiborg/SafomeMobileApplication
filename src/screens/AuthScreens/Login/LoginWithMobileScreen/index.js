@@ -1,4 +1,11 @@
-import {View, Text, TextInput, TouchableOpacity, Alert} from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  Alert,
+  ScrollView,
+} from 'react-native';
 import React, {useState, useRef} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import {useTranslation} from 'react-i18next';
@@ -36,7 +43,7 @@ const LoginWithMobileScreen = ({navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: '/loginWithPhoneNumber',
+        url: '/auth/loginWithPhoneNumber',
         data: {
           phoneNumber: phoneNumber,
         },
@@ -53,7 +60,7 @@ const LoginWithMobileScreen = ({navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: '/loginVerifyOTP',
+        url: '/auth/loginVerifyOTP',
         data: {phoneNumber: phoneNumber, otp: num},
         noAuth: true,
       });
@@ -101,104 +108,110 @@ const LoginWithMobileScreen = ({navigation}) => {
 
   return (
     <MainBackground>
-      <View style={{flex: 1, justifyContent: 'space-between'}}>
-        <View>
-          <CustomHeader title={t('Welcome')} />
-          <Spacing height={DimensionConstants.twentyFour} />
-          <Text style={Styles.signInText}>{t('Sign in to your Account')}</Text>
-          <Spacing height={DimensionConstants.twentyFour} />
-          <Text style={Styles.enterMailText}>
-            {t('Enter your email and password to get start.')}
-          </Text>
-          <Spacing height={DimensionConstants.twentyFour} />
-          <View style={Styles.textInputView}>
-            <MailIcon marginRight={DimensionConstants.eight} />
-            <TextInput
-              style={{flex: 1}}
-              placeholder="Phone number"
-              keyboardType="phone-pad"
-              value={phoneNumber}
-              onChangeText={handlePhoneNumber}
-              autoCapitalize="none"
-              placeholderTextColor={theme.placeHolderText}
-            />
-          </View>
-          <Spacing height={DimensionConstants.nine} />
-          <CustomButton text={t('Login')} onPress={handleSubmit} />
-          <Spacing height={DimensionConstants.sixteen} />
-          <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={Styles.loginWithPhone}>Login with email</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View>
-          <Text style={Styles.continue}>or continue with</Text>
-          <CustomButton
-            textColor={theme.blackText}
-            borderColor={theme.buttonBorder}
-            color={theme.background}
-            text={t('Continue with Google')}
-            icon={<GoogleIcon />}
-          />
-          <CustomButton
-            textColor={theme.blackText}
-            borderColor={theme.buttonBorder}
-            color={theme.background}
-            text={t('Continue with Apple')}
-            icon={<AppleIcon />}
-          />
-          <Spacing height={DimensionConstants.twentyFour} />
-          <Text style={Styles.terms}>
-            By clicking login you agree to recognates{' '}
-            <Text style={Styles.termBlue}>Terms of use </Text>
-            and <Text style={Styles.termBlue}>Privacy policy</Text>
-          </Text>
-        </View>
-
-        <CustomModal
-          isVisible={isModalVisible}
-          onClose={() => setModalVisible(false)}>
-          <View style={Styles.modalContent}>
-            <Text style={Styles.modalTitle}>Verify Phone Number</Text>
-
-            <View style={Styles.otpContainer}>
-              {otp.map((digit, index) => (
-                <TextInput
-                  key={index}
-                  ref={el => (otpRefs.current[index] = el)}
-                  style={Styles.otpInput}
-                  value={digit}
-                  onChangeText={text => handleOtpChange(text, index)}
-                  keyboardType="numeric"
-                  maxLength={1}
-                  textAlign="center"
-                />
-              ))}
-            </View>
+      <ScrollView
+        contentContainerStyle={{flexGrow: 1, justifyContent: 'space-between'}}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}>
+        <View style={{flex: 1, justifyContent: 'space-between'}}>
+          <View>
+            <CustomHeader title={t('Welcome')} />
+            <Spacing height={DimensionConstants.twentyFour} />
+            <Text style={Styles.signInText}>
+              {t('Sign in to your Account')}
+            </Text>
+            <Spacing height={DimensionConstants.twentyFour} />
             <Text style={Styles.enterMailText}>
-              OTP not recieved? <Text style={Styles.resetWord}>Resend OTP</Text>
+              {t('Enter your email and password to get started.')}
+            </Text>
+            <Spacing height={DimensionConstants.twentyFour} />
+            <View style={Styles.textInputView}>
+              <MailIcon marginRight={DimensionConstants.eight} />
+              <TextInput
+                style={{flex: 1}}
+                placeholder="Phone number"
+                keyboardType="phone-pad"
+                value={phoneNumber}
+                onChangeText={handlePhoneNumber}
+                autoCapitalize="none"
+                placeholderTextColor={theme.placeHolderText}
+                maxLength={10}
+              />
+            </View>
+            <Spacing height={DimensionConstants.nine} />
+            <CustomButton text={t('Login')} onPress={handleSubmit} />
+            <Spacing height={DimensionConstants.sixteen} />
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Text style={Styles.loginWithPhone}>Login with email</Text>
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <Text style={Styles.continue}>or continue with</Text>
+            <CustomButton
+              textColor={theme.blackText}
+              borderColor={theme.buttonBorder}
+              color={theme.background}
+              text={t('Continue with Google')}
+              icon={<GoogleIcon />}
+            />
+            <CustomButton
+              textColor={theme.blackText}
+              borderColor={theme.buttonBorder}
+              color={theme.background}
+              text={t('Continue with Apple')}
+              icon={<AppleIcon />}
+            />
+            <Spacing height={DimensionConstants.twentyFour} />
+            <Text style={Styles.terms}>
+              By clicking login you agree to recognates{' '}
+              <Text style={Styles.termBlue}>Terms of use </Text>
+              and <Text style={Styles.termBlue}>Privacy policy</Text>
             </Text>
           </View>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-            }}>
-            <CustomButton
-              width={width / 2.25}
-              textColor={theme.text}
-              borderColor={theme.borderColor}
-              color={theme.background}
-              text={'Cancel'}
-            />
-            <CustomButton
-              width={width / 2.25}
-              text={'Verify'}
-              onPress={handleVerify}
-            />
-          </View>
-        </CustomModal>
-      </View>
+
+          <CustomModal
+            isVisible={isModalVisible}
+            onClose={() => setModalVisible(false)}>
+            <View style={Styles.modalContent}>
+              <Text style={Styles.modalTitle}>Verify Phone Number</Text>
+
+              <View style={Styles.otpContainer}>
+                {otp.map((digit, index) => (
+                  <TextInput
+                    key={index}
+                    ref={el => (otpRefs.current[index] = el)}
+                    style={Styles.otpInput}
+                    value={digit}
+                    onChangeText={text => handleOtpChange(text, index)}
+                    keyboardType="numeric"
+                    maxLength={1}
+                    textAlign="center"
+                  />
+                ))}
+              </View>
+              <Text style={Styles.enterMailText}>
+                OTP not received?{' '}
+                <Text style={Styles.resetWord}>Resend OTP</Text>
+              </Text>
+            </View>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <CustomButton
+                width={width / 2.25}
+                textColor={theme.text}
+                borderColor={theme.borderColor}
+                color={theme.background}
+                text={'Cancel'}
+              />
+              <CustomButton
+                width={width / 2.25}
+                text={'Verify'}
+                onPress={handleVerify}
+              />
+            </View>
+          </CustomModal>
+        </View>
+      </ScrollView>
     </MainBackground>
   );
 };

@@ -49,7 +49,6 @@ const SavioursScreen = () => {
           <ContactCards />
           <Spacing height={DimensionConstants.fourteen} />
 
-          {/* Contact List */}
           {data.map((item, index) => (
             <CustomCard key={index} style={styles.contactCard}>
               <View style={styles.contactInfo}>

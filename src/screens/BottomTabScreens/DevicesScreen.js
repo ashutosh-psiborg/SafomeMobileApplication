@@ -1,4 +1,10 @@
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import React from 'react';
 import MainBackground from '../../components/MainBackground';
 import LogoHeader from '../../components/LogoHeader';
@@ -42,64 +48,68 @@ const DevicesScreen = ({navigation}) => {
 
   return (
     <MainBackground style={styles.mainBackground}>
-      <View style={styles.container}>
-        <LogoHeader />
-        <Spacing height={DimensionConstants.twentyFour} />
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          <LogoHeader />
+          <Spacing height={DimensionConstants.twentyFour} />
 
-        <CustomCard style={styles.deviceCard}>
-          <View style={styles.deviceHeader}>
-            <BlackWatchIcon />
-            <Spacing width={DimensionConstants.thirty} />
-            <View>
-              <View style={styles.deviceRow}>
-                <Text style={styles.deviceName}>Device name</Text>
-                <DownArrowIcon marginLeft={DimensionConstants.twelve} />
-              </View>
-
-              <View style={styles.deviceRow}>
-                <Text style={styles.label}>Signal :</Text>
-                <Text style={[styles.value, {color: theme.primary}]}>
-                  Medium
-                </Text>
-              </View>
-
-              <View style={styles.deviceRow}>
-                <Text style={styles.label}>Battery :</Text>
-                <Text style={[styles.value, {color: theme.primary}]}>98%</Text>
-              </View>
-
-              <CustomButton
-                text={'Sync'}
-                color={'#F4D9DC'}
-                height={DimensionConstants.thirtyFive}
-                width={DimensionConstants.eighty}
-                textColor={'#FE605D'}
-              />
-            </View>
-          </View>
-          <CustomButton text={'Edit'} />
-        </CustomCard>
-
-        <Spacing height={DimensionConstants.eighteen} />
-
-        <CustomCard style={styles.featuresCard}>
-          {icons.map((item, index) => (
-            <View key={index}>
-              <View style={styles.featureRow}>
-                <View style={styles.featureContent}>
-                  {item.component}
-                  <Text style={styles.featureText}>{item.label}</Text>
+          <CustomCard style={styles.deviceCard}>
+            <View style={styles.deviceHeader}>
+              <BlackWatchIcon />
+              <Spacing width={DimensionConstants.thirty} />
+              <View>
+                <View style={styles.deviceRow}>
+                  <Text style={styles.deviceName}>Device name</Text>
+                  <DownArrowIcon marginLeft={DimensionConstants.twelve} />
                 </View>
-                <TouchableOpacity onPress={item.navigation}>
-                  <RightArrowIcon color="black" />
-                </TouchableOpacity>
-              </View>
 
-              {item?.line !== 'no' && <View style={styles.separator} />}
+                <View style={styles.deviceRow}>
+                  <Text style={styles.label}>Signal :</Text>
+                  <Text style={[styles.value, {color: theme.primary}]}>
+                    Medium
+                  </Text>
+                </View>
+
+                <View style={styles.deviceRow}>
+                  <Text style={styles.label}>Battery :</Text>
+                  <Text style={[styles.value, {color: theme.primary}]}>
+                    98%
+                  </Text>
+                </View>
+
+                <CustomButton
+                  text={'Sync'}
+                  color={'#F4D9DC'}
+                  height={DimensionConstants.thirtyFive}
+                  width={DimensionConstants.eighty}
+                  textColor={'#FE605D'}
+                />
+              </View>
             </View>
-          ))}
-        </CustomCard>
-      </View>
+            <CustomButton text={'Edit'} />
+          </CustomCard>
+
+          <Spacing height={DimensionConstants.eighteen} />
+
+          <CustomCard style={styles.featuresCard}>
+            {icons.map((item, index) => (
+              <View key={index}>
+                <View style={styles.featureRow}>
+                  <View style={styles.featureContent}>
+                    {item.component}
+                    <Text style={styles.featureText}>{item.label}</Text>
+                  </View>
+                  <TouchableOpacity onPress={item.navigation}>
+                    <RightArrowIcon color="black" />
+                  </TouchableOpacity>
+                </View>
+
+                {item?.line !== 'no' && <View style={styles.separator} />}
+              </View>
+            ))}
+          </CustomCard>
+        </View>
+      </ScrollView>
     </MainBackground>
   );
 };

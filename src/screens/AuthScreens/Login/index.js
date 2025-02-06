@@ -1,4 +1,4 @@
-import {View, Text, Alert, TouchableOpacity} from 'react-native';
+import {View, Text, Alert, TouchableOpacity, ScrollView} from 'react-native';
 import React from 'react';
 import MainBackground from '../../../components/MainBackground';
 import {useTranslation} from 'react-i18next';
@@ -77,59 +77,61 @@ const LoginScreen = ({navigation}) => {
   return (
     <MainBackground>
       <CustomHeader title={t('Welcome')} />
-      <Spacing height={DimensionConstants.twentyFour} />
-      <Text style={styles.signInText}>{t('Sign in to your Account')}</Text>
-      <Spacing height={DimensionConstants.twentyFour} />
-      <Text style={styles.enterMailText}>
-        {t('Enter your email and password to get started.')}
-      </Text>
-      <Spacing height={DimensionConstants.twentyFour} />
-
-      {/* ✅ Using CommonForm */}
-      <CommonForm control={control} fields={fields} errors={errors} />
-
-      <Spacing height={DimensionConstants.eight} />
-      <Text style={styles.resetPasswordText}>
-        {t('I don’t remember password?')}{' '}
-        <Text style={styles.resetWord}>{t('Reset')}</Text>
-      </Text>
-
-      <Spacing height={DimensionConstants.nine} />
-      <CustomButton text={t('Login')} onPress={handleSubmit(onSubmit)} />
-      <Spacing height={DimensionConstants.sixteen} />
-
-      <TouchableOpacity
-        onPress={() => navigation.navigate('LoginWithMobileScreen')}>
-        <Text style={styles.loginWithPhone}>
-          {t('Login with phone number')}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Spacing height={DimensionConstants.twentyFour} />
+        <Text style={styles.signInText}>{t('Sign in to your Account')}</Text>
+        <Spacing height={DimensionConstants.twentyFour} />
+        <Text style={styles.enterMailText}>
+          {t('Enter your email and password to get started.')}
         </Text>
-      </TouchableOpacity>
+        <Spacing height={DimensionConstants.twentyFour} />
 
-      <Spacing height={DimensionConstants.fifty} />
-      <Text style={styles.continue}>{t('or continue with')}</Text>
+        {/* ✅ Using CommonForm */}
+        <CommonForm control={control} fields={fields} errors={errors} />
 
-      <CustomButton
-        textColor={theme.blackText}
-        borderColor={theme.buttonBorder}
-        color={theme.background}
-        text={t('Continue with Google')}
-        icon={<GoogleIcon />}
-      />
-      <CustomButton
-        textColor={theme.blackText}
-        borderColor={theme.buttonBorder}
-        color={theme.background}
-        text={t('Continue with Apple')}
-        icon={<AppleIcon />}
-        onPress={() => navigation.navigate('MainApp')}
-      />
+        <Spacing height={DimensionConstants.eight} />
+        <Text style={styles.resetPasswordText}>
+          {t('I don’t remember password?')}{' '}
+          <Text style={styles.resetWord}>{t('Reset')}</Text>
+        </Text>
 
-      <Spacing height={DimensionConstants.twentyFour} />
-      <Text style={styles.terms}>
-        {t('By clicking login you agree to recognates')}{' '}
-        <Text style={styles.termBlue}>{t('Terms of use')}</Text> {t('and')}{' '}
-        <Text style={styles.termBlue}>{t('Privacy policy')}</Text>
-      </Text>
+        <Spacing height={DimensionConstants.nine} />
+        <CustomButton text={t('Login')} onPress={handleSubmit(onSubmit)} />
+        <Spacing height={DimensionConstants.sixteen} />
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate('LoginWithMobileScreen')}>
+          <Text style={styles.loginWithPhone}>
+            {t('Login with phone number')}
+          </Text>
+        </TouchableOpacity>
+
+        <Spacing height={DimensionConstants.fifty} />
+        <Text style={styles.continue}>{t('or continue with')}</Text>
+
+        <CustomButton
+          textColor={theme.blackText}
+          borderColor={theme.buttonBorder}
+          color={theme.background}
+          text={t('Continue with Google')}
+          icon={<GoogleIcon />}
+        />
+        <CustomButton
+          textColor={theme.blackText}
+          borderColor={theme.buttonBorder}
+          color={theme.background}
+          text={t('Continue with Apple')}
+          icon={<AppleIcon />}
+          onPress={() => navigation.navigate('MainApp')}
+        />
+
+        <Spacing height={DimensionConstants.twentyFour} />
+        <Text style={styles.terms}>
+          {t('By clicking login you agree to recognates')}{' '}
+          <Text style={styles.termBlue}>{t('Terms of use')}</Text> {t('and')}{' '}
+          <Text style={styles.termBlue}>{t('Privacy policy')}</Text>
+        </Text>
+      </ScrollView>
     </MainBackground>
   );
 };
