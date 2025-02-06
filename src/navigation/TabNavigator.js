@@ -41,6 +41,7 @@ export default function TabNavigator() {
         tabBarIconStyle: {
           alignItems: 'center',
         },
+        tabBarHideOnKeyboard :true
       }}>
       <Tab.Screen
         name="Home"
