@@ -13,8 +13,11 @@ import {DimensionConstants, width} from '../../../constants/DimensionConstants';
 import {useSelector} from 'react-redux';
 import {useTranslation} from 'react-i18next';
 import {OnboardingStyles} from './Styles/OnboardingStyles';
+import MainBackground from '../../../components/MainBackground';
 const OnboardingScreen = ({navigation}) => {
-  const theme = useSelector((state) => state.theme.themes[state.theme.currentTheme]);
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
   const {t} = useTranslation();
   const styles = OnboardingStyles(theme);
   const slides = [
@@ -93,24 +96,26 @@ const OnboardingScreen = ({navigation}) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Spacing height={DimensionConstants.twentyFour} />
-      {renderPagination()}
-      <FlatList
-        data={slides}
-        ref={flatListRef}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={e => {
-          const contentOffsetX = e.nativeEvent.contentOffset.x;
-          const index = Math.round(contentOffsetX / width);
-          setCurrentIndex(index);
-        }}
-      />
-    </View>
+    <MainBackground noPadding>
+      <View style={styles.container}>
+        <Spacing height={DimensionConstants.twentyFour} />
+        {renderPagination()}
+        <FlatList
+          data={slides}
+          ref={flatListRef}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          onMomentumScrollEnd={e => {
+            const contentOffsetX = e.nativeEvent.contentOffset.x;
+            const index = Math.round(contentOffsetX / width);
+            setCurrentIndex(index);
+          }}
+        />
+      </View>
+    </MainBackground>
   );
 };
 

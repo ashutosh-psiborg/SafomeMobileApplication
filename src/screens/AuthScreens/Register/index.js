@@ -73,28 +73,28 @@ const RegisterScreen = ({navigation}) => {
     },
   ];
 
-  const mutation = useMutation({
-    mutationFn: async data => {
-      return fetcher({
-        method: 'POST',
-        url: '/auth/register',
-        data,
-        noAuth: true,
-      });
-    },
-    onSuccess: () => {
-      Alert.alert('Success', 'Account created successfully!');
-      navigation.navigate('VerifyMailOtpScreen');
-    },
-    onError: error => {
-      const errorMessage = error?.response?.data?.message || 'Unknown error';
-      Alert.alert('Error', errorMessage);
-    },
-  });
+  // const mutation = useMutation({
+  //   mutationFn: async data => {
+  //     return fetcher({
+  //       method: 'POST',
+  //       url: '/auth/register',
+  //       data,
+  //       noAuth: true,
+  //     });
+  //   },
+  //   onSuccess: () => {
+  //     Alert.alert('Success', 'Account created successfully!');
+  //     navigation.navigate('VerifyMailOtpScreen');
+  //   },
+  //   onError: error => {
+  //     const errorMessage = error?.response?.data?.message || 'Unknown error';
+  //     Alert.alert('Error', errorMessage);
+  //   },
+  // });
 
   const onSubmit = async data => {
     console.log('🚀 Submitting Data:', data);
-    mutation.mutate(data);
+    // mutation.mutate(data);
     dispatch(setUserData(data));
   };
 

@@ -6,6 +6,7 @@ import {
   Animated,
   PanResponder,
   Image,
+  Platform,
   ScrollView,
 } from 'react-native';
 import MapView, {Marker} from 'react-native-maps';
@@ -140,7 +141,10 @@ const styles = StyleSheet.create({
   map: {width: '100%', height: '100%'},
   searchContainerWrapper: {
     position: 'absolute',
-    top: DimensionConstants.twenty,
+    top:
+      Platform.OS === 'ios'
+        ? DimensionConstants.fifty
+        : DimensionConstants.twenty,
     left: DimensionConstants.sixteen,
     right: DimensionConstants.sixteen,
     zIndex: 10,
