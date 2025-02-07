@@ -17,6 +17,7 @@ import Spacing from '../../components/Spacing';
 import ContactCards from '../../components/ContactCards';
 import {ImageConstants} from '../../constants/ImageConstants';
 import RightArrowIcon from '../../assets/icons/RightArrowIcon';
+import SearchContainer from '../../components/SearchContainer';
 
 const SavioursScreen = () => {
   const data = [
@@ -31,17 +32,7 @@ const SavioursScreen = () => {
       <CustomHeader title="Saviours" backgroundColor="#fff" />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
-          {/* Search Box */}
-          <CustomCard style={styles.searchCard}>
-            <View style={styles.searchContainer}>
-              <SearchIcon />
-              <TextInput
-                style={styles.searchInput}
-                placeholder="Search here..."
-                placeholderTextColor="#888"
-              />
-            </View>
-          </CustomCard>
+          <SearchContainer />
 
           <Spacing height={DimensionConstants.twentyFour} />
           <HomeMidHeader title="My communities" />
@@ -61,7 +52,6 @@ const SavioursScreen = () => {
                   <Text style={styles.subHeading}>{item.subHeading}</Text>
                 </View>
               </View>
-
               <View>
                 <RightArrowIcon color="black" />
               </View>

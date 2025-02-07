@@ -18,9 +18,41 @@ import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {validationSchema} from '../../../utils/Validations';
 import CommonForm from '../../../utils/CommonForm';
+import {GoogleSignin} from '@react-native-google-signin/google-signin';
 
 const LoginScreen = ({navigation}) => {
   const {t} = useTranslation();
+  GoogleSignin.configure({
+    webClientId:
+      '303533365458-a3a7d2lgdlfa13t1pu2f0dtmev6pv2ca.apps.googleusercontent.com',
+
+  });
+  const GoogleLogin = async () => {
+    await GoogleSignin.hasPlayServices();
+    const userInfo = await GoogleSignin.signIn();
+    console.log(userInfo)
+    return userInfo;
+  };
+  const handleGoogleLogin = async () => {
+    try {
+      console.log('first entry');
+
+      const response = await GoogleLogin();
+      console.log('_____');
+      const {idToken, user} = response;
+      console.log('+{+{+', user, idToken);
+      // if (idToken) {
+      //   const resp = await authAPI.validateToken({
+      //     token: idToken,
+      //     email: user.email,
+      //   });
+      //   await handlePostLoginData(resp.data);
+      // }
+    } catch (apiError) {
+      console.log('====', apiError);
+    }
+  };
+
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -115,6 +147,7 @@ const LoginScreen = ({navigation}) => {
           color={theme.background}
           text={t('Continue with Google')}
           icon={<GoogleIcon />}
+          onPress={handleGoogleLogin}
         />
         <CustomButton
           textColor={theme.blackText}
