@@ -8,19 +8,22 @@ import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import CustomButton from '../../../../components/CustomButton';
 import GlobeIcon from '../../../../assets/icons/GlobeIcon';
 import {VerifyMailOtpStyles} from './Styles/VerifyMailOtpStyles';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
+import {setUserData} from '../../../../redux/slices/userSlice';
 
 const VerifyMailOtpScreen = ({route, navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
+  const dispatch = useDispatch();
+
   const [code, setCode] = useState('');
   const {t} = useTranslation();
   const styles = VerifyMailOtpStyles(theme);
   const user = useSelector(state => state.user);
-
+  console.log('+++', user);
   const handleChange = value => {
     setCode(value);
   };
@@ -31,8 +34,8 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
         method: 'POST',
         url: '/auth/sendOtp',
         data: {
-          email: 'true',
-          phoneNumber: 'false',
+          contact: user.email,
+          type: 'EMAIL',
         },
       });
     },
@@ -52,15 +55,22 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
 
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
+      const data = {
+        contact: user?.email,
+        type: 'EMAIL',
+        otp: code,
+      };
       return fetcher({
-        method: 'GET',
+        method: 'POST                                                    ',
         url: 'auth/verifyEmail',
-        params: {email: true, otp: code},
+        data,
       });
     },
     onSuccess: data => {
       console.log('Email verification successful:', data);
       Alert.alert('Success', 'Email verified successfully!');
+      dispatch(setUserData({emailToken: data?.token}));
+
       navigation.navigate('VerifyPhoneOtpScreen');
     },
     onError: error => {

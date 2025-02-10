@@ -39,7 +39,7 @@ const RegisterScreen = ({navigation}) => {
   const styles = RegisterStyles(theme);
   const dispatch = useDispatch();
   const userData = useSelector(state => state.user);
-
+  console.log('user -----', userData);
   const fields = [
     {
       name: 'fullName',
@@ -96,6 +96,7 @@ const RegisterScreen = ({navigation}) => {
     console.log('🚀 Submitting Data:', data);
     // mutation.mutate(data);
     dispatch(setUserData(data));
+    navigation.navigate('VerifyMailOtpScreen');
   };
 
   return (

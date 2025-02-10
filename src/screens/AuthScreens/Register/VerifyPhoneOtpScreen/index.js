@@ -23,15 +23,14 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
   const handleChange = value => {
     setCode(value);
   };
-
   const sendOtpMutation = useMutation({
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
         url: 'auth/sendOtp',
         data: {
-          email: 'false',
-          phoneNumber: 'true',
+          contact: user.phoneNumber,
+          type: 'PHONE',
         },
       });
     },
@@ -52,9 +51,9 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
       return fetcher({
-        method: 'GET',
+        method: 'POST',
         url: 'auth/verifyEmail',
-        params: {phoneNumber: true, otp: code},
+        data: {contact: user.phoneNumber, type: 'PHONE', otp: code},
       });
     },
     onSuccess: data => {
@@ -112,7 +111,7 @@ const VerifyPhoneOtpScreen = ({route, navigation}) => {
       <Spacing height={DimensionConstants.sixteen} />
       <View style={styles.footerContainer}>
         <Text style={styles.footerText}>{t('OTP not recieved?')}</Text>
-        <TouchableOpacity onPress={()=>sendOtpMutation.mutate()}>
+        <TouchableOpacity onPress={() => sendOtpMutation.mutate()}>
           <Text style={styles.resendText}> {t('Resend OTP')}</Text>
         </TouchableOpacity>
       </View>

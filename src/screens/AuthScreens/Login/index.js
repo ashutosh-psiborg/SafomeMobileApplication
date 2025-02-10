@@ -19,39 +19,29 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import {validationSchema} from '../../../utils/Validations';
 import CommonForm from '../../../utils/CommonForm';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
-
 const LoginScreen = ({navigation}) => {
-  const {t} = useTranslation();
   GoogleSignin.configure({
     webClientId:
-      '303533365458-a3a7d2lgdlfa13t1pu2f0dtmev6pv2ca.apps.googleusercontent.com',
-
+      '1025510399527-a69gfibcttk2ad1vce67on7p9r6ddphe.apps.googleusercontent.com', // client ID of type WEB for your server. Required to get the `idToken` on the user object, and for offline access.
+    scopes: ['https://www.googleapis.com/auth/drive.readonly'], // what API you want to access on behalf of the user, default is email and profile
+    forceCodeForRefreshToken: false, // [Android] related to `serverAuthCode`, read the docs link below *.
+    // iosClientId: '<FROM DEVELOPER CONSOLE>', // [iOS] if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
   });
-  const GoogleLogin = async () => {
-    await GoogleSignin.hasPlayServices();
-    const userInfo = await GoogleSignin.signIn();
-    console.log(userInfo)
-    return userInfo;
-  };
-  const handleGoogleLogin = async () => {
-    try {
-      console.log('first entry');
 
-      const response = await GoogleLogin();
-      console.log('_____');
-      const {idToken, user} = response;
-      console.log('+{+{+', user, idToken);
-      // if (idToken) {
-      //   const resp = await authAPI.validateToken({
-      //     token: idToken,
-      //     email: user.email,
-      //   });
-      //   await handlePostLoginData(resp.data);
-      // }
-    } catch (apiError) {
-      console.log('====', apiError);
+  const signIn = async () => {
+    try {
+      await GoogleSignin.hasPlayServices();
+      const response = await GoogleSignin.signIn();
+      if (response) {
+        console.log({userInfo: response.data});
+      } else {
+        // sign in was cancelled by user
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
+  const {t} = useTranslation();
 
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -117,38 +107,33 @@ const LoginScreen = ({navigation}) => {
           {t('Enter your email and password to get started.')}
         </Text>
         <Spacing height={DimensionConstants.twentyFour} />
-
         {/* ✅ Using CommonForm */}
         <CommonForm control={control} fields={fields} errors={errors} />
-
         <Spacing height={DimensionConstants.eight} />
         <Text style={styles.resetPasswordText}>
           {t('I don’t remember password?')}{' '}
           <Text style={styles.resetWord}>{t('Reset')}</Text>
         </Text>
-
         <Spacing height={DimensionConstants.nine} />
         <CustomButton text={t('Login')} onPress={handleSubmit(onSubmit)} />
         <Spacing height={DimensionConstants.sixteen} />
-
         <TouchableOpacity
           onPress={() => navigation.navigate('LoginWithMobileScreen')}>
           <Text style={styles.loginWithPhone}>
             {t('Login with phone number')}
           </Text>
         </TouchableOpacity>
-
         <Spacing height={DimensionConstants.fifty} />
         <Text style={styles.continue}>{t('or continue with')}</Text>
-
         <CustomButton
           textColor={theme.blackText}
           borderColor={theme.buttonBorder}
           color={theme.background}
           text={t('Continue with Google')}
           icon={<GoogleIcon />}
-          onPress={handleGoogleLogin}
+          onPress={() => signIn()}
         />
+
         <CustomButton
           textColor={theme.blackText}
           borderColor={theme.buttonBorder}
@@ -157,7 +142,6 @@ const LoginScreen = ({navigation}) => {
           icon={<AppleIcon />}
           onPress={() => navigation.navigate('MainApp')}
         />
-
         <Spacing height={DimensionConstants.twentyFour} />
         <Text style={styles.terms}>
           {t('By clicking login you agree to recognates')}{' '}
