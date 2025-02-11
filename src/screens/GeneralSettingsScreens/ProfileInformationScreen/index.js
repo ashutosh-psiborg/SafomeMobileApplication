@@ -1,4 +1,4 @@
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
 import React from 'react';
 import {validationSchema} from '../../../utils/Validations';
 import MainBackground from '../../../components/MainBackground';
@@ -33,7 +33,6 @@ const ProfileInformationScreen = () => {
       name: 'fullName',
       icon: <ProfileEditIcon />,
       placeholder: 'Full name',
-      maxLength: 20,
       keyboardType: 'default',
       text: 'Edit',
     },
@@ -57,7 +56,6 @@ const ProfileInformationScreen = () => {
       name: 'dateOfBirth',
       icon: <CalenderIcon />,
       placeholder: 'Date of Birth',
-      maxLength: 20,
       keyboardType: 'default',
       text: 'Edit',
     },
@@ -74,7 +72,6 @@ const ProfileInformationScreen = () => {
       name: 'address',
       icon: <ProfileLocationIcon />,
       placeholder: 'Address',
-      maxLength: 20,
       keyboardType: 'default',
       text: 'Edit',
     },
@@ -82,7 +79,6 @@ const ProfileInformationScreen = () => {
       name: 'gender',
       icon: <GenderIcon />,
       placeholder: 'Gender',
-      maxLength: 20,
       keyboardType: 'default',
       text: 'Edit',
     },
@@ -90,31 +86,32 @@ const ProfileInformationScreen = () => {
   return (
     <MainBackground>
       <CustomHeader title={'Profile information'} icon={<MenuIcon />} />
-      <Spacing height={DimensionConstants.thirtyTwo} />
-      <View style={{alignItems: 'center'}}>
-        <View style={{position: 'relative'}}>
-          <Image
-            source={ImageConstants?.avatar}
-            style={{
-              height: DimensionConstants.oneHundred,
-              width: DimensionConstants.oneHundred,
-              borderRadius: DimensionConstants.fifty,
-            }}
-          />
-          <TouchableOpacity
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              padding: 4,
-            }}>
-            <EditImageIcon />
-          </TouchableOpacity>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Spacing height={DimensionConstants.thirtyTwo} />
+        <View style={{alignItems: 'center'}}>
+          <View style={{position: 'relative'}}>
+            <Image
+              source={ImageConstants?.avatar}
+              style={{
+                height: DimensionConstants.oneHundred,
+                width: DimensionConstants.oneHundred,
+                borderRadius: DimensionConstants.fifty,
+              }}
+            />
+            <TouchableOpacity
+              style={{
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                padding: 4,
+              }}>
+              <EditImageIcon />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-      <Spacing height={DimensionConstants.thirtyTwo} />
-
-      <CommonForm control={control} fields={fields} errors={errors} />
+        <Spacing height={DimensionConstants.thirtyTwo} />
+        <CommonForm control={control} fields={fields} errors={errors} />
+      </ScrollView>
     </MainBackground>
   );
 };

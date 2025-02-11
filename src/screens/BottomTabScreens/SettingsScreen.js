@@ -44,7 +44,11 @@ const SettingsScreen = ({navigation}) => {
           icon: <ProfileIcon />,
           navigation: () => navigation.navigate('ProfileInformationScreen'),
         },
-        {title: 'Language', icon: <LanguageIcon />},
+        {
+          title: 'Language',
+          icon: <LanguageIcon />,
+          navigation: () => navigation.navigate('LanguageScreen'),
+        },
         {title: 'Subscription', icon: <SubscriptionIcon />},
         {title: 'Geofencing', icon: <GeoLocationIcon />},
         {title: 'About device', icon: <AboutDeviceIcon />, line: false},

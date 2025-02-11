@@ -11,7 +11,7 @@ import {VerifyMailOtpStyles} from '../VerifyMailOtpScreen/Styles/VerifyMailOtpSt
 import {useSelector} from 'react-redux';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
-const VerifyPhoneOtpScreen = ({route, navigation}) => {
+const VerifyPhoneOtpScreen = ({navigation}) => {
   const user = useSelector(state => state.user);
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],

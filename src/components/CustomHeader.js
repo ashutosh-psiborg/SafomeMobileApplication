@@ -1,7 +1,7 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import BackIcon from '../assets/icons/BackIcon';
-import { DimensionConstants } from '../constants/DimensionConstants';
+import {DimensionConstants} from '../constants/DimensionConstants';
 
 const CustomHeader = ({
   title,
@@ -15,9 +15,11 @@ const CustomHeader = ({
 }) => {
   return (
     <View
-      style={[styles.header, { backgroundColor: backgroundColor || 'transparent' }]}
-    >
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      style={[
+        styles.header,
+        {backgroundColor: backgroundColor || 'transparent'},
+      ]}>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <TouchableOpacity onPress={backPress}>
           <BackIcon />
         </TouchableOpacity>
@@ -42,6 +44,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: DimensionConstants.fifteen,
     paddingBottom: DimensionConstants.nine,
+    paddingTop: DimensionConstants.sixteen,
     justifyContent: 'space-between',
   },
   headerText: {

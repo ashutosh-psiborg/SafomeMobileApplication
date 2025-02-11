@@ -17,6 +17,7 @@ import FitnessScreen from '../screens/DeviceScreens/FitnessScreen/index';
 import SystemScreen from '../screens/DeviceScreens/SystemScreen/index';
 import TrackingFrequencyScreen from '../screens/DeviceScreens/SystemScreen/TrackingFrequencyScreen/index';
 import ProfileInformationScreen from '../screens/GeneralSettingsScreens/ProfileInformationScreen/index';
+import LanguageScreen from '../screens/GeneralSettingsScreens/LanguageScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -107,6 +108,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="ProfileInformationScreen"
         component={ProfileInformationScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="LanguageScreen"
+        component={LanguageScreen}
       />
     </Stack.Navigator>
   );

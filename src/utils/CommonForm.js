@@ -1,5 +1,11 @@
 import React from 'react';
-import {View, TextInput, Text, StyleSheet} from 'react-native';
+import {
+  View,
+  TextInput,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import {Controller} from 'react-hook-form';
 import {Dropdown} from 'react-native-element-dropdown';
 import {DimensionConstants} from '../constants/DimensionConstants';
@@ -50,7 +56,11 @@ const CommonForm = ({control, fields, errors}) => {
             />
 
             {/* Show text at right end if passed */}
-            {field.text && <Text style={styles.rightText}>{field.text}</Text>}
+            {field.text && (
+              <TouchableOpacity>
+                <Text style={styles.rightText}>{field.text}</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Show Validation Errors Below Input */}
