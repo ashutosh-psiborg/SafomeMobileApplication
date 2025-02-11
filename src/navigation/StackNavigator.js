@@ -18,6 +18,7 @@ import SystemScreen from '../screens/DeviceScreens/SystemScreen/index';
 import TrackingFrequencyScreen from '../screens/DeviceScreens/SystemScreen/TrackingFrequencyScreen/index';
 import ProfileInformationScreen from '../screens/GeneralSettingsScreens/ProfileInformationScreen/index';
 import LanguageScreen from '../screens/GeneralSettingsScreens/LanguageScreen/index';
+import SubscriptionScreen from '../screens/GeneralSettingsScreens/SubscriptionScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -113,6 +114,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="LanguageScreen"
         component={LanguageScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="SubscriptionScreen"
+        component={SubscriptionScreen}
       />
     </Stack.Navigator>
   );
