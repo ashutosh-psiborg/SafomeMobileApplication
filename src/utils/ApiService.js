@@ -42,9 +42,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   async response => {
     if (
-      response.config.url.includes('/register') ||
-      response.config.url.includes('/login') ||
-      response.config.url.includes('/loginVerifyOTP')
+      response.config.url.includes('/auth/login') ||
+      response.config.url.includes('/auth/loginVerifyOTP') ||
+      response.config.url.includes('/auth/googleLogin')
     ) {
       const token = response.data?.token;
       if (token) {

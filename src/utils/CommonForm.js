@@ -1,7 +1,7 @@
 import React from 'react';
-import {View, TextInput, Text, StyleSheet, Platform} from 'react-native';
+import {View, TextInput, Text, StyleSheet} from 'react-native';
 import {Controller} from 'react-hook-form';
-import {Picker} from '@react-native-picker/picker';
+import {Dropdown} from 'react-native-element-dropdown';
 import {DimensionConstants} from '../constants/DimensionConstants';
 
 const CommonForm = ({control, fields, errors}) => {
@@ -16,20 +16,21 @@ const CommonForm = ({control, fields, errors}) => {
               control={control}
               render={({field: {onChange, value}}) =>
                 field.options ? (
-                  // Dropdown Picker
-                  <Picker
-                    selectedValue={value}
-                    onValueChange={onChange}
-                    style={styles.picker}>
-                    {field.options.map((option, idx) => (
-                      <Picker.Item
-                        key={idx}
-                        label={option.label}
-                        value={option.value}
-                        style={{fontSize: DimensionConstants.twelve}}
-                      />
-                    ))}
-                  </Picker>
+                  // Dropdown Component
+                  <Dropdown
+                    style={styles.dropdown}
+                    data={field.options}
+                    labelField="label"
+                    valueField="value"
+                    value={value}
+                    onChange={item => onChange(item.value)}
+                    placeholder={field.placeholder}
+                    placeholderStyle={{
+                      fontSize: DimensionConstants.fourteen,
+                      color: '#5E6368',
+                    }}
+                    selectedTextStyle={{fontSize: DimensionConstants.fourteen}}
+                  />
                 ) : (
                   // TextInput
                   <TextInput
@@ -47,9 +48,12 @@ const CommonForm = ({control, fields, errors}) => {
               name={field.name}
               defaultValue={field.options ? field.options[0]?.value : ''}
             />
+
+            {/* Show text at right end if passed */}
+            {field.text && <Text style={styles.rightText}>{field.text}</Text>}
           </View>
 
-          {/* ✅ Show Validation Errors Below Input */}
+          {/* Show Validation Errors Below Input */}
           {errors[field.name] && (
             <Text style={styles.errorText}>{errors[field.name].message}</Text>
           )}
@@ -60,11 +64,8 @@ const CommonForm = ({control, fields, errors}) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    // Padding removed to allow better spacing between inputs
-  },
   inputWrapper: {
-    marginBottom: DimensionConstants.sixteen, // Keeps spacing consistent
+    marginBottom: DimensionConstants.sixteen,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -76,17 +77,24 @@ const styles = StyleSheet.create({
     height: DimensionConstants.fortyEight,
   },
   icon: {
-    marginRight: DimensionConstants.eight, // Space between icon and input field
+    marginRight: DimensionConstants.eight,
   },
   input: {
     flex: 1,
     height: DimensionConstants.forty,
     paddingHorizontal: DimensionConstants.eight,
+    fontSize: DimensionConstants.fourteen,
   },
-  picker: {
+  dropdown: {
     flex: 1,
+    height: DimensionConstants.forty,
     color: '#5E6368',
-    height: Platform.OS === 'ios' ? DimensionConstants.forty : undefined,
+    paddingHorizontal: DimensionConstants.eight,
+  },
+  rightText: {
+    marginLeft: DimensionConstants.eight,
+    color: '#0279E1',
+    fontSize: DimensionConstants.fourteen,
   },
   errorText: {
     color: 'red',

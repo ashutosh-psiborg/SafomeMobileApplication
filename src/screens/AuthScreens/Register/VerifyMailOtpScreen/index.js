@@ -17,8 +17,6 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
-  const dispatch = useDispatch();
-
   const [code, setCode] = useState('');
   const {t} = useTranslation();
   const styles = VerifyMailOtpStyles(theme);
@@ -69,8 +67,6 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
     onSuccess: data => {
       console.log('Email verification successful:', data);
       Alert.alert('Success', 'Email verified successfully!');
-      dispatch(setUserData({emailToken: data?.token}));
-
       navigation.navigate('VerifyPhoneOtpScreen');
     },
     onError: error => {

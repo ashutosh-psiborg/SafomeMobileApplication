@@ -5,8 +5,7 @@ const initialState = {
   fullName: '',
   phoneNumber: '',
   country: '',
-  emailToken: '',
-  phoneToken: '',
+  password: '',
 };
 
 const userSlice = createSlice({

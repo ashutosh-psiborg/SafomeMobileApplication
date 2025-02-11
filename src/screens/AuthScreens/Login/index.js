@@ -34,6 +34,13 @@ const LoginScreen = ({navigation}) => {
       const response = await GoogleSignin.signIn();
       if (response) {
         console.log({userInfo: response.data});
+        const googlePayload = {
+          fullName: response.data.user.name,
+          email: response.data.user.email,
+          avatarUrl: response.data.user.photo,
+        };
+
+        googleMutation.mutate(googlePayload);
       } else {
         // sign in was cancelled by user
       }
@@ -82,6 +89,25 @@ const LoginScreen = ({navigation}) => {
     },
     onSuccess: () => {
       Alert.alert('Success', 'Account login successful!');
+      navigation.navigate('AddDeviceScreen');
+    },
+    onError: error => {
+      const errorMessage =
+        error?.response?.data?.message || 'Failed to login. Please try again.';
+      Alert.alert('Error', errorMessage);
+    },
+  });
+
+  const googleMutation = useMutation({
+    mutationFn: async data => {
+      return fetcher({
+        method: 'POST',
+        url: 'auth/googleLogin',
+        data,
+      });
+    },
+    onSuccess: () => {
+      Alert.alert('Success', 'Google login successful!');
       navigation.navigate('AddDeviceScreen');
     },
     onError: error => {

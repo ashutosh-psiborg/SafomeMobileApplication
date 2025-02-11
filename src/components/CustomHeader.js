@@ -1,7 +1,7 @@
 import React from 'react';
-import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import BackIcon from '../assets/icons/BackIcon';
-import {DimensionConstants} from '../constants/DimensionConstants';
+import { DimensionConstants } from '../constants/DimensionConstants';
 
 const CustomHeader = ({
   title,
@@ -9,24 +9,28 @@ const CustomHeader = ({
   backPress,
   skip,
   onSkipPress,
-  backgroundColor, // New prop for background color
+  backgroundColor,
+  icon, // New prop for custom icon
+  onIconPress, // Click handler for the custom icon
 }) => {
   return (
     <View
-      style={[
-        styles.header,
-        {backgroundColor: backgroundColor || 'transparent'}, // Use passed backgroundColor or default to transparent
-      ]}>
-      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+      style={[styles.header, { backgroundColor: backgroundColor || 'transparent' }]}
+    >
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
         <TouchableOpacity onPress={backPress}>
           <BackIcon />
         </TouchableOpacity>
         <Text style={styles.headerText}>{title}</Text>
       </View>
-      {skip && (
+      {skip ? (
         <TouchableOpacity onPress={onSkipPress}>
           <Text style={styles.skipText}>Skip</Text>
         </TouchableOpacity>
+      ) : (
+        icon && (
+          <TouchableOpacity onPress={onIconPress}>{icon}</TouchableOpacity>
+        )
       )}
     </View>
   );
@@ -37,7 +41,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingLeft: DimensionConstants.fifteen,
-    // paddingTop: DimensionConstants.twenty,
     paddingBottom: DimensionConstants.nine,
     justifyContent: 'space-between',
   },

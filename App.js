@@ -10,13 +10,11 @@ export default function App() {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: {
-        refetchOnWindowFocus: false,  
-        retry: false, 
+        refetchOnWindowFocus: false,
+        retry: false,
       },
     },
-  });  console.log('QueryClient:', queryClient);
-
-  
+  });
 
   return (
     <QueryClientProvider client={queryClient}>

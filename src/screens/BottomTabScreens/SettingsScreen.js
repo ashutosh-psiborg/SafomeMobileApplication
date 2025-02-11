@@ -30,7 +30,7 @@ import AboutIcon from '../../assets/icons/AboutIcon';
 import RateAppIcon from '../../assets/icons/RateAppIcon';
 import PrivacyIcon from '../../assets/icons/PrivacyIcon';
 
-const SettingsScreen = () => {
+const SettingsScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -39,7 +39,11 @@ const SettingsScreen = () => {
     {
       title: 'General',
       data: [
-        {title: 'Profile information', icon: <ProfileIcon />},
+        {
+          title: 'Profile information',
+          icon: <ProfileIcon />,
+          navigation: () => navigation.navigate('ProfileInformationScreen'),
+        },
         {title: 'Language', icon: <LanguageIcon />},
         {title: 'Subscription', icon: <SubscriptionIcon />},
         {title: 'Geofencing', icon: <GeoLocationIcon />},
@@ -144,7 +148,7 @@ const SettingSection = ({title, data, theme}) => (
               {item.icon}
               <Text style={styles.featureText}>{item.title}</Text>
             </View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={item.navigation}>
               <RightArrowIcon
                 color="black"
                 marginRight={DimensionConstants.twenty}

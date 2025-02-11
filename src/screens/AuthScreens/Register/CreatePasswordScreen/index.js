@@ -1,9 +1,10 @@
 import {View, Text, Alert} from 'react-native';
+setUserData;
 import React from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {useTranslation} from 'react-i18next';
-import {useSelector} from 'react-redux';
+import {useSelector, useDispatch} from 'react-redux';
 import Spacing from '../../../../components/Spacing';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import CustomButton from '../../../../components/CustomButton';
@@ -16,12 +17,15 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import CommonForm from '../../../../utils/CommonForm';
 import GlobeIcon from '../../../../assets/icons/GlobeIcon';
 import PasswordIcon from '../../../../assets/icons/PasswordIcon';
+import {setUserData} from '../../../../redux/slices/userSlice';
 
 const CreatePasswordScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
   const {t} = useTranslation();
+  const dispatch = useDispatch();
+
   const styles = VerifyMailOtpStyles(theme);
 
   const {
@@ -33,7 +37,8 @@ const CreatePasswordScreen = ({navigation}) => {
       validationSchema.pick(['password', 'confirmPassword']),
     ),
   });
-
+  const user = useSelector(state => state.user);
+  console.log('+++', user);
   // Fields for CommonForm
   const fields = [
     {
@@ -54,8 +59,8 @@ const CreatePasswordScreen = ({navigation}) => {
     mutationFn: async data => {
       return fetcher({
         method: 'POST',
-        url: 'auth/createNewPassword',
-        data: {newPassword: data.password},
+        url: 'auth/register',
+        data: data,
       });
     },
     onSuccess: () => {
@@ -71,7 +76,9 @@ const CreatePasswordScreen = ({navigation}) => {
 
   const onSubmit = async data => {
     console.log('🚀 Submitting Data:', data);
-    mutation.mutate(data);
+    dispatch(setUserData({password: data?.password}));
+    console.log('userwithpass', user);
+    mutation.mutate(user);
   };
 
   return (
