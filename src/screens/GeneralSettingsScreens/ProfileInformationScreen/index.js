@@ -1,5 +1,5 @@
-import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
-import React from 'react';
+import React, {useEffect} from 'react';
+import {View, Image, TouchableOpacity, ScrollView} from 'react-native';
 import {validationSchema} from '../../../utils/Validations';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
@@ -18,16 +18,50 @@ import ProfileEditIcon from '../../../assets/icons/ProfileEditIcon';
 import CalenderIcon from '../../../assets/icons/CalenderIcon';
 import GenderIcon from '../../../assets/icons/GenderIcon';
 import ProfileLocationIcon from '../../../assets/icons/ProfileLocationIcon';
+import {useQuery} from '@tanstack/react-query';
+import fetcher from '../../../utils/ApiService';
+import Loader from '../../../components/Loader';
+
 const ProfileInformationScreen = () => {
+  const {data, isLoading, error} = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
+  });
+
   const {
     control,
     handleSubmit,
     formState: {errors},
+    reset, 
   } = useForm({
     resolver: yupResolver(
       validationSchema.pick(['fullName', 'email', 'phoneNumber', 'country']),
     ),
+    defaultValues: {
+      fullName: '',
+      phoneNumber: '',
+      email: '',
+      country: '',
+      dateOfBirth: '',
+      address: '',
+      gender: '',
+    },
   });
+
+  useEffect(() => {
+    if (data) {
+      reset({
+        fullName: data?.user?.fullName || '',
+        phoneNumber: data?.user?.phoneNumber || '',
+        email: data?.user?.email || '',
+        country: data?.user?.country || '',
+        dateOfBirth: data?.user?.dateOfBirth || '',
+        address: data?.user?.address || '',
+        gender: data?.user?.gender || '',
+      });
+    }
+  }, [data, reset]);
+
   const fields = [
     {
       name: 'fullName',
@@ -83,6 +117,7 @@ const ProfileInformationScreen = () => {
       text: 'Edit',
     },
   ];
+
   return (
     <MainBackground>
       <CustomHeader title={'Profile information'} icon={<MenuIcon />} />
@@ -112,6 +147,8 @@ const ProfileInformationScreen = () => {
         <Spacing height={DimensionConstants.thirtyTwo} />
         <CommonForm control={control} fields={fields} errors={errors} />
       </ScrollView>
+
+      {isLoading && <Loader />}
     </MainBackground>
   );
 };

@@ -76,9 +76,15 @@ const CreatePasswordScreen = ({navigation}) => {
 
   const onSubmit = async data => {
     console.log('🚀 Submitting Data:', data);
-    dispatch(setUserData({password: data?.password}));
-    console.log('userwithpass', user);
-    mutation.mutate(user);
+
+    const updatedUserData = {
+      ...user,
+      password: data?.password,
+    };
+
+    dispatch(setUserData(updatedUserData));
+
+    mutation.mutate(updatedUserData);
   };
 
   return (

@@ -49,29 +49,20 @@ api.interceptors.response.use(
       const token = response.data?.token;
       if (token) {
         try {
+          // Store the token and then immediately fetch it to verify
           await AsyncStorage.setItem('authToken', token);
-          console.log('Token stored successfully:', token);
+          const checkToken = await AsyncStorage.getItem('authToken');
+          console.log('✅ Token stored successfully:', checkToken);
         } catch (error) {
           console.error('Error storing token:', error);
         }
       }
     }
 
-    console.log(`Response from ${response.config.url}`, {
-      status: response.status,
-      data: response.data,
-    });
-
     return response;
-  },
-  error => {
-    console.error('Response error:', {
-      message: error.message,
-      response: error.response,
-    });
-    return Promise.reject(error);
-  },
+  }
 );
+
 
 const fetcher = async ({method, url, data, params, noAuth = false}) => {
   const response = await api({

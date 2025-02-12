@@ -19,6 +19,8 @@ import {yupResolver} from '@hookform/resolvers/yup';
 import {validationSchema} from '../../../utils/Validations';
 import CommonForm from '../../../utils/CommonForm';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const LoginScreen = ({navigation}) => {
   GoogleSignin.configure({
     webClientId:
@@ -85,11 +87,21 @@ const LoginScreen = ({navigation}) => {
         method: 'POST',
         url: 'auth/login',
         data,
+        noAuth: true,
       });
     },
-    onSuccess: () => {
-      Alert.alert('Success', 'Account login successful!');
-      navigation.navigate('AddDeviceScreen');
+    onSuccess: async response => {
+      console.log('✅ Login Success Response:', response);
+
+      // Save the token to AsyncStorage
+      try {
+        await AsyncStorage.setItem('authToken', response.token);
+        console.log('Token stored successfully:', response.token);
+        Alert.alert('Success', 'Account login successful!');
+        navigation.navigate('AddDeviceScreen');
+      } catch (error) {
+        console.error('Error storing token:', error);
+      }
     },
     onError: error => {
       const errorMessage =
@@ -104,11 +116,21 @@ const LoginScreen = ({navigation}) => {
         method: 'POST',
         url: 'auth/googleLogin',
         data,
+        noAuth:true ,
       });
     },
-    onSuccess: () => {
-      Alert.alert('Success', 'Google login successful!');
-      navigation.navigate('AddDeviceScreen');
+    onSuccess: async response => {
+      console.log('✅ Login Success Response:', response);
+
+      // Save the token to AsyncStorage
+      try {
+        await AsyncStorage.setItem('authToken', response.token);
+        console.log('Token stored successfully:', response.token);
+        Alert.alert('Success', 'google login successful!');
+        navigation.navigate('AddDeviceScreen');
+      } catch (error) {
+        console.error('Error storing token:', error);
+      }
     },
     onError: error => {
       const errorMessage =

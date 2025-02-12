@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import LoginScreen from '../screens/AuthScreens/Login/index';
 import RegisterScreen from '../screens/AuthScreens/Register/index';
 import OnboardingScreen from '../screens/AuthScreens/Onboarding/index';
@@ -19,12 +20,46 @@ import TrackingFrequencyScreen from '../screens/DeviceScreens/SystemScreen/Track
 import ProfileInformationScreen from '../screens/GeneralSettingsScreens/ProfileInformationScreen/index';
 import LanguageScreen from '../screens/GeneralSettingsScreens/LanguageScreen/index';
 import SubscriptionScreen from '../screens/GeneralSettingsScreens/SubscriptionScreen/index';
+import NotificationsScreen from '../screens/PreferenceScreens/NotificationsScreen/index';
+import {ActivityIndicator, View} from 'react-native';
 
 const Stack = createNativeStackNavigator();
 
 const StackNavigator = () => {
+  const [loading, setLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const checkToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('authToken');
+        if (token) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      } catch (error) {
+        console.log('Error checking token:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    checkToken();
+  }, []);
+
+  // Show a loading indicator while checking for token
+  if (loading) {
+    return (
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
+
   return (
-    <Stack.Navigator initialRouteName="OnboardingScreen">
+    <Stack.Navigator
+      initialRouteName={isAuthenticated ? 'MainApp' : 'LoginScreen'}>
       <Stack.Screen
         options={{headerShown: false}}
         name="LoginScreen"
@@ -119,6 +154,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="SubscriptionScreen"
         component={SubscriptionScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="NotificationsScreen"
+        component={NotificationsScreen}
       />
     </Stack.Navigator>
   );

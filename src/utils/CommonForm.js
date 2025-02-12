@@ -28,21 +28,24 @@ const CommonForm = ({control, fields, errors}) => {
                     data={field.options}
                     labelField="label"
                     valueField="value"
-                    value={value}
+                    value={value} // ✅ Displaying current value
                     onChange={item => onChange(item.value)}
                     placeholder={field.placeholder}
                     placeholderStyle={{
                       fontSize: DimensionConstants.fourteen,
                       color: '#5E6368',
                     }}
-                    selectedTextStyle={{fontSize: DimensionConstants.fourteen}}
+                    selectedTextStyle={{
+                      fontSize: DimensionConstants.fourteen,
+                      color: '#000',
+                    }}
                   />
                 ) : (
-                  // TextInput
+                  // TextInput Component
                   <TextInput
                     style={styles.input}
                     onChangeText={onChange}
-                    value={value}
+                    value={value} // ✅ Displaying current value
                     placeholder={field.placeholder}
                     secureTextEntry={field.secureTextEntry}
                     keyboardType={field.keyboardType}
@@ -52,7 +55,7 @@ const CommonForm = ({control, fields, errors}) => {
                 )
               }
               name={field.name}
-              defaultValue={field.options ? field.options[0]?.value : ''}
+              defaultValue={field.defaultValue || ''} // ✅ Setting default value
             />
 
             {/* Show text at right end if passed */}
@@ -94,6 +97,7 @@ const styles = StyleSheet.create({
     height: DimensionConstants.forty,
     paddingHorizontal: DimensionConstants.eight,
     fontSize: DimensionConstants.fourteen,
+    color: '#000', // ✅ Text color for visibility
   },
   dropdown: {
     flex: 1,

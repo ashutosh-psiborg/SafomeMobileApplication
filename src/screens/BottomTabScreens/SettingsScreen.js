@@ -29,12 +29,30 @@ import FAQIcon from '../../assets/icons/FAQIcon';
 import AboutIcon from '../../assets/icons/AboutIcon';
 import RateAppIcon from '../../assets/icons/RateAppIcon';
 import PrivacyIcon from '../../assets/icons/PrivacyIcon';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useQuery} from '@tanstack/react-query';
+import fetcher from '../../utils/ApiService';
+import Loader from '../../components/Loader';
 const SettingsScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
+  const {data, isLoading, error} = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
+  });
+  const signOut = async () => {
+    try {
+      await AsyncStorage.removeItem('authToken');
 
+      navigation.reset({
+        index: 0,
+        routes: [{name: 'LoginScreen'}],
+      });
+    } catch (error) {
+      console.log('Error signing out:', error);
+    }
+  };
   const sections = [
     {
       title: 'General',
@@ -61,7 +79,11 @@ const SettingsScreen = ({navigation}) => {
     {
       title: 'Preference',
       data: [
-        {title: 'Notifications', icon: <ProfileNotificationIcon />},
+        {
+          title: 'Notifications',
+          icon: <ProfileNotificationIcon />,
+          navigation: () => navigation.navigate('NotificationsScreen'),
+        },
         {title: 'Appearance', icon: <AppearanceIcon />, line: false},
       ],
     },
@@ -91,8 +113,8 @@ const SettingsScreen = ({navigation}) => {
           <View style={styles.profileContainer}>
             <Image source={ImageConstants.avatar} style={styles.profileImage} />
             <Spacing height={DimensionConstants.sixteen} />
-            <Text style={styles.profileName}>Aman Singh</Text>
-            <Text style={styles.profileEmail}>amansingh123@gmail.com</Text>
+            <Text style={styles.profileName}>{data?.user?.fullName}</Text>
+            <Text style={styles.profileEmail}>{data?.user?.email}</Text>
           </View>
 
           <Spacing height={DimensionConstants.twentyFour} />
@@ -126,7 +148,7 @@ const SettingsScreen = ({navigation}) => {
           ))}
           <Spacing height={DimensionConstants.ten} />
 
-          <CustomButton text={'Sign out'} />
+          <CustomButton text={'Sign out'} onPress={signOut} />
           <Spacing height={DimensionConstants.sixteen} />
           <Text
             style={{
@@ -138,6 +160,7 @@ const SettingsScreen = ({navigation}) => {
           </Text>
         </View>
       </ScrollView>
+      {isLoading && <Loader />}
     </MainBackground>
   );
 };
