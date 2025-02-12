@@ -6,26 +6,27 @@ import CustomCard from '../../../components/CustomCard';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
 import Spacing from '../../../components/Spacing';
 import CustomButton from '../../../components/CustomButton';
+import SubscriptionModal from './SubscriptionModal';
 
 const plans = [
   {id: 1, price: '₹ 199', duration: 'Monthly', description: 'Billed monthly'},
   {
     id: 2,
-    price: '₹ 499',
+    price: '₹ 299',
     save: 'SAVE 33%',
     duration: 'Quarterly',
     description: 'Billed every 3 months',
   },
   {
     id: 3,
-    price: '₹ 899',
+    price: '₹ 499',
     save: 'SAVE 33%',
     duration: 'Half-Yearly',
     description: 'Billed every 6 months',
   },
   {
     id: 4,
-    price: '₹ 1599',
+    price: '₹ 699',
     save: 'SAVE 33%',
     duration: 'Annually',
     description: 'Billed annually',
@@ -35,6 +36,10 @@ const plans = [
 
 const SubscriptionScreen = () => {
   const [selectedPlan, setSelectedPlan] = useState(1);
+  const [modalSelectedPlan, setModalSelectedPlan] = useState(1); // For modal selection
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const modalPlans = plans.slice(0, 2); // Show only first 2 plans in modal
 
   return (
     <MainBackground noPadding style={styles.mainBackground}>
@@ -64,7 +69,7 @@ const SubscriptionScreen = () => {
                       styles.priceText,
                       {color: isSelected ? '#ffffff' : '#000000'},
                     ]}>
-                    {plan.price}
+                    {plan?.price}
                   </Text>
                   <View
                     style={[
@@ -76,7 +81,7 @@ const SubscriptionScreen = () => {
                         styles.durationText,
                         {color: isSelected ? '#0279E1' : '#ffffff'},
                       ]}>
-                      {plan.duration}
+                      {plan?.duration}
                     </Text>
                   </View>
                 </View>
@@ -103,15 +108,26 @@ const SubscriptionScreen = () => {
                     styles.descriptionText,
                     {color: isSelected ? '#ffffff' : '#000000'},
                   ]}>
-                  {plan.description}
+                  {plan?.description}
                 </Text>
               </TouchableOpacity>
             );
           })}
         </CustomCard>
 
-        <CustomButton text={'Have a coupon code'} />
+        <CustomButton
+          text={'Have a coupon code'}
+          onPress={() => setModalVisible(true)}
+        />
       </View>
+
+      <SubscriptionModal
+        visible={modalVisible}
+        onClose={() => setModalVisible(false)}
+        modalPlans={modalPlans}
+        modalSelectedPlan={modalSelectedPlan}
+        setModalSelectedPlan={setModalSelectedPlan}
+      />
     </MainBackground>
   );
 };
@@ -152,7 +168,7 @@ const styles = StyleSheet.create({
   },
   saveContainer: {
     padding: DimensionConstants.three,
-    width: '20%',
+    width: DimensionConstants.sixtyFive,
     alignItems: 'center',
     borderRadius: DimensionConstants.five,
   },
@@ -162,6 +178,43 @@ const styles = StyleSheet.create({
   },
   descriptionText: {
     fontSize: DimensionConstants.twelve,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    backgroundColor: '#fff',
+    width: '90%',
+    height: '85%',
+    borderRadius: DimensionConstants.twelve,
+    // padding: DimensionConstants.sixteen,
+  },
+  modalTitle: {
+    fontSize: DimensionConstants.thirtyTwo,
+    fontWeight: '600',
+    marginBottom: DimensionConstants.sixteen,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: DimensionConstants.eight,
+    padding: DimensionConstants.twelve,
+  },
+  closeButton: {
+    marginTop: DimensionConstants.eight,
+    alignItems: 'center',
+  },
+  closeButtonText: {
+    color: '#0279E1',
+    fontWeight: '600',
+  },
+  gradientBackground: {
+    flex: 1,
+    borderRadius: DimensionConstants.twelve,
+    padding: DimensionConstants.sixteen,
   },
 });
 
