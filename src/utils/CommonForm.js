@@ -1,16 +1,31 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {
   View,
   TextInput,
   Text,
   StyleSheet,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import {Controller} from 'react-hook-form';
 import {Dropdown} from 'react-native-element-dropdown';
 import {DimensionConstants} from '../constants/DimensionConstants';
 
 const CommonForm = ({control, fields, errors}) => {
+  const [datePickerVisible, setDatePickerVisible] = useState(false);
+  const [currentField, setCurrentField] = useState(null);
+
+  // Date formatting function
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}/${month}/${day}`;
+  };
+
   return (
     <View style={styles.container}>
       {fields.map((field, index) => (
@@ -22,13 +37,16 @@ const CommonForm = ({control, fields, errors}) => {
               control={control}
               render={({field: {onChange, value}}) =>
                 field.options ? (
-                  // Dropdown Component
+                  // 🔽 Dropdown Component
                   <Dropdown
-                    style={styles.dropdown}
+                    style={[
+                      styles.dropdown,
+                      field.disabled && {color: '#A0A0A0'}, // Greyed out when disabled
+                    ]}
                     data={field.options}
                     labelField="label"
                     valueField="value"
-                    value={value} // ✅ Displaying current value
+                    value={value}
                     onChange={item => onChange(item.value)}
                     placeholder={field.placeholder}
                     placeholderStyle={{
@@ -39,26 +57,67 @@ const CommonForm = ({control, fields, errors}) => {
                       fontSize: DimensionConstants.fourteen,
                       color: '#000',
                     }}
+                    disabled={field.disabled} // Disable Dropdown
                   />
+                ) : field.isDate ? (
+                  // 🔽 Date Picker TextInput Component
+                  <>
+                    <TouchableOpacity
+                      onPress={() => {
+                        if (!field.disabled) { // Only open if not disabled
+                          setCurrentField(field.name);
+                          setDatePickerVisible(true);
+                        }
+                      }}
+                      activeOpacity={field.disabled ? 1 : 0.7} // No press effect when disabled
+                    >
+                      <TextInput
+                        style={styles.input}
+                        value={formatDate(value)}
+                        placeholder={field.placeholder}
+                        editable={false}
+                        placeholderTextColor={'#5E6368'}
+                      />
+                    </TouchableOpacity>
+
+                    {/* DateTimePicker Component */}
+                    {datePickerVisible && currentField === field.name && (
+                      <DateTimePicker
+                        value={value ? new Date(value) : new Date()}
+                        mode="date"
+                        display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                        onChange={(event, selectedDate) => {
+                          setDatePickerVisible(false);
+                          if (selectedDate) {
+                            onChange(selectedDate.toISOString().split('T')[0]);
+                          }
+                        }}
+                      />
+                    )}
+                  </>
                 ) : (
-                  // TextInput Component
+                  // 🔽 Default TextInput Component
                   <TextInput
-                    style={styles.input}
+                    style={[
+                      styles.input,
+                      field.disabled && {color: '#A0A0A0'}, // Greyed out when disabled
+                    ]}
                     onChangeText={onChange}
-                    value={value} // ✅ Displaying current value
+                    value={value}
                     placeholder={field.placeholder}
                     secureTextEntry={field.secureTextEntry}
                     keyboardType={field.keyboardType}
                     placeholderTextColor={'#5E6368'}
                     maxLength={field.maxLength}
+                    editable={!field.disabled} // Disable TextInput
                   />
                 )
               }
               name={field.name}
-              defaultValue={field.defaultValue || ''} // ✅ Setting default value
+              defaultValue={field.defaultValue || ''}
             />
 
-            {/* Show text at right end if passed */}
+            {/* Right Text or Button */}
             {field.text && (
               <TouchableOpacity>
                 <Text style={styles.rightText}>{field.text}</Text>
@@ -97,7 +156,7 @@ const styles = StyleSheet.create({
     height: DimensionConstants.forty,
     paddingHorizontal: DimensionConstants.eight,
     fontSize: DimensionConstants.fourteen,
-    color: '#000', // ✅ Text color for visibility
+    color: '#000',
   },
   dropdown: {
     flex: 1,

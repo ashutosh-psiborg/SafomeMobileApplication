@@ -1,5 +1,5 @@
 import React, {useEffect} from 'react';
-import {View, Image, TouchableOpacity, ScrollView} from 'react-native';
+import {View, Image, TouchableOpacity, ScrollView, Alert} from 'react-native';
 import {validationSchema} from '../../../utils/Validations';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
@@ -21,6 +21,8 @@ import ProfileLocationIcon from '../../../assets/icons/ProfileLocationIcon';
 import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../../utils/ApiService';
 import Loader from '../../../components/Loader';
+import CustomButton from '../../../components/CustomButton';
+import {useMutation} from '@tanstack/react-query';
 
 const ProfileInformationScreen = () => {
   const {data, isLoading, error} = useQuery({
@@ -32,7 +34,7 @@ const ProfileInformationScreen = () => {
     control,
     handleSubmit,
     formState: {errors},
-    reset, 
+    reset,
   } = useForm({
     resolver: yupResolver(
       validationSchema.pick(['fullName', 'email', 'phoneNumber', 'country']),
@@ -68,7 +70,6 @@ const ProfileInformationScreen = () => {
       icon: <ProfileEditIcon />,
       placeholder: 'Full name',
       keyboardType: 'default',
-      text: 'Edit',
     },
     {
       name: 'email',
@@ -76,7 +77,7 @@ const ProfileInformationScreen = () => {
       icon: <MailIcon />,
       maxLength: 50,
       keyboardType: 'email-address',
-      text: 'Edit',
+      disabled: true,
     },
     {
       name: 'phoneNumber',
@@ -84,14 +85,13 @@ const ProfileInformationScreen = () => {
       icon: <DeviceCallIcon />,
       maxLength: 10,
       keyboardType: 'phone-pad',
-      text: 'Edit',
+      disabled: true,
     },
     {
       name: 'dateOfBirth',
       icon: <CalenderIcon />,
       placeholder: 'Date of Birth',
-      keyboardType: 'default',
-      text: 'Edit',
+      isDate: true,  // 🔽 Enable Date Picker
     },
     {
       name: 'country',
@@ -107,16 +107,62 @@ const ProfileInformationScreen = () => {
       icon: <ProfileLocationIcon />,
       placeholder: 'Address',
       keyboardType: 'default',
-      text: 'Edit',
     },
     {
       name: 'gender',
       icon: <GenderIcon />,
       placeholder: 'Gender',
-      keyboardType: 'default',
-      text: 'Edit',
+      options: [
+        {label: 'Male', value: 'MALE'},
+        {label: 'Female', value: 'FEMALE'},
+      ],
     },
   ];
+
+  const {mutate, isLoading: isUpdating} = useMutation({
+    mutationFn: async formData => {
+      return fetcher({
+        method: 'PUT',
+        url: 'auth/updateUser',
+        data: formData,
+      });
+    },
+    onSuccess: response => {
+      console.log('Update Success:', response.data);
+
+      Alert.alert(
+        'Profile Updated',
+        'Your profile details have been updated successfully!',
+        [{text: 'OK'}],
+      );
+    },
+    onError: error => {
+      console.log('Update Error:', error);
+
+      Alert.alert(
+        'Update Failed',
+        error?.response?.data?.message || 'Something went wrong!',
+        [{text: 'OK'}],
+      );
+    },
+  });
+
+  const onSubmit = data => {
+    // 🔽 Filter out disabled fields
+    const filteredData = Object.fromEntries(
+      Object.entries(data).filter(([key]) => {
+        // Get the field by name
+        const field = fields.find(f => f.name === key);
+        // Include if the field is not disabled
+        return !field?.disabled;
+      }),
+    );
+
+    console.log('Filtered Data:', filteredData); // ✅ Debugging log
+
+    // 🔽 Call the mutation with filtered data
+    mutate(filteredData);
+  };
 
   return (
     <MainBackground>
@@ -147,6 +193,7 @@ const ProfileInformationScreen = () => {
         <Spacing height={DimensionConstants.thirtyTwo} />
         <CommonForm control={control} fields={fields} errors={errors} />
       </ScrollView>
+      <CustomButton text={'Save Details'} onPress={handleSubmit(onSubmit)} />
 
       {isLoading && <Loader />}
     </MainBackground>
