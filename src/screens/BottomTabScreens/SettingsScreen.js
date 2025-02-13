@@ -79,7 +79,12 @@ const SettingsScreen = ({navigation}) => {
           navigation: () => navigation.navigate('SubscriptionScreen'),
         },
         {title: 'Geofencing', icon: <GeoLocationIcon />},
-        {title: 'About device', icon: <AboutDeviceIcon />, line: false},
+        {
+          title: 'About device',
+          icon: <AboutDeviceIcon />,
+          navigation: () => navigation.navigate('AboutDeviceScreen'),
+          line: false,
+        },
       ],
     },
     {
