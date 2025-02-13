@@ -18,13 +18,12 @@ import ProfileEditIcon from '../../../assets/icons/ProfileEditIcon';
 import CalenderIcon from '../../../assets/icons/CalenderIcon';
 import GenderIcon from '../../../assets/icons/GenderIcon';
 import ProfileLocationIcon from '../../../assets/icons/ProfileLocationIcon';
-import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../../utils/ApiService';
 import Loader from '../../../components/Loader';
 import CustomButton from '../../../components/CustomButton';
-import {useMutation} from '@tanstack/react-query';
+import {useMutation,useQuery } from '@tanstack/react-query';
 
-const ProfileInformationScreen = () => {
+const ProfileInformationScreen = ({navigation}) => {
   const {data, isLoading, error} = useQuery({
     queryKey: ['userProfile'],
     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
@@ -91,7 +90,7 @@ const ProfileInformationScreen = () => {
       name: 'dateOfBirth',
       icon: <CalenderIcon />,
       placeholder: 'Date of Birth',
-      isDate: true,  // 🔽 Enable Date Picker
+      isDate: true, 
     },
     {
       name: 'country',
@@ -148,19 +147,14 @@ const ProfileInformationScreen = () => {
   });
 
   const onSubmit = data => {
-    // 🔽 Filter out disabled fields
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([key]) => {
-        // Get the field by name
         const field = fields.find(f => f.name === key);
-        // Include if the field is not disabled
         return !field?.disabled;
       }),
     );
 
-    console.log('Filtered Data:', filteredData); // ✅ Debugging log
-
-    // 🔽 Call the mutation with filtered data
+    console.log('Filtered Data:', filteredData); 
     mutate(filteredData);
   };
 

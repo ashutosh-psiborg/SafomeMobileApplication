@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+import React, {useCallback} from 'react';
 import MainBackground from '../../components/MainBackground';
 import CustomHeader from '../../components/CustomHeader';
 import {ImageConstants} from '../../constants/ImageConstants';
@@ -33,18 +34,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../utils/ApiService';
 import Loader from '../../components/Loader';
+
 const SettingsScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
-  const {data, isLoading, error} = useQuery({
+  const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['userProfile'],
     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
   });
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
   const signOut = async () => {
     try {
       await AsyncStorage.removeItem('authToken');
-
       navigation.reset({
         index: 0,
         routes: [{name: 'LoginScreen'}],
