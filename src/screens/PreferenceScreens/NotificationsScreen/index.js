@@ -41,7 +41,8 @@ const NotificationsScreen = ({navigation}) => {
           <View style={styles.separator} />
           <View style={styles.settingRow}>
             <Text style={styles.settingText}>Delete notifications</Text>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('DeleteNotificationScreen')}>
               <RightArrowIcon
                 color="black"
                 marginRight={DimensionConstants.ten}

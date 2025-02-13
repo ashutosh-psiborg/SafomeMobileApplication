@@ -48,9 +48,10 @@ const DevicesScreen = ({navigation}) => {
 
   return (
     <MainBackground style={styles.mainBackground}>
+      <LogoHeader />
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
-          <LogoHeader />
           <Spacing height={DimensionConstants.twentyFour} />
 
           <CustomCard style={styles.deviceCard}>

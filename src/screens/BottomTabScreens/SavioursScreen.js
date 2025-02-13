@@ -18,6 +18,7 @@ import ContactCards from '../../components/ContactCards';
 import {ImageConstants} from '../../constants/ImageConstants';
 import RightArrowIcon from '../../assets/icons/RightArrowIcon';
 import SearchContainer from '../../components/SearchContainer';
+import PlusIcon from '../../assets/icons/PlusIcon';
 
 const SavioursScreen = () => {
   const data = [
@@ -29,7 +30,11 @@ const SavioursScreen = () => {
 
   return (
     <MainBackground noPadding style={styles.background}>
-      <CustomHeader title="Saviours" backgroundColor="#fff" />
+      <CustomHeader
+        title="Saviours"
+        backgroundColor="#fff"
+        icon={<PlusIcon marginRight={DimensionConstants.fifteen} />}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <SearchContainer />

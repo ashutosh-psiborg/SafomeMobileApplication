@@ -4,20 +4,20 @@ import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
 import RadioButtonCard from '../../../components/RadioButtonCard';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
-const PauseNotificationScreen = () => {
+const DeleteNotificationScreen = () => {
   const [selected, setSelected] = useState(null);
-  const pauseOptions = [
-    {label: 'Pause for Today'},
-    {label: 'Next 24 hours'},
-    {label: 'Next week'},
-    {label: 'Custom', line: 'no'},
+  const deleteOptions = [
+    {label: 'Today'},
+    {label: 'Last 24 hours'},
+    {label: 'Last week'},
+    {label: 'All', line: 'no'},
   ];
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
-      <CustomHeader title="Pause notifications" backgroundColor="#ffffff" />
+      <CustomHeader title="Delete" backgroundColor="#ffffff" />
       <View style={{padding: DimensionConstants.sixteen}}>
         <RadioButtonCard
-          data={pauseOptions}
+          data={deleteOptions}
           onSelect={setSelected}
           selected={selected}
         />
@@ -26,4 +26,4 @@ const PauseNotificationScreen = () => {
   );
 };
 
-export default PauseNotificationScreen;
+export default DeleteNotificationScreen;

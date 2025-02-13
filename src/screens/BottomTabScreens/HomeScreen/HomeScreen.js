@@ -74,8 +74,9 @@ const HomeScreen = () => {
 
   return (
     <MainBackground style={{backgroundColor: theme.otpBox}}>
+      <LogoHeader />
+
       <ScrollView showsVerticalScrollIndicator={false}>
-        <LogoHeader />
         <Spacing height={DimensionConstants.twentyFour} />
         <View style={styles.addressContainer}>
           <View style={styles.rowContainer}>
