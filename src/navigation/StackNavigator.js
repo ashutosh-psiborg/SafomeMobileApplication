@@ -22,6 +22,7 @@ import LanguageScreen from '../screens/GeneralSettingsScreens/LanguageScreen/ind
 import SubscriptionScreen from '../screens/GeneralSettingsScreens/SubscriptionScreen/index';
 import NotificationsScreen from '../screens/PreferenceScreens/NotificationsScreen/index';
 import {ActivityIndicator, View} from 'react-native';
+import PauseNotificationScreen from '../screens/PreferenceScreens/NotificationsScreen/PauseNotificationScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -159,6 +160,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="NotificationsScreen"
         component={NotificationsScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="PauseNotificationScreen"
+        component={PauseNotificationScreen}
       />
     </Stack.Navigator>
   );

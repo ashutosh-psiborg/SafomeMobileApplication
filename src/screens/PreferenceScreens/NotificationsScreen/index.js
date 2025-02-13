@@ -7,7 +7,7 @@ import Spacing from '../../../components/Spacing';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
 import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
 
-const NotificationsScreen = () => {
+const NotificationsScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(false);
 
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
@@ -30,7 +30,8 @@ const NotificationsScreen = () => {
           <View style={styles.separator} />
           <View style={styles.settingRow}>
             <Text style={styles.settingText}>Pause notifications</Text>
-            <TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('PauseNotificationScreen')}>
               <RightArrowIcon
                 color="black"
                 marginRight={DimensionConstants.ten}
