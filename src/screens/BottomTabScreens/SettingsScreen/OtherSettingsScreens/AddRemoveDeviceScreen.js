@@ -40,7 +40,6 @@ const AddRemoveDeviceScreen = () => {
       placeholder: t('Device ID'),
     },
   ];
-  // Fetch device details
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['deviceDetails'],
     queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
@@ -68,7 +67,6 @@ const AddRemoveDeviceScreen = () => {
     console.log('🚀 Submitting Data:', data);
     mutation.mutate(data);
   };
-  // Mutation to delete device
   const deleteDevice = useMutation({
     mutationFn: deviceId =>
       fetcher({
@@ -84,7 +82,6 @@ const AddRemoveDeviceScreen = () => {
     },
   });
 
-  // Handle Remove Button
   const handleRemoveDevice = () => {
     Alert.alert(
       'Confirm',
@@ -120,7 +117,6 @@ const AddRemoveDeviceScreen = () => {
             <View style={styles.innerContainer}>
               <Image source={ImageConstants.blackWatch} />
               <Spacing height={DimensionConstants.thirty} />
-
               <Text style={styles.deviceName}>
                 SOS {data?.devices[0]?.deviceName}
               </Text>
