@@ -7,38 +7,70 @@ import {
   ScrollView,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
-import React, {useCallback} from 'react';
-import MainBackground from '../../components/MainBackground';
-import CustomHeader from '../../components/CustomHeader';
-import {ImageConstants} from '../../constants/ImageConstants';
-import {DimensionConstants} from '../../constants/DimensionConstants';
-import {useSelector} from 'react-redux';
-import Spacing from '../../components/Spacing';
-import CustomButton from '../../components/CustomButton';
-import ProfileIcon from '../../assets/icons/ProfileIcon';
-import LanguageIcon from '../../assets/icons/LanguageIcon';
-import SubscriptionIcon from '../../assets/icons/SubscriptionIcon';
-import GeoLocationIcon from '../../assets/icons/GeoLocationIcon';
-import AboutDeviceIcon from '../../assets/icons/AboutDeviceIcon';
-import RightArrowIcon from '../../assets/icons/RightArrowIcon';
-import CustomCard from '../../components/CustomCard';
-import ProfileNotificationIcon from '../../assets/icons/ProfileNotificationIcon';
-import AppearanceIcon from '../../assets/icons/AppearanceIcon';
-import SecurityIcon from '../../assets/icons/SecurityIcon';
-import AddRemoteIcon from '../../assets/icons/AddRemoteIcon';
-import FAQIcon from '../../assets/icons/FAQIcon';
-import AboutIcon from '../../assets/icons/AboutIcon';
-import RateAppIcon from '../../assets/icons/RateAppIcon';
-import PrivacyIcon from '../../assets/icons/PrivacyIcon';
+import React, {useCallback, useState, useEffect} from 'react';
+import MainBackground from '../../../components/MainBackground';
+import CustomHeader from '../../../components/CustomHeader';
+import {ImageConstants} from '../../../constants/ImageConstants';
+import {DimensionConstants} from '../../../constants/DimensionConstants';
+import {useSelector, useDispatch} from 'react-redux';
+import Spacing from '../../../components/Spacing';
+import CustomButton from '../../../components/CustomButton';
+import ProfileIcon from '../../../assets/icons/ProfileIcon';
+import LanguageIcon from '../../../assets/icons/LanguageIcon';
+import SubscriptionIcon from '../../../assets/icons/SubscriptionIcon';
+import GeoLocationIcon from '../../../assets/icons/GeoLocationIcon';
+import AboutDeviceIcon from '../../../assets/icons/AboutDeviceIcon';
+import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
+import CustomCard from '../../../components/CustomCard';
+import ProfileNotificationIcon from '../../../assets/icons/ProfileNotificationIcon';
+import AppearanceIcon from '../../../assets/icons/AppearanceIcon';
+import SecurityIcon from '../../../assets/icons/SecurityIcon';
+import AddRemoteIcon from '../../../assets/icons/AddRemoteIcon';
+import FAQIcon from '../../../assets/icons/FAQIcon';
+import AboutIcon from '../../../assets/icons/AboutIcon';
+import RateAppIcon from '../../../assets/icons/RateAppIcon';
+import PrivacyIcon from '../../../assets/icons/PrivacyIcon';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useQuery} from '@tanstack/react-query';
-import fetcher from '../../utils/ApiService';
-import Loader from '../../components/Loader';
+import fetcher from '../../../utils/ApiService';
+import Loader from '../../../components/Loader';
+import CustomModal from '../../../components/CustomModal';
+import RadioButtonCard from '../../../components/RadioButtonCard';
+import {setTheme} from '../../../redux/slices/themeSlice';
+import {SettingsScreenStyles} from './Styles/SettingsScreenStyles';
 
 const SettingsScreen = ({navigation}) => {
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selected, setSelected] = useState(0);
+  const dispatch = useDispatch();
+
+  const themeOptions = [
+    {label: 'Light theme'},
+    {label: 'Dark theme'},
+    {label: 'Use device theme', line: 'no'},
+  ];
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
+  const styles = SettingsScreenStyles(theme);
+  useEffect(() => {
+    if (theme === 'light') setSelected(0);
+    else if (theme === 'dark') setSelected(1);
+    else setSelected(2); // Device theme
+  }, [theme]);
+  const handleSelect = index => {
+    setSelected(index);
+    if (index === 0) {
+      dispatch(setTheme('light'));
+    } else if (index === 1) {
+      dispatch(setTheme('dark'));
+    } else {
+      // Logic for device theme
+      const colorScheme = Appearance.getColorScheme();
+      dispatch(setTheme(colorScheme === 'dark' ? 'dark' : 'light'));
+    }
+  };
+
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['userProfile'],
     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
@@ -95,7 +127,13 @@ const SettingsScreen = ({navigation}) => {
           icon: <ProfileNotificationIcon />,
           navigation: () => navigation.navigate('NotificationsScreen'),
         },
-        {title: 'Appearance', icon: <AppearanceIcon />, line: false},
+        {
+          title: 'Appearance',
+          icon: <AppearanceIcon />,
+          navigation: () => setModalVisible(true),
+
+          line: false,
+        },
       ],
     },
     {
@@ -155,6 +193,7 @@ const SettingsScreen = ({navigation}) => {
               title={section.title}
               data={section.data}
               theme={theme}
+              styles={styles}
             />
           ))}
           <Spacing height={DimensionConstants.ten} />
@@ -171,12 +210,48 @@ const SettingsScreen = ({navigation}) => {
           </Text>
         </View>
       </ScrollView>
+      <CustomModal
+        isVisible={modalVisible}
+        onClose={() => setModalVisible(false)}>
+        <Spacing height={DimensionConstants.ten} />
+        <View>
+          <Text
+            style={{
+              fontSize: DimensionConstants.sixteen,
+              fontWeight: '600',
+              textAlign: 'center',
+            }}>
+            Confirmation
+          </Text>
+          <RadioButtonCard
+            useView
+            data={themeOptions}
+            onSelect={handleSelect}
+            selected={selected}
+          />
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <CustomButton
+              width={'48%'}
+              color={'#ffffff'}
+              borderColor={'#F2F7FC'}
+              textColor={'#000000'}
+              text={'Cancel'}
+              onPress={() => setModalVisible(false)}
+            />
+            <CustomButton
+              width={'48%'}
+              text={'Save'}
+              onPress={() => setModalVisible(false)}
+            />
+          </View>
+        </View>
+      </CustomModal>
       {isLoading && <Loader />}
     </MainBackground>
   );
 };
 
-const SettingSection = ({title, data, theme}) => (
+const SettingSection = ({title, data, theme, styles}) => (
   <View>
     <Spacing height={DimensionConstants.thirtyTwo} />
 
@@ -203,89 +278,5 @@ const SettingSection = ({title, data, theme}) => (
     </CustomCard>
   </View>
 );
-
-const styles = StyleSheet.create({
-  mainBackground: {
-    backgroundColor: '#F2F7FC',
-  },
-  container: {
-    padding: DimensionConstants.sixteen,
-  },
-  profileContainer: {
-    alignItems: 'center',
-  },
-  profileImage: {
-    height: DimensionConstants.oneHundred,
-    width: DimensionConstants.oneHundred,
-  },
-  profileName: {
-    lineHeight: DimensionConstants.twentyTwo,
-    fontSize: DimensionConstants.twenty,
-    fontWeight: '600',
-  },
-  profileEmail: {
-    fontSize: DimensionConstants.fourteen,
-    fontWeight: '500',
-    color: 'rgba(0, 0, 0, 0.6)',
-    lineHeight: DimensionConstants.twentyTwo,
-  },
-  subscriptionContainer: {
-    position: 'relative',
-    width: '100%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  subscriptionImage: {
-    height: DimensionConstants.twoHundred,
-    width: '100%',
-    borderRadius: DimensionConstants.twelve,
-  },
-  subscriptionOverlay: {
-    position: 'absolute',
-    alignItems: 'center',
-  },
-  subscriptionTitle: {
-    fontWeight: '600',
-    fontSize: DimensionConstants.fourteen,
-  },
-  subscriptionText: {
-    fontSize: DimensionConstants.fourteen,
-    color: 'rgba(0, 0, 0, 0.4)',
-    fontWeight: '500',
-  },
-  subscriptionLink: {
-    fontSize: DimensionConstants.fourteen,
-    fontWeight: '600',
-  },
-  sectionTitle: {
-    fontSize: DimensionConstants.twelve,
-    fontWeight: '500',
-  },
-  featuresCard: {
-    paddingRight: 0,
-    borderRadius: DimensionConstants.twelve,
-  },
-  featureRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  featureContent: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  featureText: {
-    marginLeft: DimensionConstants.fifteen,
-    fontSize: DimensionConstants.fourteen,
-    fontWeight: '500',
-  },
-  separator: {
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-    height: DimensionConstants.one,
-    width: '90%',
-    alignSelf: 'flex-end',
-    marginVertical: DimensionConstants.eight,
-  },
-});
 
 export default SettingsScreen;

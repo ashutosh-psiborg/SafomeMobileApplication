@@ -1,7 +1,7 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/BottomTabScreens/HomeScreen/HomeScreen';
-import SettingsScreen from '../screens/BottomTabScreens/SettingsScreen';
+import SettingsScreen from '../screens/BottomTabScreens/SettingsScreen/SettingsScreen';
 import HomeIcon from '../assets/icons/HomeIcon';
 import SettingsIcon from '../assets/icons/SettingsIcon';
 import DevicesScreen from '../screens/BottomTabScreens/DevicesScreen';
@@ -41,7 +41,7 @@ export default function TabNavigator() {
         tabBarIconStyle: {
           alignItems: 'center',
         },
-        tabBarHideOnKeyboard :true
+        tabBarHideOnKeyboard: true,
       }}>
       <Tab.Screen
         name="Home"

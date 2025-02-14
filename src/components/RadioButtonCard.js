@@ -1,17 +1,17 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import {RadioButton} from 'react-native-paper';
 import CustomCard from './CustomCard';
-import { DimensionConstants } from '../constants/DimensionConstants';
+import {DimensionConstants} from '../constants/DimensionConstants';
 
-const RadioButtonCard = ({data, onSelect, selected}) => {
+const RadioButtonCard = ({data, onSelect, selected, useView}) => {
+  const Wrapper = useView ? View : CustomCard;
+
   return (
-    <CustomCard style={styles.card}>
+    <Wrapper style={styles.card}>
       {data.map((item, index) => (
         <View key={index}>
-          <TouchableOpacity
-            onPress={() => onSelect(index)}
-            style={styles.option}>
+          <TouchableOpacity onPress={() => onSelect(index)} style={styles.option}>
             <Text style={styles.optionText}>{item.label}</Text>
             <RadioButton
               value={index}
@@ -24,7 +24,7 @@ const RadioButtonCard = ({data, onSelect, selected}) => {
           {item.line !== 'no' && <View style={styles.separator} />}
         </View>
       ))}
-    </CustomCard>
+    </Wrapper>
   );
 };
 
