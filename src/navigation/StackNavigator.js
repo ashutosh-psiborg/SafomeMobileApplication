@@ -25,6 +25,7 @@ import {ActivityIndicator, View} from 'react-native';
 import PauseNotificationScreen from '../screens/BottomTabScreens/SettingsScreen/PreferenceScreens/NotificationsScreen/PauseNotificationScreen';
 import DeleteNotificationScreen from '../screens/BottomTabScreens/SettingsScreen/PreferenceScreens/NotificationsScreen/DeleteNotificationScreen';
 import AboutDeviceScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/AboutDeviceScreen/index';
+import AddRemoveDeviceScreen from '../screens/BottomTabScreens/SettingsScreen/OtherSettingsScreens/AddRemoveDeviceScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -177,6 +178,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="AboutDeviceScreen"
         component={AboutDeviceScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="AddRemoveDeviceScreen"
+        component={AddRemoveDeviceScreen}
       />
     </Stack.Navigator>
   );

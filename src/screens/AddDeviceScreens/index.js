@@ -17,7 +17,7 @@ import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {validationSchema} from '../../utils/Validations';
 import CommonForm from '../../utils/CommonForm';
-
+import InputModal from '../../components/InputModal';
 const AddDeviceScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [inputModalVisible, setInputModalVisible] = useState(false);
@@ -132,49 +132,16 @@ const AddDeviceScreen = ({navigation}) => {
             </View>
           </View>
         </CustomModal>
-
-        <CustomModal
+        <InputModal
           isVisible={inputModalVisible}
-          modalHeight={height / 2.2}
-          onClose={() => setInputModalVisible(false)}>
-          <View
-            style={{
-              justifyContent: 'space-between',
-              flex: 1,
-              paddingBottom: DimensionConstants.fifteen,
-            }}>
-            <View style={{alignItems: 'center'}}>
-              <Spacing height={DimensionConstants.twenty} />
-              <Text
-                style={{
-                  fontWeight: '600',
-                  fontSize: DimensionConstants.sixteen,
-                }}>
-                {t('Add device details')}
-              </Text>
-            </View>
-            <Spacing height={DimensionConstants.twenty} />
-
-            <CommonForm control={control} fields={fields} errors={errors} />
-
-            <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-              <CustomButton
-                width={'48%'}
-                text={t('Cancel')}
-                color={theme.background}
-                borderColor={theme.otpBox}
-                textColor={theme.text}
-                onPress={() => setInputModalVisible(false)}
-              />
-              <CustomButton
-                text={t('Add')}
-                width={'48%'}
-                onPress={handleSubmit(onSubmit)}
-              />
-            </View>
-          </View>
-        </CustomModal>
+          onClose={() => setInputModalVisible(false)}
+          control={control}
+          fields={fields}
+          errors={errors}
+          onSubmit={handleSubmit(onSubmit)}
+          theme={theme}
+          t={t}
+        />
       </View>
     </MainBackground>
   );

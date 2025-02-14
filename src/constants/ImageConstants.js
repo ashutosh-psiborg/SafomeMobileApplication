@@ -6,5 +6,7 @@ export const ImageConstants = {
   avatar: require('../assets/images/avatar.png'),
   avatar2: require('../assets/images/avatar2.png'),
   avatar3: require('../assets/images/avatar3.png'),
-watch :require('../assets/images/watch.png'),
+  watch: require('../assets/images/watch.png'),
+  blackWatch :require('../assets/images/blackWatch.png'),
+
 };

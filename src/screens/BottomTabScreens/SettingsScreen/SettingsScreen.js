@@ -42,7 +42,7 @@ import {SettingsScreenStyles} from './Styles/SettingsScreenStyles';
 const SettingsScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selected, setSelected] = useState(0);
-  const [tempSelected, setTempSelected] = useState(0); 
+  const [tempSelected, setTempSelected] = useState(0);
 
   const dispatch = useDispatch();
 
@@ -155,7 +155,12 @@ const SettingsScreen = ({navigation}) => {
       title: 'Other settings',
       data: [
         {title: 'Security', icon: <SecurityIcon />},
-        {title: 'Add / remove device', icon: <AddRemoteIcon />, line: false},
+        {
+          title: 'Add / remove device',
+          icon: <AddRemoteIcon />,
+          navigation: () => navigation.navigate('AddRemoveDeviceScreen'),
+          line: false,
+        },
       ],
     },
     {
