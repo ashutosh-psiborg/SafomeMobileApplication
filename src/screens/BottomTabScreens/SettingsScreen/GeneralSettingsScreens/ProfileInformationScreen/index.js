@@ -1,27 +1,27 @@
 import React, {useEffect} from 'react';
 import {View, Image, TouchableOpacity, ScrollView, Alert} from 'react-native';
-import {validationSchema} from '../../../utils/Validations';
-import MainBackground from '../../../components/MainBackground';
-import CustomHeader from '../../../components/CustomHeader';
-import MenuIcon from '../../../assets/icons/MenuIcon';
-import Spacing from '../../../components/Spacing';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
-import {ImageConstants} from '../../../constants/ImageConstants';
-import EditImageIcon from '../../../assets/icons/EditImageIcon';
-import MailIcon from '../../../assets/icons/MailIcon';
-import DeviceCallIcon from '../../../assets/icons/DeviceCallIcon';
-import CountryIcon from '../../../assets/icons/CountryIcon';
+import {validationSchema} from '../../../../../utils/Validations';
+import MainBackground from '../../../../../components/MainBackground';
+import CustomHeader from '../../../../../components/CustomHeader';
+import MenuIcon from '../../../../../assets/icons/MenuIcon';
+import Spacing from '../../../../../components/Spacing';
+import {DimensionConstants} from '../../../../../constants/DimensionConstants';
+import {ImageConstants} from '../../../../../constants/ImageConstants';
+import EditImageIcon from '../../../../../assets/icons/EditImageIcon';
+import MailIcon from '../../../../../assets/icons/MailIcon';
+import DeviceCallIcon from '../../../../../assets/icons/DeviceCallIcon';
+import CountryIcon from '../../../../../assets/icons/CountryIcon';
 import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
-import CommonForm from '../../../utils/CommonForm';
-import ProfileEditIcon from '../../../assets/icons/ProfileEditIcon';
-import CalenderIcon from '../../../assets/icons/CalenderIcon';
-import GenderIcon from '../../../assets/icons/GenderIcon';
-import ProfileLocationIcon from '../../../assets/icons/ProfileLocationIcon';
-import fetcher from '../../../utils/ApiService';
-import Loader from '../../../components/Loader';
-import CustomButton from '../../../components/CustomButton';
-import {useMutation,useQuery } from '@tanstack/react-query';
+import CommonForm from '../../../../../utils/CommonForm';
+import ProfileEditIcon from '../../../../../assets/icons/ProfileEditIcon';
+import CalenderIcon from '../../../../../assets/icons/CalenderIcon';
+import GenderIcon from '../../../../../assets/icons/GenderIcon';
+import ProfileLocationIcon from '../../../../../assets/icons/ProfileLocationIcon';
+import fetcher from '../../../../../utils/ApiService';
+import Loader from '../../../../../components/Loader';
+import CustomButton from '../../../../../components/CustomButton';
+import {useMutation, useQuery} from '@tanstack/react-query';
 
 const ProfileInformationScreen = ({navigation}) => {
   const {data, isLoading, error} = useQuery({
@@ -90,7 +90,7 @@ const ProfileInformationScreen = ({navigation}) => {
       name: 'dateOfBirth',
       icon: <CalenderIcon />,
       placeholder: 'Date of Birth',
-      isDate: true, 
+      isDate: true,
     },
     {
       name: 'country',
@@ -154,7 +154,7 @@ const ProfileInformationScreen = ({navigation}) => {
       }),
     );
 
-    console.log('Filtered Data:', filteredData); 
+    console.log('Filtered Data:', filteredData);
     mutate(filteredData);
   };
 

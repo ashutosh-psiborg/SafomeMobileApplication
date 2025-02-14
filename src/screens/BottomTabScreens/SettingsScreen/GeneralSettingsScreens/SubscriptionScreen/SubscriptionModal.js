@@ -9,11 +9,11 @@ import {
   Platform,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import CrossIcon from '../../../assets/icons/CrossIcon';
-import TickIcon from '../../../assets/icons/TickIcon';
-import { DimensionConstants } from '../../../constants/DimensionConstants';
-import Spacing from '../../../components/Spacing';
-import CustomButton from '../../../components/CustomButton';
+import CrossIcon from '../../../../../assets/icons/CrossIcon';
+import TickIcon from '../../../../../assets/icons/TickIcon';
+import {DimensionConstants} from '../../../../../constants/DimensionConstants';
+import Spacing from '../../../../../components/Spacing';
+import CustomButton from '../../../../../components/CustomButton';
 
 const SubscriptionModal = ({
   visible,
@@ -56,9 +56,7 @@ const SubscriptionModal = ({
                       backgroundColor: isSelected ? '#0279E1' : null,
                       borderColor: '#0279E1',
                       marginBottom:
-                        plan?.last === 'yes'
-                          ? 0
-                          : DimensionConstants.sixteen,
+                        plan?.last === 'yes' ? 0 : DimensionConstants.sixteen,
                     },
                   ]}>
                   <View style={styles.planHeader}>
@@ -73,9 +71,7 @@ const SubscriptionModal = ({
                       style={[
                         styles.durationContainer,
                         {
-                          backgroundColor: isSelected
-                            ? '#ffffff'
-                            : '#FE605D',
+                          backgroundColor: isSelected ? '#ffffff' : '#FE605D',
                         },
                       ]}>
                       <Text
@@ -94,9 +90,7 @@ const SubscriptionModal = ({
                       style={[
                         styles.saveContainer,
                         {
-                          backgroundColor: isSelected
-                            ? '#ffffff'
-                            : '#0279E1',
+                          backgroundColor: isSelected ? '#ffffff' : '#0279E1',
                         },
                       ]}>
                       <Text
@@ -115,9 +109,7 @@ const SubscriptionModal = ({
                     style={[
                       styles.descriptionText,
                       {
-                        color: isSelected
-                          ? '#ffffff'
-                          : '#0279E1',
+                        color: isSelected ? '#ffffff' : '#0279E1',
                       },
                     ]}>
                     {plan?.description}

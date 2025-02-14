@@ -17,14 +17,14 @@ import PairNewDeviceScreen from '../screens/AddDeviceScreens/PairNewDeviceScreen
 import FitnessScreen from '../screens/DeviceScreens/FitnessScreen/index';
 import SystemScreen from '../screens/DeviceScreens/SystemScreen/index';
 import TrackingFrequencyScreen from '../screens/DeviceScreens/SystemScreen/TrackingFrequencyScreen/index';
-import ProfileInformationScreen from '../screens/GeneralSettingsScreens/ProfileInformationScreen/index';
-import LanguageScreen from '../screens/GeneralSettingsScreens/LanguageScreen/index';
-import SubscriptionScreen from '../screens/GeneralSettingsScreens/SubscriptionScreen/index';
-import NotificationsScreen from '../screens/PreferenceScreens/NotificationsScreen/index';
+import ProfileInformationScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/ProfileInformationScreen/index';
+import LanguageScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/LanguageScreen/index';
+import SubscriptionScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/SubscriptionScreen/index';
+import NotificationsScreen from '../screens/BottomTabScreens/SettingsScreen/PreferenceScreens/NotificationsScreen/index';
 import {ActivityIndicator, View} from 'react-native';
-import PauseNotificationScreen from '../screens/PreferenceScreens/NotificationsScreen/PauseNotificationScreen';
-import DeleteNotificationScreen from '../screens/PreferenceScreens/NotificationsScreen/DeleteNotificationScreen';
-import AboutDeviceScreen from '../screens/GeneralSettingsScreens/AboutDeviceScreen/index';
+import PauseNotificationScreen from '../screens/BottomTabScreens/SettingsScreen/PreferenceScreens/NotificationsScreen/PauseNotificationScreen';
+import DeleteNotificationScreen from '../screens/BottomTabScreens/SettingsScreen/PreferenceScreens/NotificationsScreen/DeleteNotificationScreen';
+import AboutDeviceScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/AboutDeviceScreen/index';
 
 const Stack = createNativeStackNavigator();
 

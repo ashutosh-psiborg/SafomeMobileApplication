@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {View, Text, Switch, TouchableOpacity, StyleSheet} from 'react-native';
-import MainBackground from '../../../components/MainBackground';
-import CustomHeader from '../../../components/CustomHeader';
-import CustomCard from '../../../components/CustomCard';
-import Spacing from '../../../components/Spacing';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
-import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
+import MainBackground from '../../../../../components/MainBackground';
+import CustomHeader from '../../../../../components/CustomHeader';
+import CustomCard from '../../../../../components/CustomCard';
+import Spacing from '../../../../../components/Spacing';
+import {DimensionConstants} from '../../../../../constants/DimensionConstants';
+import RightArrowIcon from '../../../../../assets/icons/RightArrowIcon';
 
 const NotificationsScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(false);

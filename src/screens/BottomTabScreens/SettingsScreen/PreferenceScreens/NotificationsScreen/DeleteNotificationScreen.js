@@ -1,9 +1,9 @@
 import {View, Text} from 'react-native';
 import React, {useState} from 'react';
-import MainBackground from '../../../components/MainBackground';
-import CustomHeader from '../../../components/CustomHeader';
-import RadioButtonCard from '../../../components/RadioButtonCard';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
+import MainBackground from '../../../../../components/MainBackground';
+import CustomHeader from '../../../../../components/CustomHeader';
+import RadioButtonCard from '../../../../../components/RadioButtonCard';
+import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 const DeleteNotificationScreen = () => {
   const [selected, setSelected] = useState(null);
   const deleteOptions = [

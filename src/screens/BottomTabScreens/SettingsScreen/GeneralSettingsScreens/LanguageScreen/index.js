@@ -1,9 +1,9 @@
 import {View, Text} from 'react-native';
 import React, {useState} from 'react';
-import MainBackground from '../../../components/MainBackground';
-import RadioButtonCard from '../../../components/RadioButtonCard';
-import CustomHeader from '../../../components/CustomHeader';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
+import MainBackground from '../../../../../components/MainBackground';
+import RadioButtonCard from '../../../../../components/RadioButtonCard';
+import CustomHeader from '../../../../../components/CustomHeader';
+import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 const LanguageScreen = () => {
   const [selected, setSelected] = useState(0);
 

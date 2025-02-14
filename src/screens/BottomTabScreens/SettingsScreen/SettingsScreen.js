@@ -42,6 +42,8 @@ import {SettingsScreenStyles} from './Styles/SettingsScreenStyles';
 const SettingsScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selected, setSelected] = useState(0);
+  const [tempSelected, setTempSelected] = useState(0); 
+
   const dispatch = useDispatch();
 
   const themeOptions = [
@@ -54,23 +56,36 @@ const SettingsScreen = ({navigation}) => {
   );
   const styles = SettingsScreenStyles(theme);
   useEffect(() => {
-    if (theme === 'light') setSelected(0);
-    else if (theme === 'dark') setSelected(1);
-    else setSelected(2); // Device theme
+    if (theme === 'light') {
+      setSelected(0);
+      setTempSelected(0);
+    } else if (theme === 'dark') {
+      setSelected(1);
+      setTempSelected(1);
+    } else {
+      setSelected(2);
+      setTempSelected(2);
+    }
   }, [theme]);
+
+  // Only update temp state when radio button is clicked
   const handleSelect = index => {
-    setSelected(index);
-    if (index === 0) {
+    setTempSelected(index);
+  };
+
+  // Save changes and update the theme when Save is clicked
+  const handleSave = () => {
+    setSelected(tempSelected);
+    if (tempSelected === 0) {
       dispatch(setTheme('light'));
-    } else if (index === 1) {
+    } else if (tempSelected === 1) {
       dispatch(setTheme('dark'));
     } else {
-      // Logic for device theme
       const colorScheme = Appearance.getColorScheme();
       dispatch(setTheme(colorScheme === 'dark' ? 'dark' : 'light'));
     }
+    setModalVisible(false); // Close the modal after saving
   };
-
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['userProfile'],
     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
@@ -227,7 +242,7 @@ const SettingsScreen = ({navigation}) => {
             useView
             data={themeOptions}
             onSelect={handleSelect}
-            selected={selected}
+            selected={tempSelected} // Use temporary state for selection
           />
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <CustomButton
@@ -238,11 +253,7 @@ const SettingsScreen = ({navigation}) => {
               text={'Cancel'}
               onPress={() => setModalVisible(false)}
             />
-            <CustomButton
-              width={'48%'}
-              text={'Save'}
-              onPress={() => setModalVisible(false)}
-            />
+            <CustomButton width={'48%'} text={'Save'} onPress={handleSave} />
           </View>
         </View>
       </CustomModal>

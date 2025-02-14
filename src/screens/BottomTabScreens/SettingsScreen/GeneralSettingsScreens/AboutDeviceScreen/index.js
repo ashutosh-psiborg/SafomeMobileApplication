@@ -1,10 +1,10 @@
 import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import React from 'react';
-import MainBackground from '../../../components/MainBackground';
-import CustomHeader from '../../../components/CustomHeader';
-import CustomCard from '../../../components/CustomCard';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
-import Spacing from '../../../components/Spacing';
+import MainBackground from '../../../../../components/MainBackground';
+import CustomHeader from '../../../../../components/CustomHeader';
+import CustomCard from '../../../../../components/CustomCard';
+import {DimensionConstants} from '../../../../../constants/DimensionConstants';
+import Spacing from '../../../../../components/Spacing';
 
 const features = [
   {

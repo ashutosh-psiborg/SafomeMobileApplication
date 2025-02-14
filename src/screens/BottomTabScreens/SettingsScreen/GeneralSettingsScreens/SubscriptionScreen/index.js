@@ -1,11 +1,11 @@
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
 import React, {useState} from 'react';
-import MainBackground from '../../../components/MainBackground';
-import CustomHeader from '../../../components/CustomHeader';
-import CustomCard from '../../../components/CustomCard';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
-import Spacing from '../../../components/Spacing';
-import CustomButton from '../../../components/CustomButton';
+import MainBackground from '../../../../../components/MainBackground';
+import CustomHeader from '../../../../../components/CustomHeader';
+import CustomCard from '../../../../../components/CustomCard';
+import {DimensionConstants} from '../../../../../constants/DimensionConstants';
+import Spacing from '../../../../../components/Spacing';
+import CustomButton from '../../../../../components/CustomButton';
 import SubscriptionModal from './SubscriptionModal';
 
 const plans = [
