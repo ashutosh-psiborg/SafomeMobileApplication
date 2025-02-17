@@ -24,6 +24,7 @@ const SystemScreen = ({navigation}) => {
     {
       component: <SystemCallIcon />,
       label: 'Auto call answer',
+      navigation: () => navigation.navigate('AutoCallScreen'),
     },
     {
       component: <SleepIcon />,

@@ -21,8 +21,11 @@ const TrackingFrequencyScreen = () => {
       <CustomHeader title="Tracking Frequency" backgroundColor="#ffffff" />
       <Spacing height={DimensionConstants.ten} />
       <View style={styles.container}>
-        {/* ✅ Using the reusable component */}
-        <RadioButtonCard data={trackingOptions} onSelect={setSelected} selected={selected} />
+        <RadioButtonCard
+          data={trackingOptions}
+          onSelect={setSelected}
+          selected={selected}
+        />
         <CustomButton text="Save" />
       </View>
     </MainBackground>

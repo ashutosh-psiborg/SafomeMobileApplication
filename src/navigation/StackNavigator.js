@@ -29,6 +29,7 @@ import AddRemoveDeviceScreen from '../screens/BottomTabScreens/SettingsScreen/Ot
 import AppScreen from '../screens/AppsScreens/index';
 import AlarmScreen from '../screens/AppsScreens/AlarmScreen/index';
 import SetAlarmScreen from '../screens/AppsScreens/AlarmScreen/SetAlarmScreen/index';
+import AutoCallScreen from '../screens/DeviceScreens/SystemScreen/AutoCallScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -55,7 +56,6 @@ const StackNavigator = () => {
     checkToken();
   }, []);
 
-  // Show a loading indicator while checking for token
   if (loading) {
     return (
       <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -201,6 +201,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="SetAlarmScreen"
         component={SetAlarmScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="AutoCallScreen"
+        component={AutoCallScreen}
       />
     </Stack.Navigator>
   );
