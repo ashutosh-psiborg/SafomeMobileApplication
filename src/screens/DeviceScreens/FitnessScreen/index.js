@@ -80,10 +80,10 @@ const FitnessScreen = ({navigation}) => {
                 </Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity>
+            {/* <TouchableOpacity>
               <EditIcon />
-            </TouchableOpacity>
-            <Spacing width={DimensionConstants.three} />
+            </TouchableOpacity> */}
+            {/* <Spacing width={DimensionConstants.three} /> */}
           </View>
           <Spacing height={DimensionConstants.twentyFour} />
 

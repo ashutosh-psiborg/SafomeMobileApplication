@@ -33,7 +33,11 @@ const DevicesScreen = ({navigation}) => {
       label: 'Fitness & Health',
       navigation: () => navigation.navigate('FitnessScreen'),
     },
-    {component: <AppsIcon />, label: 'Apps'},
+    {
+      component: <AppsIcon />,
+      label: 'Apps',
+      navigation: () => navigation.navigate('AppScreen'),
+    },
     {
       component: <SystemIcon />,
       label: 'System',
