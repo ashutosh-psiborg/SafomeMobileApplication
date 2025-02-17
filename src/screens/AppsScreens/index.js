@@ -13,6 +13,7 @@ const AppScreen = ({navigation}) => {
     {
       component: <AlarmIcon />,
       label: 'Alarm',
+      navigation: () => navigation.navigate('AlarmScreen'),
     },
     {
       component: <SyncEventIcon />,

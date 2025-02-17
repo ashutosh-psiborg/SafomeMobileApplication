@@ -27,6 +27,8 @@ import DeleteNotificationScreen from '../screens/BottomTabScreens/SettingsScreen
 import AboutDeviceScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/AboutDeviceScreen/index';
 import AddRemoveDeviceScreen from '../screens/BottomTabScreens/SettingsScreen/OtherSettingsScreens/AddRemoveDeviceScreen';
 import AppScreen from '../screens/AppsScreens/index';
+import AlarmScreen from '../screens/AppsScreens/AlarmScreen/index';
+import SetAlarmScreen from '../screens/AppsScreens/AlarmScreen/SetAlarmScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -189,6 +191,16 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="AppScreen"
         component={AppScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="AlarmScreen"
+        component={AlarmScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="SetAlarmScreen"
+        component={SetAlarmScreen}
       />
     </Stack.Navigator>
   );
