@@ -179,15 +179,16 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
+    marginTop: DimensionConstants.eight,
   },
   dayButton: {
-    paddingVertical: DimensionConstants.five,
-    paddingHorizontal: DimensionConstants.eight,
+    width: DimensionConstants.fortyTwo,
+    height: DimensionConstants.thirtyTwo,
     backgroundColor: '#000000',
     borderRadius: DimensionConstants.ten,
-    marginRight: DimensionConstants.two,
-    minWidth: DimensionConstants.thirty,
+    justifyContent: 'center',
     alignItems: 'center',
+    marginVertical: DimensionConstants.five,
   },
   selectedDayButton: {
     backgroundColor: '#0279E1',
@@ -195,6 +196,7 @@ const styles = StyleSheet.create({
   dayText: {
     color: '#fff',
     fontSize: DimensionConstants.sixteen,
+    fontWeight: '500',
   },
   selectedDayText: {
     color: '#fff',
