@@ -29,6 +29,7 @@ const SystemScreen = ({navigation}) => {
     {
       component: <SleepIcon />,
       label: 'Sleep mode',
+      navigation: () => navigation.navigate('SleepModeScreen'),
     },
     {
       component: <TrackingIcon />,

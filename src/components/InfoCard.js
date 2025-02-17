@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, Switch, StyleSheet} from 'react-native';
-import { DimensionConstants } from '../constants/DimensionConstants';
+import {DimensionConstants} from '../constants/DimensionConstants';
 
 const InfoCard = ({title, description, isEnabled, onToggle}) => {
   return (
@@ -42,5 +42,6 @@ const styles = StyleSheet.create({
     marginRight: DimensionConstants.ten,
     fontSize: DimensionConstants.twelve,
     color: '#555',
+    lineHeight: DimensionConstants.twenty,
   },
 });

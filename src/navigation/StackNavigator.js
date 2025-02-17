@@ -30,6 +30,7 @@ import AppScreen from '../screens/AppsScreens/index';
 import AlarmScreen from '../screens/AppsScreens/AlarmScreen/index';
 import SetAlarmScreen from '../screens/AppsScreens/AlarmScreen/SetAlarmScreen/index';
 import AutoCallScreen from '../screens/DeviceScreens/SystemScreen/AutoCallScreen/index';
+import SleepModeScreen from '../screens/DeviceScreens/SystemScreen/SleepModeScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -206,6 +207,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="AutoCallScreen"
         component={AutoCallScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="SleepModeScreen"
+        component={SleepModeScreen}
       />
     </Stack.Navigator>
   );
