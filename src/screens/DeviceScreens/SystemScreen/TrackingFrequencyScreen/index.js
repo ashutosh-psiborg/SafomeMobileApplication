@@ -7,7 +7,7 @@ import CustomButton from '../../../../components/CustomButton';
 import RadioButtonCard from '../../../../components/RadioButtonCard';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 
-const TrackingFrequencyScreen = () => {
+const TrackingFrequencyScreen = ({navigation}) => {
   const [selected, setSelected] = useState(0);
 
   const trackingOptions = [
@@ -18,7 +18,11 @@ const TrackingFrequencyScreen = () => {
 
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader title="Tracking Frequency" backgroundColor="#ffffff" />
+      <CustomHeader
+        title="Tracking Frequency"
+        backgroundColor="#ffffff"
+        backPress={() => navigation.goBack()}
+      />
       <Spacing height={DimensionConstants.ten} />
       <View style={styles.container}>
         <RadioButtonCard
@@ -26,7 +30,7 @@ const TrackingFrequencyScreen = () => {
           onSelect={setSelected}
           selected={selected}
         />
-        <CustomButton text="Save" />
+        <CustomButton text="Save" onPress={() => navigation.goBack()} />
       </View>
     </MainBackground>
   );
