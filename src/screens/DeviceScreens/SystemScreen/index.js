@@ -12,7 +12,6 @@ import {DimensionConstants} from '../../../constants/DimensionConstants';
 import ScheduleIcon from '../../../assets/icons/ScheduleIcon';
 import RemoteIcon from '../../../assets/icons/RemoteIcon';
 import TimeZoneIcon from '../../../assets/icons/TimeZoneIcon';
-import LocationIcon from '../../../assets/icons/LocationIcon';
 import ResetIcon from '../../../assets/icons/ResetIcon';
 import CustomCard from '../../../components/CustomCard';
 import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
@@ -20,6 +19,7 @@ import SystemLocation from '../../../assets/icons/SystemLocation';
 import SystemCallIcon from '../../../assets/icons/SystemCallIcon';
 import Spacing from '../../../components/Spacing';
 const SystemScreen = ({navigation}) => {
+ 
   const icons = [
     {
       component: <SystemCallIcon />,
@@ -59,11 +59,11 @@ const SystemScreen = ({navigation}) => {
       component: <RemoteIcon />,
       label: 'Remote Restart/Shutdown',
       navigation: () => navigation.navigate('RemoteRestartScreen'),
-
     },
     {
       component: <TimeZoneIcon />,
       label: 'Time zone',
+      navigation: () => navigation.navigate('TimeZoneScreen'),
     },
     {component: <SystemLocation />, label: 'Location based service'},
     {

@@ -35,6 +35,7 @@ import DisableFunctionScreen from '../screens/DeviceScreens/SystemScreen/Disable
 import DNDScreen from '../screens/DeviceScreens/SystemScreen/DNDScreen/index';
 import ScheduleRestartScreen from '../screens/DeviceScreens/SystemScreen/ScheduleRestartScreen/index';
 import RemoteRestartScreen from '../screens/DeviceScreens/SystemScreen/RemoteRestartScreen/index';
+import TimeZoneScreen from '../screens/DeviceScreens/SystemScreen/TimeZoneScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -236,6 +237,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="RemoteRestartScreen"
         component={RemoteRestartScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="TimeZoneScreen"
+        component={TimeZoneScreen}
       />
     </Stack.Navigator>
   );
