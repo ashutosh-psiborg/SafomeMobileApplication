@@ -48,6 +48,7 @@ const SystemScreen = ({navigation}) => {
     {
       component: <DNDIcon />,
       label: 'DND',
+      navigation: () => navigation.navigate('DNDScreen'),
     },
     {component: <ScheduleIcon />, label: 'Schedule Restart/Shutdown'},
     {
