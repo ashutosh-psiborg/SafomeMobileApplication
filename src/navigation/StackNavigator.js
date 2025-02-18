@@ -33,6 +33,7 @@ import AutoCallScreen from '../screens/DeviceScreens/SystemScreen/AutoCallScreen
 import SleepModeScreen from '../screens/DeviceScreens/SystemScreen/SleepModeScreen/index';
 import DisableFunctionScreen from '../screens/DeviceScreens/SystemScreen/DisableFunctionScreen/index';
 import DNDScreen from '../screens/DeviceScreens/DNDScreen/index';
+import ScheduleRestartScreen from '../screens/DeviceScreens/SystemScreen/ScheduleRestartScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -224,6 +225,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="DNDScreen"
         component={DNDScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="ScheduleRestartScreen"
+        component={ScheduleRestartScreen}
       />
     </Stack.Navigator>
   );

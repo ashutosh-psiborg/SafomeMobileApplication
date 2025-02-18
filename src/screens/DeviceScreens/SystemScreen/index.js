@@ -50,7 +50,11 @@ const SystemScreen = ({navigation}) => {
       label: 'DND',
       navigation: () => navigation.navigate('DNDScreen'),
     },
-    {component: <ScheduleIcon />, label: 'Schedule Restart/Shutdown'},
+    {
+      component: <ScheduleIcon />,
+      label: 'Schedule Restart/Shutdown',
+      navigation: () => navigation.navigate('ScheduleRestartScreen'),
+    },
     {
       component: <RemoteIcon />,
       label: 'Remote Restart/Shutdown',
