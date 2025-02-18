@@ -39,6 +39,7 @@ const SystemScreen = ({navigation}) => {
     {
       component: <DisableIcon />,
       label: 'Disable Functions',
+      navigation: () => navigation.navigate('DisableFunctionScreen'),
     },
     {
       component: <WifiIcon />,

@@ -37,11 +37,10 @@ const CommonForm = ({control, fields, errors}) => {
               control={control}
               render={({field: {onChange, value}}) =>
                 field.options ? (
-                  // 🔽 Dropdown Component
                   <Dropdown
                     style={[
                       styles.dropdown,
-                      field.disabled && {color: '#A0A0A0'}, // Greyed out when disabled
+                      field.disabled && {color: '#A0A0A0'}, 
                     ]}
                     data={field.options}
                     labelField="label"
@@ -57,19 +56,18 @@ const CommonForm = ({control, fields, errors}) => {
                       fontSize: DimensionConstants.fourteen,
                       color: '#000',
                     }}
-                    disabled={field.disabled} // Disable Dropdown
+                    disabled={field.disabled} 
                   />
                 ) : field.isDate ? (
-                  // 🔽 Date Picker TextInput Component
                   <>
                     <TouchableOpacity
                       onPress={() => {
-                        if (!field.disabled) { // Only open if not disabled
+                        if (!field.disabled) { 
                           setCurrentField(field.name);
                           setDatePickerVisible(true);
                         }
                       }}
-                      activeOpacity={field.disabled ? 1 : 0.7} // No press effect when disabled
+                      activeOpacity={field.disabled ? 1 : 0.7} 
                     >
                       <TextInput
                         style={styles.input}
@@ -96,11 +94,11 @@ const CommonForm = ({control, fields, errors}) => {
                     )}
                   </>
                 ) : (
-                  // 🔽 Default TextInput Component
+                  //  Default TextInput Component
                   <TextInput
                     style={[
                       styles.input,
-                      field.disabled && {color: '#A0A0A0'}, // Greyed out when disabled
+                      field.disabled && {color: '#A0A0A0'}, 
                     ]}
                     onChangeText={onChange}
                     value={value}
