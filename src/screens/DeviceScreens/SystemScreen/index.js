@@ -58,6 +58,8 @@ const SystemScreen = ({navigation}) => {
     {
       component: <RemoteIcon />,
       label: 'Remote Restart/Shutdown',
+      navigation: () => navigation.navigate('RemoteRestartScreen'),
+
     },
     {
       component: <TimeZoneIcon />,

@@ -1,10 +1,10 @@
 import {View, Text, Switch, StyleSheet} from 'react-native';
 import React, {useState} from 'react';
-import MainBackground from '../../../components/MainBackground';
-import CustomHeader from '../../../components/CustomHeader';
-import Spacing from '../../../components/Spacing';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
-import ThreeDots from '../../../assets/icons/ThreeDots';
+import MainBackground from '../../../../components/MainBackground';
+import CustomHeader from '../../../../components/CustomHeader';
+import Spacing from '../../../../components/Spacing';
+import {DimensionConstants} from '../../../../constants/DimensionConstants';
+import ThreeDots from '../../../../assets/icons/ThreeDots';
 
 const DNDScreen = () => {
   const [isEnabled, setIsEnabled] = useState(true);

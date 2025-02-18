@@ -32,8 +32,9 @@ import SetAlarmScreen from '../screens/AppsScreens/AlarmScreen/SetAlarmScreen/in
 import AutoCallScreen from '../screens/DeviceScreens/SystemScreen/AutoCallScreen/index';
 import SleepModeScreen from '../screens/DeviceScreens/SystemScreen/SleepModeScreen/index';
 import DisableFunctionScreen from '../screens/DeviceScreens/SystemScreen/DisableFunctionScreen/index';
-import DNDScreen from '../screens/DeviceScreens/DNDScreen/index';
+import DNDScreen from '../screens/DeviceScreens/SystemScreen/DNDScreen/index';
 import ScheduleRestartScreen from '../screens/DeviceScreens/SystemScreen/ScheduleRestartScreen/index';
+import RemoteRestartScreen from '../screens/DeviceScreens/SystemScreen/RemoteRestartScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -230,6 +231,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="ScheduleRestartScreen"
         component={ScheduleRestartScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="RemoteRestartScreen"
+        component={RemoteRestartScreen}
       />
     </Stack.Navigator>
   );
