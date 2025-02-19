@@ -38,7 +38,6 @@ const CreatePasswordScreen = ({navigation}) => {
     ),
   });
   const user = useSelector(state => state.user);
-  console.log('+++', user);
   // Fields for CommonForm
   const fields = [
     {
@@ -101,7 +100,6 @@ const CreatePasswordScreen = ({navigation}) => {
       </Text>
       <Spacing height={DimensionConstants.thirtyOne} />
 
-      {/* ✅ Using CommonForm */}
       <CommonForm control={control} fields={fields} errors={errors} />
 
       <Spacing height={DimensionConstants.sixteen} />

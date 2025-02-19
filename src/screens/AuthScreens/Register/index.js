@@ -1,7 +1,6 @@
-import * as Yup from 'yup';
 import {yupResolver} from '@hookform/resolvers/yup';
-import {View, Text, Alert} from 'react-native';
-import React, {useState} from 'react';
+import {View, Text} from 'react-native';
+import React from 'react';
 import MainBackground from '../../../components/MainBackground';
 import CustomButton from '../../../components/CustomButton';
 import CustomHeader from '../../../components/CustomHeader';
@@ -9,8 +8,6 @@ import {RegisterStyles} from './Styles/RegisterStyles';
 import {useTranslation} from 'react-i18next';
 import {useSelector, useDispatch} from 'react-redux';
 import {setUserData} from '../../../redux/slices/userSlice';
-import {useMutation} from '@tanstack/react-query';
-import fetcher from '../../../utils/ApiService';
 import {validationSchema} from '../../../utils/Validations';
 import Spacing from '../../../components/Spacing';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
@@ -38,8 +35,6 @@ const RegisterScreen = ({navigation}) => {
   );
   const styles = RegisterStyles(theme);
   const dispatch = useDispatch();
-  const userData = useSelector(state => state.user);
-  console.log('user -----', userData);
   const fields = [
     {
       name: 'fullName',
@@ -73,28 +68,7 @@ const RegisterScreen = ({navigation}) => {
     },
   ];
 
-  // const mutation = useMutation({
-  //   mutationFn: async data => {
-  //     return fetcher({
-  //       method: 'POST',
-  //       url: '/auth/register',
-  //       data,
-  //       noAuth: true,
-  //     });
-  //   },
-  //   onSuccess: () => {
-  //     Alert.alert('Success', 'Account created successfully!');
-  //     navigation.navigate('VerifyMailOtpScreen');
-  //   },
-  //   onError: error => {
-  //     const errorMessage = error?.response?.data?.message || 'Unknown error';
-  //     Alert.alert('Error', errorMessage);
-  //   },
-  // });
-
   const onSubmit = async data => {
-    console.log('🚀 Submitting Data:', data);
-    // mutation.mutate(data);
     dispatch(setUserData(data));
     navigation.navigate('VerifyMailOtpScreen');
   };
