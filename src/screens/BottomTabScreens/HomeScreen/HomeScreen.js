@@ -1,6 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
-import Geolocation from '@react-native-community/geolocation';
-import Geocoder from 'react-native-geocoding';
+import React, {useState, useRef} from 'react';
 import {
   View,
   Text,
@@ -15,14 +13,11 @@ import MainBackground from '../../../components/MainBackground';
 import Spacing from '../../../components/Spacing';
 import AddressIcon from '../../../assets/icons/AddressIcon';
 import CustomCard from '../../../components/CustomCard';
-import RevenueIcon from '../../../assets/icons/RevenueIcon';
-import {LineChart} from 'react-native-chart-kit';
 import {useSelector} from 'react-redux';
 import {ImageConstants} from '../../../constants/ImageConstants';
 import PhoneIcon from '../../../assets/icons/PhoneIcon';
 import CallIcon from '../../../assets/icons/CallIcon';
 import CardStack from '../../../components/CardStack';
-import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
 import LogoHeader from '../../../components/LogoHeader';
 import HomeMidHeader from '../../../components/HomeMidHeader';
 import RefreshIcon from '../../../assets/icons/RefreshIcon';
@@ -30,7 +25,6 @@ import {HomeScreenStyles} from './Styles/HomeScreenStyles';
 import StatisticsCards from '../../../components/StatisticsCards';
 import ContactCards from '../../../components/ContactCards';
 
-// Geocoder.init('AIzaSyBrsCdS1KEJ9QDOgnl5gwnemCuLJDKzp9Y');
 const HomeScreen = () => {
   const [expanded, setExpanded] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
@@ -51,26 +45,7 @@ const HomeScreen = () => {
     state => state.theme.themes[state.theme.currentTheme],
   );
   const styles = HomeScreenStyles(theme);
-
-  // useEffect(() => {
-  //   Geolocation.getCurrentPosition(
-  //     position => {
-  //       const {latitude, longitude} = position.coords;
-  //       setLocation({latitude, longitude});
-
-  //       // Geocoder.from(latitude, longitude)
-  //       //   .then(json => {
-  //       //     const address = json.results[0].formatted_address;
-  //       //     setPlaceName(address);
-  //       //   })
-  //       //   .catch(error => console.warn('Geocoding Error:', error));
-  //     },
-  //     error => {
-  //       console.log('Error getting location:', error);
-  //     },
-  //     {enableHighAccuracy: true, timeout: 200000, maximumAge: 1000},
-  //   );
-  // }, []);
+  
 
   return (
     <MainBackground style={{backgroundColor: theme.otpBox}}>
