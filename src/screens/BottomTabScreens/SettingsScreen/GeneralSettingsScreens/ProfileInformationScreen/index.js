@@ -154,7 +154,6 @@ const ProfileInformationScreen = ({navigation}) => {
       }),
     );
 
-    console.log('Filtered Data:', filteredData);
     mutate(filteredData);
   };
 
@@ -163,27 +162,7 @@ const ProfileInformationScreen = ({navigation}) => {
       <CustomHeader title={'Profile information'} icon={<MenuIcon />} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Spacing height={DimensionConstants.thirtyTwo} />
-        <View style={{alignItems: 'center'}}>
-          <View style={{position: 'relative'}}>
-            <Image
-              source={ImageConstants?.avatar}
-              style={{
-                height: DimensionConstants.oneHundred,
-                width: DimensionConstants.oneHundred,
-                borderRadius: DimensionConstants.fifty,
-              }}
-            />
-            <TouchableOpacity
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                padding: 4,
-              }}>
-              <EditImageIcon />
-            </TouchableOpacity>
-          </View>
-        </View>
+          
         <Spacing height={DimensionConstants.thirtyTwo} />
         <CommonForm control={control} fields={fields} errors={errors} />
       </ScrollView>

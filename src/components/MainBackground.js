@@ -11,7 +11,7 @@ const MainBackground = ({ children, style, noPadding = false }) => {
         style={[
           styles.container,
           { backgroundColor: theme.background },
-          noPadding && { padding: 0 }, // ✅ Remove padding when noPadding is true
+          noPadding && { padding: 0 }, 
           style,
         ]}
       >

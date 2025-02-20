@@ -206,7 +206,6 @@ const SettingsScreen = ({navigation}) => {
               </Text>
             </View>
           </View>
-
           {sections.map((section, index) => (
             <SettingSection
               key={index}
@@ -217,7 +216,6 @@ const SettingsScreen = ({navigation}) => {
             />
           ))}
           <Spacing height={DimensionConstants.ten} />
-
           <CustomButton text={'Sign out'} onPress={signOut} />
           <Spacing height={DimensionConstants.sixteen} />
           <Text

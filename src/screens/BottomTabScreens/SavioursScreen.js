@@ -1,4 +1,12 @@
-import {View, Switch, Image, Text, ScrollView, StyleSheet} from 'react-native';
+import {
+  View,
+  Switch,
+  Image,
+  Text,
+  ScrollView,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
 import React, {useState} from 'react';
 import {yupResolver} from '@hookform/resolvers/yup';
 import MainBackground from '../../components/MainBackground';
@@ -18,7 +26,7 @@ import GlobeIcon from '../../assets/icons/GlobeIcon';
 import {useForm} from 'react-hook-form';
 import CommonForm from '../../utils/CommonForm';
 import {validationSchema} from '../../utils/Validations';
-const SavioursScreen = () => {
+const SavioursScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
   const [modalVisible, setModalVisible] = useState(false);
@@ -83,13 +91,11 @@ const SavioursScreen = () => {
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <SearchContainer />
-
           <Spacing height={DimensionConstants.twentyFour} />
           <HomeMidHeader title="My communities" />
           <Spacing height={DimensionConstants.twentyFour} />
           <ContactCards />
           <Spacing height={DimensionConstants.fourteen} />
-
           {data.map((item, index) => (
             <CustomCard key={index} style={styles.contactCard}>
               <View style={styles.contactInfo}>
@@ -102,9 +108,10 @@ const SavioursScreen = () => {
                   <Text style={styles.subHeading}>{item.subHeading}</Text>
                 </View>
               </View>
-              <View>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('MembersInformationScreen')}>
                 <RightArrowIcon color="black" />
-              </View>
+              </TouchableOpacity>
             </CustomCard>
           ))}
         </View>
