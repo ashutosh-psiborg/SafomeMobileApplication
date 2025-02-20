@@ -1,19 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { View, TextInput, StyleSheet } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {View, TextInput, StyleSheet} from 'react-native';
 import CustomCard from './CustomCard';
 import SearchIcon from '../assets/icons/SearchIcon';
-import { DimensionConstants } from '../constants/DimensionConstants';
+import {DimensionConstants} from '../constants/DimensionConstants';
 
-const SearchContainer = ({ placeholder = 'Search here...', onSearch }) => {
+const SearchContainer = ({placeholder = 'Search here...', onSearch}) => {
   const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      onSearch(searchText);
+      if (onSearch) {
+        onSearch(searchText);
+      }
     }, 300); // Debounce for 300ms
 
     return () => clearTimeout(timer);
-  }, [searchText]);
+  }, [searchText, onSearch]);
 
   return (
     <CustomCard style={styles.searchCard}>
