@@ -37,6 +37,7 @@ import ScheduleRestartScreen from '../screens/DeviceScreens/SystemScreen/Schedul
 import RemoteRestartScreen from '../screens/DeviceScreens/SystemScreen/RemoteRestartScreen/index';
 import TimeZoneScreen from '../screens/DeviceScreens/SystemScreen/TimeZoneScreen/index';
 import MembersInformationScreen from '../screens/SaviourScreens/MembersInformationScreen/index';
+import FamilyScreen from '../screens/SaviourScreens/FamilyScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -248,6 +249,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="MembersInformationScreen"
         component={MembersInformationScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="FamilyScreen"
+        component={FamilyScreen}
       />
     </Stack.Navigator>
   );

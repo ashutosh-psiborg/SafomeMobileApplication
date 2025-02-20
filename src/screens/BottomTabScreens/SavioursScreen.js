@@ -94,7 +94,9 @@ const SavioursScreen = ({navigation}) => {
           <Spacing height={DimensionConstants.twentyFour} />
           <HomeMidHeader title="My communities" />
           <Spacing height={DimensionConstants.twentyFour} />
-          <ContactCards />
+          <ContactCards
+            familyCardPress={() => navigation.navigate('FamilyScreen')}
+          />
           <Spacing height={DimensionConstants.fourteen} />
           {data.map((item, index) => (
             <CustomCard key={index} style={styles.contactCard}>

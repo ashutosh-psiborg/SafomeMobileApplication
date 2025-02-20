@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, TextInput, StyleSheet } from 'react-native';
 import CustomCard from './CustomCard';
 import SearchIcon from '../assets/icons/SearchIcon';
 import { DimensionConstants } from '../constants/DimensionConstants';
 
-const SearchContainer = ({ placeholder = 'Search here...', onChangeText }) => {
+const SearchContainer = ({ placeholder = 'Search here...', onSearch }) => {
+  const [searchText, setSearchText] = useState('');
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearch(searchText);
+    }, 300); // Debounce for 300ms
+
+    return () => clearTimeout(timer);
+  }, [searchText]);
+
   return (
     <CustomCard style={styles.searchCard}>
       <View style={styles.searchContainer}>
@@ -13,7 +23,8 @@ const SearchContainer = ({ placeholder = 'Search here...', onChangeText }) => {
           style={styles.searchInput}
           placeholder={placeholder}
           placeholderTextColor="#888"
-          onChangeText={onChangeText} // Optional prop to handle text input
+          value={searchText}
+          onChangeText={setSearchText}
         />
       </View>
     </CustomCard>
