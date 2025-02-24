@@ -27,8 +27,7 @@ const FamilyScreen = ({navigation}) => {
     {heading: 'Rohan Mehta', subHeading: 'rohan.mehta@email.com'},
     {heading: 'Kavita Das', subHeading: 'kavita.das@email.com'},
     {heading: 'Arjun Malhotra', subHeading: 'arjun.malhotra@email.com'},
-    {heading: 'Simran Kaur', subHeading: 'simran.kaur@email.com'},
-  ];
+    { heading: 'Simran Kaur', subHeading: 'simran.kaur@email.com' },  ];
 
   const [filteredContacts, setFilteredContacts] = useState(allContacts);
 

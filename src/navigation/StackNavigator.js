@@ -38,6 +38,7 @@ import RemoteRestartScreen from '../screens/DeviceScreens/SystemScreen/RemoteRes
 import TimeZoneScreen from '../screens/DeviceScreens/SystemScreen/TimeZoneScreen/index';
 import MembersInformationScreen from '../screens/SaviourScreens/MembersInformationScreen/index';
 import FamilyScreen from '../screens/SaviourScreens/FamilyScreen/index';
+import CommunityScreen from '../screens/SaviourScreens/CommunityScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -254,6 +255,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="FamilyScreen"
         component={FamilyScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="CommunityScreen"
+        component={CommunityScreen}
       />
     </Stack.Navigator>
   );

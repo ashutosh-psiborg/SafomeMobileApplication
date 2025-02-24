@@ -92,7 +92,10 @@ const SavioursScreen = ({navigation}) => {
         <View style={styles.container}>
           <SearchContainer />
           <Spacing height={DimensionConstants.twentyFour} />
-          <HomeMidHeader title="My communities" />
+          <HomeMidHeader
+            title="My communities"
+            onPress={() => navigation.navigate('CommunityScreen')}
+          />
           <Spacing height={DimensionConstants.twentyFour} />
           <ContactCards
             familyCardPress={() => navigation.navigate('FamilyScreen')}

@@ -20,16 +20,14 @@ import {validationSchema} from '../../../utils/Validations';
 import CommonForm from '../../../utils/CommonForm';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const LoginScreen = ({navigation}) => {
   GoogleSignin.configure({
     webClientId:
-      '1025510399527-a69gfibcttk2ad1vce67on7p9r6ddphe.apps.googleusercontent.com', // client ID of type WEB for your server. Required to get the `idToken` on the user object, and for offline access.
-    scopes: ['https://www.googleapis.com/auth/drive.readonly'], // what API you want to access on behalf of the user, default is email and profile
-    forceCodeForRefreshToken: false, // [Android] related to `serverAuthCode`, read the docs link below *.
-    // iosClientId: '<FROM DEVELOPER CONSOLE>', // [iOS] if you want to specify the client ID of type iOS (otherwise, it is taken from GoogleService-Info.plist)
+      '1025510399527-a69gfibcttk2ad1vce67on7p9r6ddphe.apps.googleusercontent.com',
+    iosClientId:
+      '1025510399527-d5i3ogun0sjubs1qrhqtrvmupk2vqg1b.apps.googleusercontent.com',
+    scopes: ['https://www.googleapis.com/auth/drive.readonly'],
   });
-
   const signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -62,7 +60,7 @@ const LoginScreen = ({navigation}) => {
     handleSubmit,
     formState: {errors},
   } = useForm({
-    resolver: yupResolver(validationSchema.pick(['email', 'password'])),
+    resolver: yupResolver(validationSchema.pick(['email'])),
   });
 
   const fields = [
@@ -104,8 +102,7 @@ const LoginScreen = ({navigation}) => {
       }
     },
     onError: error => {
-      const errorMessage =
-        error?.response?.data?.message || 'Failed to login. Please try again.';
+      const errorMessage = error?.message;
       Alert.alert('Error', errorMessage);
     },
   });
@@ -116,13 +113,11 @@ const LoginScreen = ({navigation}) => {
         method: 'POST',
         url: 'auth/googleLogin',
         data,
-        noAuth:true ,
+        noAuth: true,
       });
     },
     onSuccess: async response => {
       console.log('✅ Login Success Response:', response);
-
-      // Save the token to AsyncStorage
       try {
         await AsyncStorage.setItem('authToken', response.token);
         console.log('Token stored successfully:', response.token);

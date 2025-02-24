@@ -4,7 +4,6 @@
 <dict>
 <key>NSFaceIDUsageDescription</key>
 <string>We use Face ID to authenticate you</string>
-
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
