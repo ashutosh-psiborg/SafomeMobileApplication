@@ -19,7 +19,6 @@ import SystemLocation from '../../../assets/icons/SystemLocation';
 import SystemCallIcon from '../../../assets/icons/SystemCallIcon';
 import Spacing from '../../../components/Spacing';
 const SystemScreen = ({navigation}) => {
- 
   const icons = [
     {
       component: <SystemCallIcon />,
@@ -65,7 +64,11 @@ const SystemScreen = ({navigation}) => {
       label: 'Time zone',
       navigation: () => navigation.navigate('TimeZoneScreen'),
     },
-    {component: <SystemLocation />, label: 'Location based service'},
+    {
+      component: <SystemLocation />,
+      label: 'Location based service',
+      navigation: () => navigation.navigate('LocationBasedServiceScreen'),
+    },
     {
       component: <ResetIcon />,
       label: 'Reset device',

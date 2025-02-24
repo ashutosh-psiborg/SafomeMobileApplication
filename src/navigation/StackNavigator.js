@@ -39,6 +39,7 @@ import TimeZoneScreen from '../screens/DeviceScreens/SystemScreen/TimeZoneScreen
 import MembersInformationScreen from '../screens/SaviourScreens/MembersInformationScreen/index';
 import FamilyScreen from '../screens/SaviourScreens/FamilyScreen/index';
 import CommunityScreen from '../screens/SaviourScreens/CommunityScreen/index';
+import LocationBasedServiceScreen from '../screens/DeviceScreens/SystemScreen/LocationBasedServiceScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -260,6 +261,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="CommunityScreen"
         component={CommunityScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="LocationBasedServiceScreen"
+        component={LocationBasedServiceScreen}
       />
     </Stack.Navigator>
   );

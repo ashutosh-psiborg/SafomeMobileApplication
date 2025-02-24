@@ -41,12 +41,13 @@ const communities = [
   },
 ];
 
-const CommunityScreen = () => {
+const CommunityScreen = ({navigation}) => {
   return (
     <MainBackground noPadding style={styles.container}>
       <CustomHeader
         backgroundColor="#fff"
         title="My communities"
+        backPress={() => navigation.goBack()}
         icon={<PlusIcon marginRight={DimensionConstants.ten} />}
       />
       <View style={styles.content}>
