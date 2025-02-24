@@ -72,6 +72,7 @@ const SystemScreen = ({navigation}) => {
     {
       component: <ResetIcon />,
       label: 'Reset device',
+      navigation: () => navigation.navigate('ResetDeviceScreen'),
       line: 'no',
     },
   ];

@@ -40,6 +40,7 @@ import MembersInformationScreen from '../screens/SaviourScreens/MembersInformati
 import FamilyScreen from '../screens/SaviourScreens/FamilyScreen/index';
 import CommunityScreen from '../screens/SaviourScreens/CommunityScreen/index';
 import LocationBasedServiceScreen from '../screens/DeviceScreens/SystemScreen/LocationBasedServiceScreen/index';
+import ResetDeviceScreen from '../screens/DeviceScreens/SystemScreen/ResetDeviceScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -266,6 +267,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="LocationBasedServiceScreen"
         component={LocationBasedServiceScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="ResetDeviceScreen"
+        component={ResetDeviceScreen}
       />
     </Stack.Navigator>
   );
