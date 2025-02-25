@@ -41,6 +41,7 @@ import FamilyScreen from '../screens/SaviourScreens/FamilyScreen/index';
 import CommunityScreen from '../screens/SaviourScreens/CommunityScreen/index';
 import LocationBasedServiceScreen from '../screens/DeviceScreens/SystemScreen/LocationBasedServiceScreen/index';
 import ResetDeviceScreen from '../screens/DeviceScreens/SystemScreen/ResetDeviceScreen/index';
+import WifiSetingsScreen from '../screens/DeviceScreens/SystemScreen/WifiSettingsScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -272,6 +273,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="ResetDeviceScreen"
         component={ResetDeviceScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="WifiSettingsScreen"
+        component={WifiSetingsScreen}
       />
     </Stack.Navigator>
   );

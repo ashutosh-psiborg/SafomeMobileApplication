@@ -43,6 +43,8 @@ const SystemScreen = ({navigation}) => {
     {
       component: <WifiIcon />,
       label: 'Watch Wi-Fi settings',
+      navigation: () => navigation.navigate('WifiSettingsScreen'),
+
     },
     {
       component: <DNDIcon />,
