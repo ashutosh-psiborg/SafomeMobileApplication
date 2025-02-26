@@ -2,7 +2,6 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
-import DeviceCallIcon from '../../../assets/icons/DeviceCallIcon';
 import SleepIcon from '../../../assets/icons/SleepIcon';
 import TrackingIcon from '../../../assets/icons/TrackingIcon';
 import DisableIcon from '../../../assets/icons/DisableIcon';

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import WifiIcon from '../../../../assets/icons/WifiIcon';
 import CustomCard from '../../../../components/CustomCard';
-import { DimensionConstants } from '../../../../constants/DimensionConstants';
+import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import Spacing from '../../../../components/Spacing';
 
 const WifiSettingsScreen = () => {
@@ -58,7 +58,6 @@ const WifiSettingsScreen = () => {
           return acc;
         }, {}),
       );
-
       setWifiList(uniqueNetworks);
     } catch (error) {
       console.error('Error scanning Wi-Fi networks:', error);
@@ -85,7 +84,8 @@ const WifiSettingsScreen = () => {
               <View style={styles.textContainer}>
                 <Text style={styles.titleText}>Watch Wi-Fi settings</Text>
                 <Text style={styles.descriptionText}>
-                  Device can connect to Wi-Fi. Click detect to detect to connect to pre-set Wi-Fi.
+                  Device can connect to Wi-Fi. Click detect to detect to connect
+                  to pre-set Wi-Fi.
                 </Text>
               </View>
             </View>
@@ -95,7 +95,7 @@ const WifiSettingsScreen = () => {
             <FlatList
               data={wifiList}
               keyExtractor={item => item.BSSID || item.SSID}
-              renderItem={({ item }) => (
+              renderItem={({item}) => (
                 <View>
                   <View style={styles.wifiRow}>
                     <View style={styles.rowAlign}>

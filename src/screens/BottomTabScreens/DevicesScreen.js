@@ -26,7 +26,7 @@ const DevicesScreen = ({navigation}) => {
   const icons = [
     {
       component: <DeviceCallIcon />,
-      label: 'Call',
+      label: 'Calls',
     },
     {
       component: <FitnessIcon />,
@@ -43,7 +43,12 @@ const DevicesScreen = ({navigation}) => {
       label: 'System',
       navigation: () => navigation.navigate('SystemScreen'),
     },
-    {component: <FeaturesIcon />, label: 'Features', line: 'no'},
+    {
+      component: <FeaturesIcon />,
+      navigation: () => navigation.navigate('FeaturesScreens'),
+      label: 'Features',
+      line: 'no',
+    },
   ];
 
   const theme = useSelector(
@@ -160,12 +165,12 @@ const styles = StyleSheet.create({
   featureRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: DimensionConstants.five,
-    marginHorizontal: DimensionConstants.twenty,
+    marginHorizontal: DimensionConstants.ten,
     justifyContent: 'space-between',
   },
   featureContent: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   featureText: {
     marginLeft: DimensionConstants.twenty,

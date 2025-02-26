@@ -1,12 +1,141 @@
-import { View, Text } from 'react-native'
-import React from 'react'
-
-const FeaturesScreens = () => {
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import React from 'react';
+import MainBackground from '../../../components/MainBackground';
+import CustomHeader from '../../../components/CustomHeader';
+import SleepIcon from '../../../assets/icons/SleepIcon';
+import TrackingIcon from '../../../assets/icons/TrackingIcon';
+import DisableIcon from '../../../assets/icons/DisableIcon';
+import WifiIcon from '../../../assets/icons/WifiIcon';
+import DNDIcon from '../../../assets/icons/DNDIcon';
+import {DimensionConstants} from '../../../constants/DimensionConstants';
+import ScheduleIcon from '../../../assets/icons/ScheduleIcon';
+import RemoteIcon from '../../../assets/icons/RemoteIcon';
+import TimeZoneIcon from '../../../assets/icons/TimeZoneIcon';
+import ResetIcon from '../../../assets/icons/ResetIcon';
+import CustomCard from '../../../components/CustomCard';
+import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
+import SystemLocation from '../../../assets/icons/SystemLocation';
+import SystemCallIcon from '../../../assets/icons/SystemCallIcon';
+import Spacing from '../../../components/Spacing';
+import BumpFriendsIcon from '../../../assets/icons/BumpFriendsIcon';
+import WatchIcon from '../../../assets/icons/WatchIcon';
+import BlackWatchIcon from '../../../assets/icons/BlackWatchIcon';
+import AddRemoteIcon from '../../../assets/icons/AddRemoteIcon';
+import CameraIcon from '../../../assets/icons/CameraIcon';
+import AppsIcon from '../../../assets/icons/AppsIcon';
+import SmsIcon from '../../../assets/icons/SmsIcon';
+import NotificationIcon from '../../../assets/icons/NotificationIcon';
+import SimIcon from '../../../assets/icons/SimIcon';
+import RejectUnknownIcon from '../../../assets/icons/RejectUnknownIcon';
+import FindDeviceIcon from '../../../assets/icons/FindDeviceIcon';
+import ProfileNotificationIcon from '../../../assets/icons/ProfileNotificationIcon';
+const FeaturesScreens = ({navigation}) => {
+  const icons = [
+    {
+      component: <BumpFriendsIcon />,
+      label: 'Bump friends',
+      // navigation: () => navigation.navigate('AutoCallScreen'),
+    },
+    {
+      component: <AddRemoteIcon />,
+      label: 'Watch faces',
+      // navigation: () => navigation.navigate('SleepModeScreen'),
+    },
+    {
+      component: <CameraIcon />,
+      label: 'Remote photos',
+      // navigation: () => navigation.navigate('TrackingFrequencyScreen'),
+    },
+    {
+      component: <AppsIcon />,
+      label: 'App store',
+      // navigation: () => navigation.navigate('DisableFunctionScreen'),
+    },
+    {
+      component: <FindDeviceIcon />,
+      label: 'Find device',
+      // navigation: () => navigation.navigate('WifiSettingsScreen'),
+    },
+    {
+      component: <SmsIcon />,
+      label: 'SMS alerts',
+      // navigation: () => navigation.navigate('DNDScreen'),
+    },
+    {
+      component: <ProfileNotificationIcon />,
+      label: 'Reminders',
+      // navigation: () => navigation.navigate('ScheduleRestartScreen'),
+    },
+    {
+      component: <SimIcon />,
+      label: 'SIM SMS',
+      // navigation: () => navigation.navigate('RemoteRestartScreen'),
+    },
+    {
+      component: <RejectUnknownIcon />,
+      label: 'Reject unknown calls',
+      // navigation: () => navigation.navigate('TimeZoneScreen'),
+      line: 'no',
+    },
+  ];
   return (
-    <View>
-      <Text>FeaturesScreens</Text>
-    </View>
-  )
-}
+    <MainBackground noPadding style={styles.mainBackground}>
+      <CustomHeader title={'More'} backgroundColor={'#FFFFFF'} />
+      <View style={{padding: DimensionConstants.fifteen}}>
+        <Spacing height={DimensionConstants.ten} />
+        <CustomCard style={styles.featuresCard}>
+          {icons.map((item, index) => (
+            <View key={index}>
+              <View style={styles.featureRow}>
+                <View style={styles.featureContent}>
+                  {item.component}
+                  <Text style={styles.featureText}>{item.label}</Text>
+                </View>
+                <TouchableOpacity onPress={item.navigation}>
+                  <RightArrowIcon
+                    color="black"
+                    marginRight={DimensionConstants.twenty}
+                  />
+                </TouchableOpacity>
+              </View>
+              {item?.line !== 'no' && <View style={styles.separator} />}
+            </View>
+          ))}
+        </CustomCard>
+      </View>
+    </MainBackground>
+  );
+};
 
-export default FeaturesScreens
+export default FeaturesScreens;
+
+const styles = StyleSheet.create({
+  mainBackground: {
+    backgroundColor: '#F2F7FC',
+  },
+  featuresCard: {
+    paddingRight: 0,
+    borderRadius: DimensionConstants.twelve,
+  },
+  featureRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  featureContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  featureText: {
+    marginLeft: DimensionConstants.twenty,
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '500',
+  },
+  separator: {
+    backgroundColor: 'rgba(0, 0, 0, 0.05)',
+    height: DimensionConstants.one,
+    width: '90%',
+    alignSelf: 'flex-end',
+    marginVertical: DimensionConstants.ten,
+  },
+});

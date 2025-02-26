@@ -42,6 +42,7 @@ import CommunityScreen from '../screens/SaviourScreens/CommunityScreen/index';
 import LocationBasedServiceScreen from '../screens/DeviceScreens/SystemScreen/LocationBasedServiceScreen/index';
 import ResetDeviceScreen from '../screens/DeviceScreens/SystemScreen/ResetDeviceScreen/index';
 import WifiSetingsScreen from '../screens/DeviceScreens/SystemScreen/WifiSettingsScreen/index';
+import FeaturesScreens from '../screens/DeviceScreens/FeaturesScreens/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -278,6 +279,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="WifiSettingsScreen"
         component={WifiSetingsScreen}
+      />
+         <Stack.Screen
+        options={{headerShown: false}}
+        name="FeaturesScreens"
+        component={FeaturesScreens}
       />
     </Stack.Navigator>
   );
