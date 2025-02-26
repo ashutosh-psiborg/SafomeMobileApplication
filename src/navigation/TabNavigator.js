@@ -1,46 +1,49 @@
 import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {View, Text, StyleSheet} from 'react-native';
+import {useSelector} from 'react-redux';
 import HomeScreen from '../screens/BottomTabScreens/HomeScreen/HomeScreen';
 import SettingsScreen from '../screens/BottomTabScreens/SettingsScreen/SettingsScreen';
-import HomeIcon from '../assets/icons/HomeIcon';
-import SettingsIcon from '../assets/icons/SettingsIcon';
 import DevicesScreen from '../screens/BottomTabScreens/DevicesScreen';
 import LocationScreen from '../screens/BottomTabScreens/LocationScreen';
 import SavioursScreen from '../screens/BottomTabScreens/SavioursScreen';
+import HomeIcon from '../assets/icons/HomeIcon';
+import SettingsIcon from '../assets/icons/SettingsIcon';
 import DevicesIcon from '../assets/icons/DevicesIcon';
 import LocationIcon from '../assets/icons/LocationIcon';
 import SavioursIcon from '../assets/icons/SavioursIcon';
-import {DimensionConstants} from '../constants/DimensionConstants';
 import BlueHomeIcon from '../assets/icons/BlueHomeIcon';
 import BlueDevicesIcon from '../assets/icons/BlueDevicesIcon';
 import BlueLocationIcon from '../assets/icons/BlueLocationIcon';
 import BlueSaviourIcon from '../assets/icons/BlueSaviourIcon';
 import BlueSettingsIcon from '../assets/icons/BlueSettingsIcon';
-import {View, Text} from 'react-native';
-import {useSelector} from 'react-redux';
+import {DimensionConstants} from '../constants/DimensionConstants';
 
 export default function TabNavigator() {
   const Tab = createBottomTabNavigator();
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
+
+  const renderIcon = (focused, Icon, BlueIcon, label) =>
+    focused ? (
+      <View style={styles.iconContainer}>
+        <View
+          style={[styles.activeIndicator, {backgroundColor: theme.primary}]}
+        />
+        <BlueIcon height={DimensionConstants.seventeen} />
+        <Text style={[styles.iconText, {color: theme.primary}]}>{label}</Text>
+      </View>
+    ) : (
+      <Icon />
+    );
+
   return (
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
         tabBarShowLabel: false,
-        tabBarLabelStyle: {
-          fontSize: 14,
-        },
-        tabBarStyle: {
-          height: DimensionConstants.seventyFive,
-          paddingTop: DimensionConstants.twenty,
-          justifyContent: 'center',
-          alignItems: 'center',
-        },
-        tabBarIconStyle: {
-          alignItems: 'center',
-        },
+        tabBarStyle: styles.tabBarStyle,
         tabBarHideOnKeyboard: true,
       }}>
       <Tab.Screen
@@ -48,36 +51,7 @@ export default function TabNavigator() {
         component={HomeScreen}
         options={{
           tabBarIcon: ({focused}) =>
-            focused ? (
-              <View
-                style={{
-                  marginBottom: DimensionConstants.five,
-                  alignItems: 'center',
-                  width: DimensionConstants.fifty,
-                }}>
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: -20,
-                    width: DimensionConstants.sixty,
-                    height: DimensionConstants.two,
-                    backgroundColor: theme.primary,
-                    borderRadius: DimensionConstants.five,
-                  }}
-                />
-                <BlueHomeIcon height={DimensionConstants.seventeen} />
-                <Text
-                  style={{
-                    fontSize: DimensionConstants.twelve,
-                    marginTop: DimensionConstants.five,
-                    color: theme.primary,
-                  }}>
-                  Home
-                </Text>
-              </View>
-            ) : (
-              <HomeIcon />
-            ),
+            renderIcon(focused, HomeIcon, BlueHomeIcon, 'Home'),
         }}
       />
       <Tab.Screen
@@ -85,74 +59,15 @@ export default function TabNavigator() {
         component={DevicesScreen}
         options={{
           tabBarIcon: ({focused}) =>
-            focused ? (
-              <View
-                style={{
-                  marginBottom: DimensionConstants.fifteen,
-                  alignItems: 'center',
-                  width: DimensionConstants.fifty,
-                }}>
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: -20,
-                    width: DimensionConstants.sixty,
-                    height: DimensionConstants.two,
-                    backgroundColor: theme.primary,
-                    borderRadius: DimensionConstants.five,
-                  }}
-                />
-                <BlueDevicesIcon height={DimensionConstants.seventeen} />
-                <Text
-                  style={{
-                    fontSize: DimensionConstants.twelve,
-                    marginTop: DimensionConstants.five,
-                    color: theme.primary,
-                  }}>
-                  Devices
-                </Text>
-              </View>
-            ) : (
-              <DevicesIcon />
-            ),
+            renderIcon(focused, DevicesIcon, BlueDevicesIcon, 'Devices'),
         }}
       />
-
       <Tab.Screen
         name="Location"
         component={LocationScreen}
         options={{
           tabBarIcon: ({focused}) =>
-            focused ? (
-              <View
-                style={{
-                  marginBottom: DimensionConstants.fifteen,
-                  alignItems: 'center',
-                  width: DimensionConstants.fifty,
-                }}>
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: -20,
-                    width: DimensionConstants.sixty,
-                    height: DimensionConstants.two,
-                    backgroundColor: theme.primary,
-                    borderRadius: DimensionConstants.five,
-                  }}
-                />
-                <BlueLocationIcon height={DimensionConstants.seventeen} />
-                <Text
-                  style={{
-                    fontSize: DimensionConstants.twelve,
-                    marginTop: DimensionConstants.five,
-                    color: theme.primary,
-                  }}>
-                  Location
-                </Text>
-              </View>
-            ) : (
-              <LocationIcon />
-            ),
+            renderIcon(focused, LocationIcon, BlueLocationIcon, 'Location'),
         }}
       />
       <Tab.Screen
@@ -160,36 +75,7 @@ export default function TabNavigator() {
         component={SavioursScreen}
         options={{
           tabBarIcon: ({focused}) =>
-            focused ? (
-              <View
-                style={{
-                  marginBottom: DimensionConstants.fifteen,
-                  alignItems: 'center',
-                  width: DimensionConstants.fifty,
-                }}>
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: -20,
-                    width: DimensionConstants.sixty,
-                    height: DimensionConstants.two,
-                    backgroundColor: theme.primary,
-                    borderRadius: DimensionConstants.five,
-                  }}
-                />
-                <BlueSaviourIcon height={DimensionConstants.seventeen} />
-                <Text
-                  style={{
-                    fontSize: DimensionConstants.twelve,
-                    marginTop: DimensionConstants.five,
-                    color: theme.primary,
-                  }}>
-                  Saviours
-                </Text>
-              </View>
-            ) : (
-              <SavioursIcon />
-            ),
+            renderIcon(focused, SavioursIcon, BlueSaviourIcon, 'Saviours'),
         }}
       />
       <Tab.Screen
@@ -197,38 +83,34 @@ export default function TabNavigator() {
         component={SettingsScreen}
         options={{
           tabBarIcon: ({focused}) =>
-            focused ? (
-              <View
-                style={{
-                  marginBottom: DimensionConstants.fifteen,
-                  alignItems: 'center',
-                  width: DimensionConstants.fifty,
-                }}>
-                <View
-                  style={{
-                    position: 'absolute',
-                    top: -20,
-                    width: DimensionConstants.sixty,
-                    height: DimensionConstants.two,
-                    backgroundColor: theme.primary,
-                    borderRadius: DimensionConstants.five,
-                  }}
-                />
-                <BlueSettingsIcon height={DimensionConstants.seventeen} />
-                <Text
-                  style={{
-                    fontSize: DimensionConstants.twelve,
-                    marginTop: DimensionConstants.five,
-                    color: theme.primary,
-                  }}>
-                  Settings
-                </Text>
-              </View>
-            ) : (
-              <SettingsIcon />
-            ),
+            renderIcon(focused, SettingsIcon, BlueSettingsIcon, 'Settings'),
         }}
       />
     </Tab.Navigator>
   );
 }
+
+const styles = StyleSheet.create({
+  tabBarStyle: {
+    height: DimensionConstants.seventyFive,
+    paddingTop: DimensionConstants.twenty,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconContainer: {
+    marginBottom: DimensionConstants.fifteen,
+    alignItems: 'center',
+    width: DimensionConstants.fifty,
+  },
+  activeIndicator: {
+    position: 'absolute',
+    top: -20,
+    width: DimensionConstants.sixty,
+    height: DimensionConstants.two,
+    borderRadius: DimensionConstants.five,
+  },
+  iconText: {
+    fontSize: DimensionConstants.twelve,
+    marginTop: DimensionConstants.five,
+  },
+});
