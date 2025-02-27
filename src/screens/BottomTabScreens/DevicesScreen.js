@@ -57,8 +57,7 @@ const DevicesScreen = ({navigation}) => {
 
   return (
     <MainBackground style={styles.mainBackground}>
-      <LogoHeader />
-
+      <LogoHeader onPress={ () => navigation.navigate('NotificationScreen')} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <Spacing height={DimensionConstants.twentyFour} />

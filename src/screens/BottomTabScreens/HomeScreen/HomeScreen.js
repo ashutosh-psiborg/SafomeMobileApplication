@@ -1,22 +1,16 @@
-import React, {useState, useRef} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
   ScrollView,
-  Image,
   TouchableOpacity,
-  Animated,
 } from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
 import MainBackground from '../../../components/MainBackground';
 import Spacing from '../../../components/Spacing';
 import AddressIcon from '../../../assets/icons/AddressIcon';
-import CustomCard from '../../../components/CustomCard';
 import {useSelector} from 'react-redux';
-import {ImageConstants} from '../../../constants/ImageConstants';
-import PhoneIcon from '../../../assets/icons/PhoneIcon';
-import CallIcon from '../../../assets/icons/CallIcon';
 import CardStack from '../../../components/CardStack';
 import LogoHeader from '../../../components/LogoHeader';
 import HomeMidHeader from '../../../components/HomeMidHeader';
@@ -27,20 +21,7 @@ import ContactCards from '../../../components/ContactCards';
 
 const HomeScreen = ({navigation}) => {
   const [expanded, setExpanded] = useState(false);
-  const animation = useRef(new Animated.Value(0)).current;
   const [location, setLocation] = useState(null);
-  const dataPoints = [30, 60, 90, 72, 70, 100, 128];
-  const toggleCards = () => {
-    Animated.timing(animation, {
-      toValue: expanded ? 0 : 1,
-      duration: 400,
-      useNativeDriver: false,
-    }).start();
-    setExpanded(!expanded);
-  };
-
-  const data = [{id: 1}, {id: 2}, {id: 3}, {id: 4, line: 'no'}];
-
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -98,9 +79,9 @@ const HomeScreen = ({navigation}) => {
         <HomeMidHeader title={'Statistics'} showViewAll={false} />
         <StatisticsCards />
         <Spacing height={DimensionConstants.twentyFour} />
-        <HomeMidHeader title={'Recent calls'} />
-        <Spacing height={DimensionConstants.sixteen} />
-        <CustomCard
+        {/* <HomeMidHeader title={'Recent calls'} />
+        <Spacing height={DimensionConstants.sixteen} /> */}
+        {/* <CustomCard
           style={{borderRadius: DimensionConstants.twelve, paddingRight: 0}}>
           {data.map(item => (
             <>
@@ -153,15 +134,14 @@ const HomeScreen = ({navigation}) => {
               )}
             </>
           ))}
-        </CustomCard>
-        <Spacing height={DimensionConstants.twentyFour} />
-        <HomeMidHeader title={'Recent Notifications'} onPress={toggleCards} />
-
-        <CardStack
-          expanded={expanded}
-          animation={animation}
-          toggleCards={toggleCards}
+        </CustomCard> */}
+        {/* <Spacing height={DimensionConstants.twentyFour} /> */}
+        <HomeMidHeader
+          title={'Recent Notifications'}
+          onPress={() => setExpanded(!expanded)}
         />
+
+        <CardStack expanded={expanded} />
         <Spacing height={DimensionConstants.twentyFour} />
 
         <HomeMidHeader title={'My contacts'} />
