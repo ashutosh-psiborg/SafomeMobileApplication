@@ -52,7 +52,7 @@ const VerifyPhoneOtpScreen = ({navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: 'auth/verifyEmail',
+        url: 'auth/verify-Emailorphoneotp',
         data: {contact: user.phoneNumber, type: 'PHONE', otp: code},
       });
     },

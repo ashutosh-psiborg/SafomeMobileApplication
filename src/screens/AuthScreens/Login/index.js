@@ -90,8 +90,6 @@ const LoginScreen = ({navigation}) => {
     },
     onSuccess: async response => {
       console.log('✅ Login Success Response:', response);
-
-      // Save the token to AsyncStorage
       try {
         await AsyncStorage.setItem('authToken', response.token);
         console.log('Token stored successfully:', response.token);
@@ -150,7 +148,6 @@ const LoginScreen = ({navigation}) => {
           {t('Enter your email and password to get started.')}
         </Text>
         <Spacing height={DimensionConstants.twentyFour} />
-        {/* ✅ Using CommonForm */}
         <CommonForm control={control} fields={fields} errors={errors} />
         <Spacing height={DimensionConstants.eight} />
         <Text style={styles.resetPasswordText}>

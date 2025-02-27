@@ -60,7 +60,7 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
       };
       return fetcher({
         method: 'POST                                                    ',
-        url: 'auth/verifyEmail',
+        url: 'auth/verify-Emailorphoneotp',
         data,
       });
     },

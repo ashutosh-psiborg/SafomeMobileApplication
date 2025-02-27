@@ -53,7 +53,7 @@ const RegisterScreen = ({navigation}) => {
     {
       name: 'phoneNumber',
       placeholder: 'Phone Number',
-      icon: <DeviceCallIcon />,
+      icon: <DeviceCallIcon viewBoxSize={24} size={24} />,
       maxLength: 10,
       keyboardType: 'phone-pad',
     },
