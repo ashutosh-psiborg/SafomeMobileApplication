@@ -4,7 +4,7 @@ import axios from 'axios';
 const ip = '52.65.120.67';
 const port = '8080';
 const baseUrl = `http://${ip}:${port}/api/v1/`;
-// const baseUrl = `https://vl4gt0fs-8080.inc1.devtunnels.ms/api/v1/`;Test
+// const baseUrl = `https://vl4gt0fs-8080.inc1.devtunnels.ms/api/v1/`;
 
 const api = axios.create({
   baseURL: baseUrl,

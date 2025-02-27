@@ -43,6 +43,7 @@ import LocationBasedServiceScreen from '../screens/DeviceScreens/SystemScreen/Lo
 import ResetDeviceScreen from '../screens/DeviceScreens/SystemScreen/ResetDeviceScreen/index';
 import WifiSetingsScreen from '../screens/DeviceScreens/SystemScreen/WifiSettingsScreen/index';
 import FeaturesScreens from '../screens/DeviceScreens/FeaturesScreens/index';
+import NotificationScreen from '../screens/NotificationScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -284,6 +285,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="FeaturesScreens"
         component={FeaturesScreens}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="NotificationScreen"
+        component={NotificationScreen}
       />
     </Stack.Navigator>
   );

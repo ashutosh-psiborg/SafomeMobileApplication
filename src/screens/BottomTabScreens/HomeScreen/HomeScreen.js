@@ -25,7 +25,7 @@ import {HomeScreenStyles} from './Styles/HomeScreenStyles';
 import StatisticsCards from '../../../components/StatisticsCards';
 import ContactCards from '../../../components/ContactCards';
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   const [expanded, setExpanded] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
   const [location, setLocation] = useState(null);
@@ -45,11 +45,10 @@ const HomeScreen = () => {
     state => state.theme.themes[state.theme.currentTheme],
   );
   const styles = HomeScreenStyles(theme);
-  
 
   return (
     <MainBackground style={{backgroundColor: theme.otpBox}}>
-      <LogoHeader />
+      <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Spacing height={DimensionConstants.twentyFour} />

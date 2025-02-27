@@ -1,8 +1,9 @@
-import {View, Text} from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import React from 'react';
 import SafomeLogo from '../assets/icons/SafomeLogo';
 import NotificationIcon from '../assets/icons/NotificationIcon';
-const LogoHeader = () => {
+
+const LogoHeader = ({ onPress }) => {
   return (
     <View
       style={{
@@ -12,7 +13,9 @@ const LogoHeader = () => {
         padding: 5,
       }}>
       <SafomeLogo />
-      <NotificationIcon />
+      <TouchableOpacity onPress={onPress}>
+        <NotificationIcon />
+      </TouchableOpacity>
     </View>
   );
 };
