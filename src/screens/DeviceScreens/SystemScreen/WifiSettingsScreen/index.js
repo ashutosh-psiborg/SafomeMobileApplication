@@ -15,7 +15,7 @@ import CustomCard from '../../../../components/CustomCard';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import Spacing from '../../../../components/Spacing';
 
-const WifiSettingsScreen = () => {
+const WifiSettingsScreen = ({navigation}) => {
   const [wifiList, setWifiList] = useState([]);
   const [connectedSSID, setConnectedSSID] = useState(null);
 
@@ -75,7 +75,11 @@ const WifiSettingsScreen = () => {
 
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader title="Wi-Fi Settings" backgroundColor="#FFF" />
+      <CustomHeader
+        title="Wi-Fi Settings"
+        backgroundColor="#FFF"
+        backPress={() => navigation.goBack()}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <CustomCard style={styles.cardPadding}>

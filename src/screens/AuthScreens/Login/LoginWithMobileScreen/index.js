@@ -114,7 +114,10 @@ const LoginWithMobileScreen = ({navigation}) => {
         showsVerticalScrollIndicator={false}>
         <View style={{flex: 1, justifyContent: 'space-between'}}>
           <View>
-            <CustomHeader title={t('Welcome')} />
+            <CustomHeader
+              title={t('Welcome')}
+              backPress={() => navigation.goBack()}
+            />
             <Spacing height={DimensionConstants.twentyFour} />
             <Text style={Styles.signInText}>
               {t('Sign in to your Account')}

@@ -23,6 +23,7 @@ const NotificationScreen = ({navigation}) => {
     <MainBackground noPadding style={styles.background}>
       <CustomHeader
         title={'Notification'}
+        backPress={() => navigation.goBack()}
         backgroundColor={'#fff'}
         onIconPress={() => navigation.navigate('MainApp', {screen: 'Settings'})}
         icon={<BlackSettingsIcon marginRight={DimensionConstants.ten} />}

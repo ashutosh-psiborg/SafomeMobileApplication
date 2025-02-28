@@ -49,7 +49,9 @@ const FamilyScreen = ({navigation}) => {
       <CustomHeader
         title={'Family'}
         icon={<PlusIcon marginRight={DimensionConstants.ten} />}
-        backgroundColor={'#fff'}
+        backgroundColor={ '#fff' }
+        backPress={() => navigation.goBack()}
+
       />
       <View style={{padding: DimensionConstants.sixteen}}>
         <SearchContainer onSearch={handleSearch} />

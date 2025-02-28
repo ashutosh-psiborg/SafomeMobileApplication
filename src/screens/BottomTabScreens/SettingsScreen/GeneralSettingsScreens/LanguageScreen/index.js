@@ -10,7 +10,11 @@ const LanguageScreen = () => {
   const languageOptions = [{label: 'English'}, {label: 'Australian English'}];
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
-      <CustomHeader title={'Language'} backgroundColor="#ffffff" />
+      <CustomHeader
+        title={'Language'}
+        backgroundColor="#ffffff"
+        backPress={() => navigation.goBack()}
+      />
       <View style={{padding: DimensionConstants.sixteen}}>
         <RadioButtonCard
           data={languageOptions}

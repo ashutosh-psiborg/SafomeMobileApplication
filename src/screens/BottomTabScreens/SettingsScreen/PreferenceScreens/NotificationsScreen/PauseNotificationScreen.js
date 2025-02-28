@@ -4,7 +4,7 @@ import MainBackground from '../../../../../components/MainBackground';
 import CustomHeader from '../../../../../components/CustomHeader';
 import RadioButtonCard from '../../../../../components/RadioButtonCard';
 import {DimensionConstants} from '../../../../../constants/DimensionConstants';
-const PauseNotificationScreen = () => {
+const PauseNotificationScreen = ({navigation}) => {
   const [selected, setSelected] = useState(null);
   const pauseOptions = [
     {label: 'Pause for Today'},
@@ -14,7 +14,11 @@ const PauseNotificationScreen = () => {
   ];
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
-      <CustomHeader title="Pause notifications" backgroundColor="#ffffff" />
+      <CustomHeader
+        title="Pause notifications"
+        backgroundColor="#ffffff"
+        backPress={() => navigation.goBack()}
+      />
       <View style={{padding: DimensionConstants.sixteen}}>
         <RadioButtonCard
           data={pauseOptions}

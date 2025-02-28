@@ -47,7 +47,11 @@ const SetAlarmScreen = ({navigation}) => {
 
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
-      <CustomHeader title={'Set Alarm'} backgroundColor={'#ffffff'} />
+      <CustomHeader
+        title={'Set Alarm'}
+        backgroundColor={'#ffffff'}
+        backPress={() => navigation.goBack()}
+      />
       <ScrollView
         contentContainerStyle={{
           justifyContent: 'space-between',

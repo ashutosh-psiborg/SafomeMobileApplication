@@ -19,26 +19,26 @@ const SecurityPinScreen = () => {
   const {t} = useTranslation();
   const styles = BioMetricStyles(theme);
 
-  const handlePinChange = async (text) => {
+  const handlePinChange = async text => {
     if (/^\d*$/.test(text) && text.length <= 4) {
       setPin(text);
       console.log(text);
       if (text.length === 4) {
         try {
           const payload = {
-            mPin: text, 
+            mPin: text,
           };
 
           const response = await fetcher({
             method: 'POST',
-            url: 'auth/bioMetric', 
+            url: 'auth/bioMetric',
             data: payload,
           });
 
           Alert.alert('Success', 'mPin authenticated successfully!');
           console.log('mPin response:', response);
 
-          navigation.navigate('LoginScreen'); 
+          navigation.navigate('LoginScreen');
         } catch (error) {
           console.error('mPin API error:', error);
           Alert.alert(
@@ -52,7 +52,10 @@ const SecurityPinScreen = () => {
 
   return (
     <MainBackground>
-      <CustomHeader title={t('Biometric')} />
+      <CustomHeader
+        title={t('Biometric')}
+        backPress={() => navigation.goBack()}
+      />
       <Spacing height={DimensionConstants.thirtyEight} />
       <Text style={styles.title}>Add security</Text>
       <Text style={styles.title}>Pin</Text>

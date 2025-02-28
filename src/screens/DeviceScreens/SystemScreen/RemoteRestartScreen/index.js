@@ -12,7 +12,7 @@ import CustomModal from '../../../../components/CustomModal';
 import Spacing from '../../../../components/Spacing';
 import CustomButton from '../../../../components/CustomButton';
 
-const RemoteRestartScreen = () => {
+const RemoteRestartScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const icons = [
@@ -31,6 +31,7 @@ const RemoteRestartScreen = () => {
       <CustomHeader
         title={'Remote Restart/Shutdown'}
         backgroundColor={'#fff'}
+        backPress={() => navigation.goBack()}
       />
       <View style={{padding: DimensionConstants.sixteen}}>
         <CustomCard style={styles.featuresCard}>

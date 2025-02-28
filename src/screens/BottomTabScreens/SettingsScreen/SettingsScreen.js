@@ -1,10 +1,4 @@
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import React, {useCallback, useState, useEffect} from 'react';
 import MainBackground from '../../../components/MainBackground';
@@ -81,7 +75,7 @@ const SettingsScreen = ({navigation}) => {
       const colorScheme = Appearance.getColorScheme();
       dispatch(setTheme(colorScheme === 'dark' ? 'dark' : 'light'));
     }
-    setModalVisible(false); 
+    setModalVisible(false);
   };
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['userProfile'],
@@ -173,7 +167,11 @@ const SettingsScreen = ({navigation}) => {
 
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader title="Profile" backgroundColor="#ffffff" />
+      <CustomHeader
+        title="Profile"
+        backgroundColor="#ffffff"
+        backPress={() => navigation.goBack()}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <View style={styles.profileContainer}>

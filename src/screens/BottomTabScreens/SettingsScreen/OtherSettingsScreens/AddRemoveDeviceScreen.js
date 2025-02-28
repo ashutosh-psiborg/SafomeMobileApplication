@@ -14,7 +14,7 @@ import InputModal from '../../../../components/InputModal';
 import {useTranslation} from 'react-i18next';
 import {useForm} from 'react-hook-form';
 
-const AddRemoveDeviceScreen = () => {
+const AddRemoveDeviceScreen = ({navigation}) => {
   const [inputModalVisible, setInputModalVisible] = useState(false);
   const {t} = useTranslation();
 
@@ -110,6 +110,7 @@ const AddRemoveDeviceScreen = () => {
       <CustomHeader
         title={'Add / remove device'}
         backgroundColor={theme.background}
+        backPress={() => navigation.goBack()}
       />
       <View style={styles.container}>
         {data?.devices[0]?.deviceId ? (

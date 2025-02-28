@@ -44,7 +44,11 @@ const features = [
 const AboutDeviceScreen = () => {
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader title="About Device" backgroundColor="#FFFFFF" />
+      <CustomHeader
+        title="About Device"
+        backgroundColor="#FFFFFF"
+        backPress={() => navigation.goBack()}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <CustomCard style={styles.card}>

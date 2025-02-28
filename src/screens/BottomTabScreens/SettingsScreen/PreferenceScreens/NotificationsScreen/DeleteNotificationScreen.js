@@ -4,7 +4,7 @@ import MainBackground from '../../../../../components/MainBackground';
 import CustomHeader from '../../../../../components/CustomHeader';
 import RadioButtonCard from '../../../../../components/RadioButtonCard';
 import {DimensionConstants} from '../../../../../constants/DimensionConstants';
-const DeleteNotificationScreen = () => {
+const DeleteNotificationScreen = ({navigation}) => {
   const [selected, setSelected] = useState(null);
   const deleteOptions = [
     {label: 'Today'},
@@ -14,7 +14,11 @@ const DeleteNotificationScreen = () => {
   ];
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
-      <CustomHeader title="Delete" backgroundColor="#ffffff" />
+      <CustomHeader
+        title="Delete"
+        backgroundColor="#ffffff"
+        backPress={() => navigation.goBack()}
+      />
       <View style={{padding: DimensionConstants.sixteen}}>
         <RadioButtonCard
           data={deleteOptions}

@@ -6,7 +6,7 @@ import InfoCard from '../../../../components/InfoCard';
 import Spacing from '../../../../components/Spacing';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 
-const ScheduleRestartScreen = () => {
+const ScheduleRestartScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const [isOn, setIsOn] = useState(true);
 
@@ -22,6 +22,7 @@ const ScheduleRestartScreen = () => {
       <CustomHeader
         title={'Schedule Restart/Shutdown'}
         backgroundColor={'#fff'}
+        backPress={() => navigation.goBack()}
       />
       <View style={{padding: DimensionConstants.sixteen}}>
         <InfoCard

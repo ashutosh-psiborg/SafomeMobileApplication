@@ -84,6 +84,7 @@ const AddDeviceScreen = ({navigation}) => {
       <View style={styles.container}>
         <View>
           <CustomHeader
+            backPress={() => navigation.goBack()}
             skip
             onSkipPress={() => navigation.navigate('MainApp')}
           />

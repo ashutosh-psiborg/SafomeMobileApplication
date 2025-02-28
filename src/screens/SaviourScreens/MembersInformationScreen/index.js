@@ -12,7 +12,7 @@ import {useForm} from 'react-hook-form';
 import {validationSchema} from '../../../utils/Validations';
 import CommonForm from '../../../utils/CommonForm';
 import GlobeIcon from '../../../assets/icons/GlobeIcon';
-const MembersInformationScreen = () => {
+const MembersInformationScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
   const {
@@ -57,6 +57,7 @@ const MembersInformationScreen = () => {
     <MainBackground noPadding>
       <CustomHeader
         title={'Profile Information'}
+        backPress={() => navigation.goBack()}
         icon={<MenuIcon marginRight={DimensionConstants.sixteen} />}
       />
       <Spacing height={DimensionConstants.sixteen} />

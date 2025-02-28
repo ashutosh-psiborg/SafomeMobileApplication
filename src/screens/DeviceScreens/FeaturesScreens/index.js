@@ -80,7 +80,11 @@ const FeaturesScreens = ({navigation}) => {
   ];
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader title={'More'} backgroundColor={'#FFFFFF'} />
+      <CustomHeader
+        title={'More'}
+        backgroundColor={'#FFFFFF'}
+        backPress={() => navigation.goBack()}
+      />
       <View style={{padding: DimensionConstants.fifteen}}>
         <Spacing height={DimensionConstants.ten} />
         <CustomCard style={styles.featuresCard}>

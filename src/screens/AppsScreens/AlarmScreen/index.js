@@ -13,11 +13,16 @@ const AlarmScreen = ({navigation}) => {
 
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader title={'Alarm'} backgroundColor={'#ffffff'} />
+      <CustomHeader
+        title={'Alarm'}
+        backgroundColor={'#ffffff'}
+        backPress={() => navigation.goBack()}
+      />
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.setAlarmText}>Set Alarm</Text>
-          <TouchableOpacity onPress={() => navigation.navigate('SetAlarmScreen')}>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('SetAlarmScreen')}>
             <PlusIcon marginLeft={DimensionConstants.ten} />
           </TouchableOpacity>
         </View>
@@ -42,8 +47,7 @@ const AlarmScreen = ({navigation}) => {
             </View>
             <View style={styles.daysContainer}>
               <Text style={styles.daysText}>
-                S M{' '}
-                <Text style={styles.highlightedDaysText}>T W T</Text> F S
+                S M <Text style={styles.highlightedDaysText}>T W T</Text> F S
               </Text>
             </View>
           </View>

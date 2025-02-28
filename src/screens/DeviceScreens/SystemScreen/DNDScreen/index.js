@@ -6,13 +6,17 @@ import Spacing from '../../../../components/Spacing';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import ThreeDots from '../../../../assets/icons/ThreeDots';
 
-const DNDScreen = () => {
+const DNDScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
 
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader title={'DND'} backgroundColor={'#fff'} />
+      <CustomHeader
+        title={'DND'}
+        backgroundColor={'#fff'}
+        backPress={() => navigation.goBack()}
+      />
       <View style={styles.container}>
         {[0, 1].map(item => (
           <View key={item}>

@@ -85,6 +85,7 @@ const SavioursScreen = ({navigation}) => {
       <CustomHeader
         title="Saviours"
         backgroundColor="#fff"
+        backPress={() => navigation.goBack()}
         icon={<PlusIcon marginRight={DimensionConstants.fifteen} />}
         onIconPress={() => setModalVisible(true)}
       />

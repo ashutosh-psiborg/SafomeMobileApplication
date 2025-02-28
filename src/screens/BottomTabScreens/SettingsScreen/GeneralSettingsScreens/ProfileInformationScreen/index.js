@@ -160,7 +160,11 @@ const ProfileInformationScreen = ({navigation}) => {
 
   return (
     <MainBackground>
-      <CustomHeader title={'Profile information'} icon={<MenuIcon />} />
+      <CustomHeader
+        title={'Profile information'}
+        icon={<MenuIcon />}
+        backPress={() => navigation.goBack()}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Spacing height={DimensionConstants.thirtyTwo} />
         <View style={{alignItems: 'center'}}>

@@ -5,7 +5,7 @@ import CustomHeader from '../../../../components/CustomHeader';
 import RadioButtonCard from '../../../../components/RadioButtonCard';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import Spacing from '../../../../components/Spacing';
-const TimeZoneScreen = () => {
+const TimeZoneScreen = ({navigation}) => {
   const [selected, setSelected] = useState(0);
   const [isEnabled, setIsEnabled] = useState(true);
 
@@ -24,7 +24,11 @@ const TimeZoneScreen = () => {
   ];
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
-      <CustomHeader title={'Time zone'} backgroundColor={'#ffffff'} />
+      <CustomHeader
+        title={'Time zone'}
+        backgroundColor={'#ffffff'}
+        backPress={() => navigation.goBack()}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={{padding: DimensionConstants.sixteen}}>
           <View

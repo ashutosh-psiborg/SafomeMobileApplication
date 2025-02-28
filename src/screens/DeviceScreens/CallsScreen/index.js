@@ -96,7 +96,11 @@ const CallsScreen = () => {
 
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
-      <CustomHeader title={'Calls'} backgroundColor={'#fff'} />
+      <CustomHeader
+        title={'Calls'}
+        backgroundColor={'#fff'}
+        backPress={() => navigation.goBack()}
+      />
       <View style={styles.container}>
         {loading ? (
           <Loader />

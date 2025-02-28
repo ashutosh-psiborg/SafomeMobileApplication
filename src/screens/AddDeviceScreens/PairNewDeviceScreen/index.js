@@ -12,7 +12,9 @@ const PairNewDeviceScreen = ({navigation}) => {
     <MainBackground style={{backgroundColor: '#F2F7FC'}} noPadding>
       <CustomHeader
         title={'Pair new device'}
-        backgroundColor={'#Ffffff'}
+        backgroundColor={ '#Ffffff' }
+        backPress={() => navigation.goBack()}
+
       />
       <Spacing height={DimensionConstants.oneHundred} />
       <View

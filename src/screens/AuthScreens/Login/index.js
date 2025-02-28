@@ -139,7 +139,10 @@ const LoginScreen = ({navigation}) => {
 
   return (
     <MainBackground>
-      <CustomHeader title={t('Welcome')} />
+      <CustomHeader
+        title={t('Welcome')}
+        backPress={() => navigation.goBack()}
+      />
       <ScrollView showsVerticalScrollIndicator={false}>
         <Spacing height={DimensionConstants.twentyFour} />
         <Text style={styles.signInText}>{t('Sign in to your Account')}</Text>

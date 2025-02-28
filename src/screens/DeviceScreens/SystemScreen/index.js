@@ -43,7 +43,6 @@ const SystemScreen = ({navigation}) => {
       component: <WifiIcon />,
       label: 'Watch Wi-Fi settings',
       navigation: () => navigation.navigate('WifiSettingsScreen'),
-
     },
     {
       component: <DNDIcon />,
@@ -79,7 +78,11 @@ const SystemScreen = ({navigation}) => {
   ];
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader title={'System'} backgroundColor={'#FFFFFF'} />
+      <CustomHeader
+        title={'System'}
+        backgroundColor={'#FFFFFF'}
+        backPress={() => navigation.goBack()}
+      />
       <View style={{padding: DimensionConstants.fifteen}}>
         <Spacing height={DimensionConstants.ten} />
         <CustomCard style={styles.featuresCard}>

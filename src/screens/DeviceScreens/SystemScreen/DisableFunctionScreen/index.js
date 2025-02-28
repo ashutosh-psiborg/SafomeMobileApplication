@@ -6,13 +6,17 @@ import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import InfoCard from '../../../../components/InfoCard';
 import Spacing from '../../../../components/Spacing';
 
-const DisableFunctionScreen = () => {
+const DisableFunctionScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
 
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
-      <CustomHeader title={'Disable Function'} backgroundColor={'#ffffff'} />
+      <CustomHeader
+        title={'Disable Function'}
+        backgroundColor={'#ffffff'}
+        backPress={() => navigation.goBack()}
+      />
       <View style={{padding: DimensionConstants.sixteen}}>
         <InfoCard
           title={'Dialpad'}

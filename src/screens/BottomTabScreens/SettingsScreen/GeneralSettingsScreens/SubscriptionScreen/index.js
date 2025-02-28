@@ -43,7 +43,11 @@ const SubscriptionScreen = () => {
 
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader title={'Plans'} backgroundColor="#ffffff" />
+      <CustomHeader
+        title={'Plans'}
+        backgroundColor="#ffffff"
+        backPress={() => navigation.goBack()}
+      />
       <Spacing height={DimensionConstants.eight} />
 
       <View style={styles.container}>

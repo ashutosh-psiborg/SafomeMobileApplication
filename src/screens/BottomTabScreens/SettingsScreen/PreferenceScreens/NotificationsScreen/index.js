@@ -14,7 +14,11 @@ const NotificationsScreen = ({navigation}) => {
 
   return (
     <MainBackground style={styles.mainBackground} noPadding>
-      <CustomHeader title="Notifications" backgroundColor="#ffffff" />
+      <CustomHeader
+        title="Notifications"
+        backgroundColor="#ffffff"
+        backPress={() => navigation.goBack()}
+      />
       <Spacing height={DimensionConstants.eight} />
       <View style={styles.container}>
         <CustomCard style={styles.card}>
