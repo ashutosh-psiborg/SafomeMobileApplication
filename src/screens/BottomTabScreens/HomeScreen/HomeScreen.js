@@ -1,10 +1,5 @@
 import React, {useState} from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
 import MainBackground from '../../../components/MainBackground';
@@ -18,21 +13,45 @@ import RefreshIcon from '../../../assets/icons/RefreshIcon';
 import {HomeScreenStyles} from './Styles/HomeScreenStyles';
 import StatisticsCards from '../../../components/StatisticsCards';
 import ContactCards from '../../../components/ContactCards';
+import FilterContainer from '../../../components/FilterContainer';
+import {useQuery} from '@tanstack/react-query';
+import fetcher from '../../../utils/ApiService';
+import Loader from '../../../components/Loader'; // Import your Loader component
 
 const HomeScreen = ({navigation}) => {
   const [expanded, setExpanded] = useState(false);
   const [location, setLocation] = useState(null);
+  const [selected, setSelected] = useState('Week');
+  const options = ['Today', 'Week', 'Month', 'All Time'];
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
   const styles = HomeScreenStyles(theme);
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: ['fitness', selected],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `deviceDataResponse/fitness-health/6907390711?range=${selected.toLowerCase()}`,
+      }),
+  });
+
+
+  if (isLoading) {
+    return (
+      <MainBackground style={{backgroundColor: theme.otpBox}}>
+        <Loader />
+      </MainBackground>
+    );
+  }
 
   return (
     <MainBackground style={{backgroundColor: theme.otpBox}}>
       <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
-
+      
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Spacing height={DimensionConstants.twentyFour} />
+        <Spacing height={ DimensionConstants.twentyFour } />
+        
         <View style={styles.addressContainer}>
           <View style={styles.rowContainer}>
             <AddressIcon />
@@ -77,65 +96,15 @@ const HomeScreen = ({navigation}) => {
 
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title={'Statistics'} showViewAll={false} />
-        <StatisticsCards />
+        <Spacing height={DimensionConstants.twenty} />
+        <FilterContainer
+          options={options}
+          selected={selected}
+          onSelect={setSelected}
+          theme={theme}
+        />
+        <StatisticsCards data={data} />
         <Spacing height={DimensionConstants.twentyFour} />
-        {/* <HomeMidHeader title={'Recent calls'} />
-        <Spacing height={DimensionConstants.sixteen} /> */}
-        {/* <CustomCard
-          style={{borderRadius: DimensionConstants.twelve, paddingRight: 0}}>
-          {data.map(item => (
-            <>
-              <View key={item.id} style={styles.callContainer}>
-                <View style={styles.rowContainer}>
-                  <Image
-                    source={ImageConstants.girlImage}
-                    style={{
-                      height: DimensionConstants.fortyTwo,
-                      width: DimensionConstants.fortyTwo,
-                      borderRadius: DimensionConstants.twentyOne,
-                    }}
-                  />
-                  <View style={{marginLeft: DimensionConstants.ten}}>
-                    <Text style={{fontWeight: '500'}}>Amit Singh</Text>
-                    <View style={styles.rowContainer}>
-                      <CallIcon />
-                      <View
-                        style={{
-                          backgroundColor: theme.darkGrey,
-                          height: DimensionConstants.five,
-                          width: DimensionConstants.five,
-                          borderRadius: DimensionConstants.oneHundred,
-                          marginLeft: DimensionConstants.five,
-                        }}></View>
-                      <Text
-                        style={{
-                          color: theme.darkGrey,
-                          fontSize: DimensionConstants.twelve,
-                          fontWeight: '500',
-                        }}>
-                        {' '}
-                        12:47 PM
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-
-                <PhoneIcon marginRight={DimensionConstants.fifteen} />
-              </View>
-              {item?.line === 'no' ? null : (
-                <View
-                  style={{
-                    backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                    height: DimensionConstants.two,
-                    width: DimensionConstants.twoHundredSixty,
-                    alignSelf: 'flex-end',
-                    marginVertical: DimensionConstants.five,
-                  }}></View>
-              )}
-            </>
-          ))}
-        </CustomCard> */}
-        {/* <Spacing height={DimensionConstants.twentyFour} /> */}
         <HomeMidHeader
           title={'Recent Notifications'}
           onPress={() => setExpanded(!expanded)}

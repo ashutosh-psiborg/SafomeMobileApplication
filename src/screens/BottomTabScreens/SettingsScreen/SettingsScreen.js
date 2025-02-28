@@ -1,7 +1,6 @@
 import {
   View,
   Text,
-  StyleSheet,
   Image,
   TouchableOpacity,
   ScrollView,
@@ -68,12 +67,10 @@ const SettingsScreen = ({navigation}) => {
     }
   }, [theme]);
 
-  // Only update temp state when radio button is clicked
   const handleSelect = index => {
     setTempSelected(index);
   };
 
-  // Save changes and update the theme when Save is clicked
   const handleSave = () => {
     setSelected(tempSelected);
     if (tempSelected === 0) {
@@ -84,7 +81,7 @@ const SettingsScreen = ({navigation}) => {
       const colorScheme = Appearance.getColorScheme();
       dispatch(setTheme(colorScheme === 'dark' ? 'dark' : 'light'));
     }
-    setModalVisible(false); // Close the modal after saving
+    setModalVisible(false); 
   };
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['userProfile'],

@@ -9,8 +9,23 @@ import {DimensionConstants} from '../constants/DimensionConstants';
 import Spacing from './Spacing';
 import HeartIcon from '../assets/icons/HeartIcon';
 import BloodOxygenIcon from '../assets/icons/BloodOxygenIcon';
-const StatisticsCards = () => {
-  const dataPoints = ['30', '60', '90', '72', '170', '100', '128'];
+import BloodPressureIcon from '../assets/icons/BloodPressureIcon';
+const StatisticsCards = ({data}) => {
+  const dataPoints = data?.heartRateHistory || [0, 0, 0, 0, 0];
+  const formatCustomDate = isoString => {
+    const date = new Date(isoString);
+
+    const options = {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    };
+
+    return date.toLocaleString('en-US', options);
+  };
 
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -62,30 +77,33 @@ const StatisticsCards = () => {
           </View>
 
           <Text style={styles.cardContent}>
-            128
+            {data?.bphrt?.heartRate}
             <Text style={styles.bpmText}> BPM</Text>
           </Text>
-          <Text style={styles.bpmText}> 01/07 12:47 PM</Text>
+          <Text style={styles.bpmText}>
+            {formatCustomDate(data?.bphrt?.date)}
+          </Text>
         </View>
       </CustomCard>
-      <View>
+      <View style={{justifyContent: 'space-between'}}>
         <CustomCard style={{width: DimensionConstants.oneHundredSixtyFour}}>
           <View>
             <View style={styles.rowContainer}>
-              <RevenueIcon />
-              <Text style={styles.cardTitle}>Today Calls</Text>
+              <BloodPressureIcon />
+              <Text style={styles.cardTitle}>Blood pressure</Text>
             </View>
-            <Text style={styles.cardContent}>76</Text>
+            <Text style={styles.cardContent}>
+              {data?.bphrt?.SystolicBP}/{data?.bphrt?.DiastolicBP} mm Hg
+            </Text>
           </View>
         </CustomCard>
-        <Spacing height={DimensionConstants.ten} />
         <CustomCard>
           <View>
             <View style={styles.rowContainer}>
               <BloodOxygenIcon />
               <Text style={styles.cardTitle}>Blood Oxygen</Text>
             </View>
-            <Text style={styles.cardContent}>98%</Text>
+            <Text style={styles.cardContent}>{data?.oxygen?.SPO2Rating}%</Text>
           </View>
         </CustomCard>
       </View>

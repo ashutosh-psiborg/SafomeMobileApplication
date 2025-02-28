@@ -9,7 +9,7 @@ import React, {useState} from 'react';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
-import EditIcon from '../../../assets/icons/EditIcon';
+import {useQuery} from '@tanstack/react-query';
 import {useSelector} from 'react-redux';
 import Spacing from '../../../components/Spacing';
 import CircularProgress from 'react-native-circular-progress-indicator';
@@ -19,17 +19,34 @@ import BlueFlagIcon from '../../../assets/icons/BlueFlagIcon';
 import BlueClockIcon from '../../../assets/icons/BlueClockIcon';
 import HomeMidHeader from '../../../components/HomeMidHeader';
 import StatisticsCards from '../../../components/StatisticsCards';
-
+import FilterContainer from '../../../components/FilterContainer';
+import Loader from '../../../components/Loader';
 const FitnessScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
 
-  const [selected, setSelected] = useState('Today');
+  const [selected, setSelected] = useState('Week');
   const steps = 5500;
   const maxSteps = 8000;
   const options = ['Today', 'Week', 'Month', 'All Time'];
-  const data = [
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: ['fitness', selected],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `deviceDataResponse/fitness-health/6907390711?range=${selected.toLowerCase()}`,
+      }),
+  });
+
+  if (isLoading) {
+    return (
+      <MainBackground style={{backgroundColor: theme.otpBox}}>
+        <Loader />
+      </MainBackground>
+    );
+  }
+  const icon = [
     {
       id: 1,
       component: <CalorieBurnIcon />,
@@ -62,29 +79,12 @@ const FitnessScreen = ({navigation}) => {
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
-          <View style={styles.filterContainer}>
-            {options.map(option => (
-              <TouchableOpacity
-                key={option}
-                onPress={() => setSelected(option)}
-                style={[
-                  styles.filterButton,
-                  selected === option && {backgroundColor: theme.primary},
-                ]}>
-                <Text
-                  style={[
-                    styles.filterText,
-                    selected === option && {color: 'white'},
-                  ]}>
-                  {option}
-                </Text>
-              </TouchableOpacity>
-            ))}
-            {/* <TouchableOpacity>
-              <EditIcon />
-            </TouchableOpacity> */}
-            {/* <Spacing width={DimensionConstants.three} /> */}
-          </View>
+          <FilterContainer
+            options={options}
+            selected={selected}
+            onSelect={setSelected}
+            theme={theme}
+          />
           <Spacing height={DimensionConstants.twentyFour} />
 
           <CustomCard>
@@ -110,7 +110,7 @@ const FitnessScreen = ({navigation}) => {
 
             <CustomCard style={styles.statisticsCard}>
               <View style={styles.statisticsContainer}>
-                {data?.map(item => (
+                {icon?.map(item => (
                   <View style={styles.statisticsItem} key={item.id}>
                     <View>
                       {item?.component}
@@ -130,7 +130,7 @@ const FitnessScreen = ({navigation}) => {
           </CustomCard>
           <Spacing height={DimensionConstants.twentyFour} />
           <HomeMidHeader title={'Statistics'} showViewAll={false} />
-          <StatisticsCards />
+          <StatisticsCards data={data} />
         </View>
       </ScrollView>
     </MainBackground>
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#F2F7FC',
   },
   container: {
-    padding: DimensionConstants.twenty,
+    padding: DimensionConstants.sixteen,
   },
   filterContainer: {
     backgroundColor: 'white',
