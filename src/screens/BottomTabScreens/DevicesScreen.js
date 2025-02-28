@@ -26,6 +26,7 @@ const DevicesScreen = ({navigation}) => {
   const icons = [
     {
       component: <DeviceCallIcon />,
+      navigation: () => navigation.navigate('CallsScreen'),
       label: 'Calls',
     },
     {
@@ -57,7 +58,7 @@ const DevicesScreen = ({navigation}) => {
 
   return (
     <MainBackground style={styles.mainBackground}>
-      <LogoHeader onPress={ () => navigation.navigate('NotificationScreen')} />
+      <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
           <Spacing height={DimensionConstants.twentyFour} />

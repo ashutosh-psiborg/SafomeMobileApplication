@@ -5,10 +5,12 @@ import {HomeScreenStyles} from '../screens/BottomTabScreens/HomeScreen/Styles/Ho
 import CustomCard from './CustomCard';
 import RevenueIcon from '../assets/icons/RevenueIcon';
 import {LineChart} from 'react-native-chart-kit';
-import { DimensionConstants } from '../constants/DimensionConstants';
+import {DimensionConstants} from '../constants/DimensionConstants';
 import Spacing from './Spacing';
+import HeartIcon from '../assets/icons/HeartIcon';
+import BloodOxygenIcon from '../assets/icons/BloodOxygenIcon';
 const StatisticsCards = () => {
-  const dataPoints = [30, 60, 90, 72, 70, 100, 128];
+  const dataPoints = ['30', '60', '90', '72', '170', '100', '128'];
 
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -19,7 +21,7 @@ const StatisticsCards = () => {
       <CustomCard style={{width: '48%'}}>
         <View>
           <View style={styles.rowContainer}>
-            <RevenueIcon />
+            <HeartIcon size={20} />
             <Text style={styles.cardTitle}>Heart Rate</Text>
           </View>
           <View style={{alignItems: 'center'}}>
@@ -80,7 +82,7 @@ const StatisticsCards = () => {
         <CustomCard>
           <View>
             <View style={styles.rowContainer}>
-              <RevenueIcon />
+              <BloodOxygenIcon />
               <Text style={styles.cardTitle}>Blood Oxygen</Text>
             </View>
             <Text style={styles.cardContent}>98%</Text>
