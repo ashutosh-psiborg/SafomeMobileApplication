@@ -6,53 +6,98 @@ import PlusIcon from '../../../../assets/icons/PlusIcon';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import ThreeDots from '../../../../assets/icons/ThreeDots';
 import Spacing from '../../../../components/Spacing';
+import {useQuery} from '@tanstack/react-query';
+import fetcher from '../../../../utils/ApiService';
+import Loader from '../../../../components/Loader';
+
+const daysMap = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+const formatDays = binaryString => {
+  if (!binaryString || binaryString.length !== 7) return 'Once';
+  return daysMap.map((day, index) => (
+    <Text
+      key={index}
+      style={
+        binaryString[index] === '1'
+          ? styles.highlightedDaysText
+          : styles.daysText
+      }>
+      {day}
+    </Text>
+  ));
+};
 
 const AlarmScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
 
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: ['alarm'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `deviceDataResponse/getEvent/6907390711/REMIND`,
+      }),
+  });
+
+  const alarms = data?.data?.response;
+console.log(`Alarms`, alarms)
+  const alarmList = alarms
+    ? Object.keys(alarms)
+        .filter(key => key.startsWith('alarm'))
+        .map(key => {
+          const [time, ...days] = alarms[key].split('-');
+          return {
+            time,
+            days: days.length > 0 ? formatDays(days[days.length - 1]) : 'Once',
+          };
+        })
+    : [];
+
   return (
     <MainBackground noPadding style={styles.mainBackground}>
-      <CustomHeader
-        title={'Alarm'}
-        backgroundColor={'#ffffff'}
-        backPress={() => navigation.goBack()}
-      />
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.setAlarmText}>Set Alarm</Text>
-          <TouchableOpacity
-            onPress={() => navigation.navigate('SetAlarmScreen')}>
-            <PlusIcon marginLeft={DimensionConstants.ten} />
-          </TouchableOpacity>
-        </View>
-        {[0, 1, 2].map(item => (
-          <View key={item}>
-            <Spacing height={DimensionConstants.eighteen} />
-            <View style={styles.alarmContainer}>
-              <Text style={styles.scheduledAlarmText}>Scheduled Alarm</Text>
-              <Spacing height={DimensionConstants.twelve} />
-              <View style={styles.row}>
-                <Text style={styles.timeText}>5:30 AM</Text>
-                <View style={styles.switchContainer}>
-                  <Switch
-                    value={isEnabled}
-                    onValueChange={toggleSwitch}
-                    trackColor={{false: '#ccc', true: 'rgba(0, 91, 187, 0.1)'}}
-                    thumbColor={isEnabled ? '#0279E1' : '#f4f3f4'}
-                  />
-                  <ThreeDots />
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <View>
+          <CustomHeader
+            title={'Alarm'}
+            backgroundColor={'#ffffff'}
+            backPress={() => navigation.goBack()}
+          />
+          <View style={styles.container}>
+            {alarmList.map((alarm, index) => (
+              <View key={index}>
+                <Spacing height={DimensionConstants.eighteen} />
+                <TouchableOpacity
+                  style={styles.alarmContainer}
+                  onPress={ () => navigation.navigate('SetAlarmScreen', {index : index})}>
+                  <Text style={styles.scheduledAlarmText}>Scheduled Alarm</Text>
+                  <Spacing height={DimensionConstants.twelve} />
+                  <View style={styles.row}>
+                    <Text style={styles.timeText}>{alarm.time}</Text>
+                    <View style={styles.switchContainer}>
+                      <Switch
+                        value={isEnabled}
+                        onValueChange={toggleSwitch}
+                        trackColor={{
+                          false: '#ccc',
+                          true: 'rgba(0, 91, 187, 0.1)',
+                        }}
+                        thumbColor={isEnabled ? '#0279E1' : '#f4f3f4'}
+                      />
+                      <ThreeDots />
+                    </View>
+                  </View>
+                </TouchableOpacity>
+                <View style={styles.daysContainer}>
+                  <Text style={styles.daysText}>{alarm.days}</Text>
                 </View>
               </View>
-            </View>
-            <View style={styles.daysContainer}>
-              <Text style={styles.daysText}>
-                S M <Text style={styles.highlightedDaysText}>T W T</Text> F S
-              </Text>
-            </View>
+            ))}
           </View>
-        ))}
-      </View>
+        </View>
+      )}
     </MainBackground>
   );
 };
@@ -65,15 +110,6 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: DimensionConstants.sixteen,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  setAlarmText: {
-    fontSize: DimensionConstants.fourteen,
-    justifyContent: 'space-between',
-    fontWeight: '500',
   },
   alarmContainer: {
     backgroundColor: '#fff',
@@ -104,6 +140,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: DimensionConstants.sixteen,
     borderBottomRightRadius: DimensionConstants.ten,
     borderBottomLeftRadius: DimensionConstants.ten,
+    flexDirection: 'row',
   },
   daysText: {
     fontSize: DimensionConstants.fourteen,
@@ -113,7 +150,6 @@ const styles = StyleSheet.create({
   highlightedDaysText: {
     fontSize: DimensionConstants.fourteen,
     fontWeight: '500',
-    letterSpacing: DimensionConstants.two,
     color: '#0279E1',
   },
 });

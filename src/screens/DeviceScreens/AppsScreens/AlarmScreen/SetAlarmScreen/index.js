@@ -14,6 +14,9 @@ import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import {Dropdown} from 'react-native-element-dropdown';
 import CustomButton from '../../../../../components/CustomButton';
 import Spacing from '../../../../../components/Spacing';
+import {useMutation} from '@tanstack/react-query';
+import fetcher from '../../../../../utils/ApiService';
+import {useRoute} from '@react-navigation/native';
 
 const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const repeatOptions = [
@@ -27,7 +30,9 @@ const SetAlarmScreen = ({navigation}) => {
   const [repeat, setRepeat] = useState('Once');
   const [selectedDays, setSelectedDays] = useState([]);
   const [isEnabled, setIsEnabled] = useState(true);
-
+  const route = useRoute();
+  const {index} = route.params;
+  console.log(index);
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
 
   const onChange = (event, selectedTime) => {
@@ -44,6 +49,53 @@ const SetAlarmScreen = ({navigation}) => {
       setSelectedDays([...selectedDays, day]);
     }
   };
+  const setAlarmMutation = useMutation({
+    mutationFn: async () => {
+      // Convert time to 24-hour format
+      const hours = time.getHours();
+      const minutes = time.getMinutes();
+      const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
+        .toString()
+        .padStart(2, '0')}`;
+
+      // Determine repeat flag
+      const repeatFlag = repeat === 'Once' ? '1' : '2';
+
+      // Convert selected days into binary format (if repeat is selected)
+      let daysBinary = '';
+      if (repeat === 'Repeat') {
+        const weekDaysMap = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        daysBinary = weekDaysMap
+          .map(day => (selectedDays.includes(day) ? '1' : '0'))
+          .join('');
+      }
+
+      // Ensure index 0 also gets one comma
+      const commas = ','.repeat(index + 1);
+
+      // Generate dynamic payload
+      let remindString = `[REMIND${commas}${formattedTime}-1-${repeatFlag}`;
+      if (repeat === 'Repeat') {
+        remindString += `-${daysBinary}`;
+      }
+      remindString += ']';
+
+      console.log(remindString);
+
+      return fetcher({
+        method: 'POST',
+        url: 'deviceDataResponse/sendEvent/6907390711',
+        data: {data: remindString},
+      });
+    },
+    onSuccess: data => {
+      console.log('Alarm set successfully:', data);
+      navigation.goBack();
+    },
+    onError: error => {
+      console.error('Alarm failed to set', error);
+    },
+  });
 
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
@@ -139,7 +191,7 @@ const SetAlarmScreen = ({navigation}) => {
           </View>
         </View>
 
-        <CustomButton text={'Save'} onPress={() => navigation.goBack()} />
+        <CustomButton text={'Save'} onPress={() => setAlarmMutation.mutate()} />
       </ScrollView>
     </MainBackground>
   );

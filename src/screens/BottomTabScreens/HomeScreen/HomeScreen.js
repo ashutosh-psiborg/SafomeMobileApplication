@@ -105,25 +105,23 @@ const HomeScreen = ({navigation}) => {
         <View style={styles.addressContainer}>
           <View style={styles.rowContainer}>
             <AddressIcon />
-            <Text style={styles.placeText}>Sector 137, lets connect</Text>
+            <Text
+              style={styles.placeText}
+              numberOfLines={1}
+              ellipsizeMode="tail">
+              {locationData?.data?.placeName}
+            </Text>
           </View>
-          <View style={styles.rowContainer}>
-            <TouchableOpacity onPress={refetchLocation}>
-              <Text
-                style={{
-                  fontSize: DimensionConstants.twelve,
-                  fontWeight: '500',
-                  color: 'rgba(0, 0, 0, 0.5)',
-                  marginRight: DimensionConstants.ten,
-                }}>
-                Refresh
-              </Text>
-            </TouchableOpacity>
-            <TouchableOpacity onPress={refetchLocation}>
+          <View style={styles.refreshContainer}>
+            <TouchableOpacity
+              onPress={refetchLocation}
+              style={styles.refreshButton}>
+              <Text style={styles.refreshText}>Refresh</Text>
               <RefreshIcon />
             </TouchableOpacity>
           </View>
         </View>
+
         <Spacing height={DimensionConstants.fifteen} />
         <View style={styles.mapContainer}>
           {location ? (
@@ -139,7 +137,7 @@ const HomeScreen = ({navigation}) => {
               <Marker
                 coordinate={location}
                 title="Your Location"
-                description="Current location"></Marker>
+                description={locationData?.data?.placeName}></Marker>
             </MapView>
           ) : (
             <Loader />

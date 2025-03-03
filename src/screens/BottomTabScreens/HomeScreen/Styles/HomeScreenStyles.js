@@ -12,11 +12,11 @@ export const HomeScreenStyles = theme =>
       alignItems: 'center',
       padding: DimensionConstants.five,
     },
-    addressContainer: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-    },
+    // addressContainer: {
+    //   flexDirection: 'row',
+    //   justifyContent: 'space-between',
+    //   alignItems: 'center',
+    // },
     mapContainer: {
       borderRadius: DimensionConstants.twenty,
       height: height * 0.65,
@@ -26,11 +26,11 @@ export const HomeScreenStyles = theme =>
       height: '100%',
       width: '100%',
     },
-    placeText: {
-      fontSize: DimensionConstants.fourteen,
-      fontWeight: '600',
-      marginLeft: DimensionConstants.five,
-    },
+    // placeText: {
+    //   fontSize: DimensionConstants.fourteen,
+    //   fontWeight: '600',
+    //   marginLeft: DimensionConstants.five,
+    // },
     error: {
       color: 'red',
       textAlign: 'center',
@@ -76,10 +76,10 @@ export const HomeScreenStyles = theme =>
       borderWidth: DimensionConstants.one,
       borderRadius: DimensionConstants.fifty,
     },
-    rowContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
+    // rowContainer: {
+    //   flexDirection: 'row',
+    //   alignItems: 'center',
+    // },
     bpmText: {
       color: '#808080',
       fontSize: DimensionConstants.twelve,
@@ -109,5 +109,43 @@ export const HomeScreenStyles = theme =>
       color: theme.background,
       fontSize: DimensionConstants.twentyEight,
       fontWeight: '500',
+    },
+    addressContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      // paddingHorizontal: DimensionConstants.sixteen,
+      // paddingVertical: DimensionConstants.ten,
+      // backgroundColor: '#fff',
+      // borderRadius: DimensionConstants.eight,
+    },
+    rowContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flex: 1, // Ensures it takes available space
+      flexWrap: 'wrap',
+    },
+    placeText: {
+      fontSize: DimensionConstants.sixteen,
+      fontWeight: '500',
+      marginLeft: DimensionConstants.eight,
+      flexShrink: 1, // Prevents text from pushing Refresh button too far
+    },
+    refreshContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    refreshButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: DimensionConstants.five,
+      paddingHorizontal: DimensionConstants.ten,
+      borderRadius: DimensionConstants.eight,
+    },
+    refreshText: {
+      fontSize: DimensionConstants.twelve,
+      fontWeight: '500',
+      color: 'rgba(0, 0, 0, 0.5)',
+      marginRight: DimensionConstants.five,
     },
   });
