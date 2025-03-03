@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import React, { useState } from 'react';
+import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import React, {useState} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {
@@ -10,10 +10,26 @@ import RightArrowIcon from '../../../../assets/icons/RightArrowIcon';
 import CustomModal from '../../../../components/CustomModal';
 import CustomButton from '../../../../components/CustomButton';
 import Spacing from '../../../../components/Spacing';
-
-const ResetDeviceScreen = ({ navigation }) => {
+import {useMutation} from '@tanstack/react-query';
+import fetcher from '../../../../utils/ApiService';
+const ResetDeviceScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
-
+  const resetMutation = useMutation({
+    mutationFn: async () => {
+      return fetcher({
+        method: 'POST',
+        url: 'deviceDataResponse/sendEvent/6907390711',
+        data: {data: '[RESET]'},
+      });
+    },
+    onSuccess: data => {
+      console.log('reset successfully:', data);
+      navigation.goBack();
+    },
+    onError: error => {
+      console.error('reset failed', error);
+    },
+  });
   return (
     <MainBackground noPadding style={styles.container}>
       <CustomHeader
@@ -32,8 +48,7 @@ const ResetDeviceScreen = ({ navigation }) => {
       <CustomModal
         isVisible={modalVisible}
         modalHeight={height / 3.5}
-        onClose={() => setModalVisible(false)}
-      >
+        onClose={() => setModalVisible(false)}>
         <View style={styles.modalContent}>
           <View style={styles.modalHeader}>
             <Spacing height={DimensionConstants.twenty} />
@@ -53,7 +68,12 @@ const ResetDeviceScreen = ({ navigation }) => {
               borderColor="rgba(0, 0, 0, 0.3)"
               onPress={() => setModalVisible(false)}
             />
-            <CustomButton text="Reset device" width="48%" color="#FF310C" />
+            <CustomButton
+              text="Reset device"
+              width="48%"
+              color="#FF310C"
+              onPress={() => resetMutation.mutate()}
+            />
           </View>
         </View>
       </CustomModal>
