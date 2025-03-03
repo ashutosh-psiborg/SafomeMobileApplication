@@ -1,13 +1,13 @@
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
-import {DimensionConstants} from '../../constants/DimensionConstants';
-import MainBackground from '../../components/MainBackground';
-import CustomHeader from '../../components/CustomHeader';
-import AlarmIcon from '../../assets/icons/AlarmIcon';
-import SyncEventIcon from '../../assets/icons/SyncEventIcon';
-import CustomCard from '../../components/CustomCard';
-import Spacing from '../../components/Spacing';
-import RightArrowIcon from '../../assets/icons/RightArrowIcon';
+import {DimensionConstants} from '../../../constants/DimensionConstants';
+import MainBackground from '../../../components/MainBackground';
+import CustomHeader from '../../../components/CustomHeader';
+import AlarmIcon from '../../../assets/icons/AlarmIcon';
+import SyncEventIcon from '../../../assets/icons/SyncEventIcon';
+import CustomCard from '../../../components/CustomCard';
+import Spacing from '../../../components/Spacing';
+import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
 const AppScreen = ({navigation}) => {
   const icons = [
     {

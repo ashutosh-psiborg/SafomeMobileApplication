@@ -1,11 +1,11 @@
 import {View, Text, TouchableOpacity, Switch, StyleSheet} from 'react-native';
 import React, {useState} from 'react';
-import MainBackground from '../../../components/MainBackground';
-import CustomHeader from '../../../components/CustomHeader';
-import PlusIcon from '../../../assets/icons/PlusIcon';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
-import ThreeDots from '../../../assets/icons/ThreeDots';
-import Spacing from '../../../components/Spacing';
+import MainBackground from '../../../../components/MainBackground';
+import CustomHeader from '../../../../components/CustomHeader';
+import PlusIcon from '../../../../assets/icons/PlusIcon';
+import {DimensionConstants} from '../../../../constants/DimensionConstants';
+import ThreeDots from '../../../../assets/icons/ThreeDots';
+import Spacing from '../../../../components/Spacing';
 
 const AlarmScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);

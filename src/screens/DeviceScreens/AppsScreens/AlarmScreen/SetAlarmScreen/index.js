@@ -8,12 +8,12 @@ import {
   Switch,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import MainBackground from '../../../../components/MainBackground';
-import CustomHeader from '../../../../components/CustomHeader';
-import {DimensionConstants} from '../../../../constants/DimensionConstants';
+import MainBackground from '../../../../../components/MainBackground';
+import CustomHeader from '../../../../../components/CustomHeader';
+import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import {Dropdown} from 'react-native-element-dropdown';
-import CustomButton from '../../../../components/CustomButton';
-import Spacing from '../../../../components/Spacing';
+import CustomButton from '../../../../../components/CustomButton';
+import Spacing from '../../../../../components/Spacing';
 
 const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const repeatOptions = [

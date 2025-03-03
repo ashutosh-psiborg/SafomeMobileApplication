@@ -26,9 +26,9 @@ import PauseNotificationScreen from '../screens/BottomTabScreens/SettingsScreen/
 import DeleteNotificationScreen from '../screens/BottomTabScreens/SettingsScreen/PreferenceScreens/NotificationsScreen/DeleteNotificationScreen';
 import AboutDeviceScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/AboutDeviceScreen/index';
 import AddRemoveDeviceScreen from '../screens/BottomTabScreens/SettingsScreen/OtherSettingsScreens/AddRemoveDeviceScreen';
-import AppScreen from '../screens/AppsScreens/index';
-import AlarmScreen from '../screens/AppsScreens/AlarmScreen/index';
-import SetAlarmScreen from '../screens/AppsScreens/AlarmScreen/SetAlarmScreen/index';
+import AppScreen from '../screens/DeviceScreens/AppsScreens/index';
+import AlarmScreen from '../screens/DeviceScreens/AppsScreens/AlarmScreen/index';
+import SetAlarmScreen from '../screens/DeviceScreens/AppsScreens/AlarmScreen/SetAlarmScreen/index';
 import AutoCallScreen from '../screens/DeviceScreens/SystemScreen/AutoCallScreen/index';
 import SleepModeScreen from '../screens/DeviceScreens/SystemScreen/SleepModeScreen/index';
 import DisableFunctionScreen from '../screens/DeviceScreens/SystemScreen/DisableFunctionScreen/index';
