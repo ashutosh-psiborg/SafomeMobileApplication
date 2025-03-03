@@ -29,7 +29,7 @@ const FitnessScreen = ({navigation}) => {
   const [selected, setSelected] = useState('Week');
   const steps = 5500;
   const maxSteps = 8000;
-  const options = ['Today', 'Week', 'Month', 'All Time'];
+  const options = ['Today', 'Week', 'Month',];
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['fitness', selected],
     queryFn: () =>
@@ -38,7 +38,6 @@ const FitnessScreen = ({navigation}) => {
         url: `deviceDataResponse/fitness-health/6907390711?range=${selected.toLowerCase()}`,
       }),
   });
-
   if (isLoading) {
     return (
       <MainBackground style={{backgroundColor: theme.otpBox}}>

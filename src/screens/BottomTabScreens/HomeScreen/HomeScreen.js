@@ -20,7 +20,7 @@ import {DimensionConstants} from '../../../constants/DimensionConstants';
 const HomeScreen = ({navigation}) => {
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('Week');
-  const options = ['Today', 'Week', 'Month', 'All Time'];
+  const options = ['Today', 'Week', 'Month'];
 
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -62,7 +62,6 @@ const HomeScreen = ({navigation}) => {
         const long = parseFloat(data.data.longitude);
 
         if (!isNaN(lat) && !isNaN(long)) {
-
           if (
             !locationRef.current ||
             locationRef.current.latitude !== lat ||
@@ -112,10 +111,10 @@ const HomeScreen = ({navigation}) => {
             <TouchableOpacity onPress={refetchLocation}>
               <Text
                 style={{
-                  fontSize: 12,
+                  fontSize: DimensionConstants.twelve,
                   fontWeight: '500',
                   color: 'rgba(0, 0, 0, 0.5)',
-                  marginRight: 10,
+                  marginRight: DimensionConstants.ten,
                 }}>
                 Refresh
               </Text>
@@ -125,7 +124,7 @@ const HomeScreen = ({navigation}) => {
             </TouchableOpacity>
           </View>
         </View>
-        <Spacing height={15} />
+        <Spacing height={DimensionConstants.fifteen} />
         <View style={styles.mapContainer}>
           {location ? (
             <MapView
@@ -146,7 +145,7 @@ const HomeScreen = ({navigation}) => {
             <Loader />
           )}
         </View>
-        <Spacing height={24} />
+        <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title="Statistics" showViewAll={false} />
         <Spacing height={20} />
         <FilterContainer
@@ -156,15 +155,15 @@ const HomeScreen = ({navigation}) => {
           theme={theme}
         />
         {isFitnessLoading ? <Loader /> : <StatisticsCards data={fitnessData} />}
-        <Spacing height={24} />
+        <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader
           title="Recent Notifications"
           onPress={() => setExpanded(!expanded)}
         />
         <CardStack expanded={expanded} />
-        <Spacing height={24} />
+        <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title="My Contacts" />
-        <Spacing height={10} />
+        <Spacing height={DimensionConstants.ten} />
         <ContactCards />
       </ScrollView>
     </MainBackground>

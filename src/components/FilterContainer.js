@@ -1,7 +1,8 @@
 import React from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {View, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {DimensionConstants} from '../constants/DimensionConstants';
 
-const FilterContainer = ({ options, selected, onSelect, theme }) => {
+const FilterContainer = ({options, selected, onSelect, theme}) => {
   return (
     <View style={styles.filterContainer}>
       {options.map(option => (
@@ -10,12 +11,12 @@ const FilterContainer = ({ options, selected, onSelect, theme }) => {
           onPress={() => onSelect(option)}
           style={[
             styles.filterButton,
-            selected === option && { backgroundColor: theme.primary },
+            selected === option && {backgroundColor: theme.primary},
           ]}>
           <Text
             style={[
               styles.filterText,
-              selected === option && { color: 'white' },
+              selected === option && {color: 'white'},
             ]}>
             {option}
           </Text>
@@ -32,19 +33,20 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
-    padding: 4,
-    borderRadius: 29,
+    padding: DimensionConstants.four,
+    borderRadius: DimensionConstants.twentyNine,
     alignItems: 'center',
+    // width : '80%'
   },
   filterButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 15,
-    borderRadius: 20,
+    paddingVertical: DimensionConstants.five,
+    paddingHorizontal: DimensionConstants.fifteen,
+    borderRadius: DimensionConstants.twenty,
   },
   filterText: {
     color: '#797C7E',
     fontWeight: '500',
-    fontSize: 14,
+    fontSize: DimensionConstants.fourteen,
   },
 });
 

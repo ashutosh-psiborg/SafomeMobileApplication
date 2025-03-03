@@ -3,18 +3,18 @@ import React from 'react';
 import {useSelector} from 'react-redux';
 import {HomeScreenStyles} from '../screens/BottomTabScreens/HomeScreen/Styles/HomeScreenStyles';
 import CustomCard from './CustomCard';
-import RevenueIcon from '../assets/icons/RevenueIcon';
 import {LineChart} from 'react-native-chart-kit';
 import {DimensionConstants} from '../constants/DimensionConstants';
 import HeartIcon from '../assets/icons/HeartIcon';
 import BloodOxygenIcon from '../assets/icons/BloodOxygenIcon';
 import BloodPressureIcon from '../assets/icons/BloodPressureIcon';
+
 const StatisticsCards = ({data}) => {
   const dataPoints =
     data?.heartRateHistory?.length > 0 ? data.heartRateHistory : [0, 0, 0, 0];
+
   const formatCustomDate = isoString => {
     const date = new Date(isoString);
-
     const options = {
       day: '2-digit',
       month: 'long',
@@ -23,7 +23,6 @@ const StatisticsCards = ({data}) => {
       minute: '2-digit',
       hour12: true,
     };
-
     return date.toLocaleString('en-US', options);
   };
 
@@ -31,8 +30,10 @@ const StatisticsCards = ({data}) => {
     state => state.theme.themes[state.theme.currentTheme],
   );
   const styles = HomeScreenStyles(theme);
+
   return (
     <View style={styles.cardsContainer}>
+      {/* Left Side - Heart Rate Card (48%) */}
       <CustomCard style={{width: '48%'}}>
         <View>
           <View style={styles.rowContainer}>
@@ -42,11 +43,7 @@ const StatisticsCards = ({data}) => {
           <View style={{alignItems: 'center'}}>
             <LineChart
               data={{
-                datasets: [
-                  {
-                    data: dataPoints,
-                  },
-                ],
+                datasets: [{data: dataPoints}],
               }}
               width={320}
               height={40}
@@ -59,9 +56,7 @@ const StatisticsCards = ({data}) => {
                   borderRadius: DimensionConstants.sixteen,
                   marginLeft: DimensionConstants.ten,
                 },
-                propsForDots: {
-                  display: 'none',
-                },
+                propsForDots: {display: 'none'},
               }}
               bezier
               withDots={false}
@@ -70,9 +65,7 @@ const StatisticsCards = ({data}) => {
               withVerticalLabels={false}
               withHorizontalLabels={false}
               fromZero={true}
-              style={{
-                marginVertical: DimensionConstants.twenty,
-              }}
+              style={{marginVertical: DimensionConstants.twenty}}
             />
           </View>
 
@@ -85,18 +78,21 @@ const StatisticsCards = ({data}) => {
           </Text>
         </View>
       </CustomCard>
-      <View style={{justifyContent: 'space-between'}}>
-        <CustomCard style={{width: DimensionConstants.oneHundredSixtyFour}}>
+
+      {/* Right Side - Stacked Blood Pressure & Oxygen Cards (48%) */}
+      <View style={{width: '48%', justifyContent: 'space-between'}}>
+        <CustomCard style={{marginBottom: DimensionConstants.ten}}>
           <View>
             <View style={styles.rowContainer}>
               <BloodPressureIcon />
-              <Text style={styles.cardTitle}>Blood pressure</Text>
+              <Text style={styles.cardTitle}>Blood Pressure</Text>
             </View>
             <Text style={styles.cardContent}>
               {data?.bphrt?.SystolicBP}/{data?.bphrt?.DiastolicBP} mm Hg
             </Text>
           </View>
         </CustomCard>
+
         <CustomCard>
           <View>
             <View style={styles.rowContainer}>
