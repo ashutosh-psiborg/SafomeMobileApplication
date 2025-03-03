@@ -36,12 +36,12 @@ const AlarmScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getEvent/6907390711/REMIND`,
+        url: `deviceDataResponse/getDeviceAlarms/6907390711/REMIND`,
       }),
   });
 
-  const alarms = data?.data?.response;
-console.log(`Alarms`, alarms)
+  const alarms = data;
+  console.log(`Alarms`, alarms);
   const alarmList = alarms
     ? Object.keys(alarms)
         .filter(key => key.startsWith('alarm'))
@@ -71,7 +71,9 @@ console.log(`Alarms`, alarms)
                 <Spacing height={DimensionConstants.eighteen} />
                 <TouchableOpacity
                   style={styles.alarmContainer}
-                  onPress={ () => navigation.navigate('SetAlarmScreen', {index : index})}>
+                  onPress={() =>
+                    navigation.navigate('SetAlarmScreen', {index: index})
+                  }>
                   <Text style={styles.scheduledAlarmText}>Scheduled Alarm</Text>
                   <Spacing height={DimensionConstants.twelve} />
                   <View style={styles.row}>

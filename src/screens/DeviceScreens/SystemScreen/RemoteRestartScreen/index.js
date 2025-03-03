@@ -11,21 +11,47 @@ import RightArrowIcon from '../../../../assets/icons/RightArrowIcon';
 import CustomModal from '../../../../components/CustomModal';
 import Spacing from '../../../../components/Spacing';
 import CustomButton from '../../../../components/CustomButton';
-
+import {useMutation} from '@tanstack/react-query';
+import fetcher from '../../../../utils/ApiService';
 const RemoteRestartScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [selectedAction, setSelectedAction] = useState('');
 
+  const handlePress = action => {
+    setSelectedAction(action);
+    setModalVisible(true);
+  };
+  const resetMutation = useMutation({
+    mutationFn: async () => {
+      return fetcher({
+        method: 'POST',
+        url: 'deviceDataResponse/sendEvent/6907390711',
+        data:
+          selectedAction === 'Restart'
+            ? {data: '[RESET]'}
+            : {data: '[POWEROFF]'},
+      });
+    },
+    onSuccess: data => {
+      console.log('reset successfully:', data);
+      navigation.goBack();
+    },
+    onError: error => {
+      console.error('reset failed', error);
+    },
+  });
   const icons = [
     {
       label: 'Remote Restart',
-      navigation: () => setModalVisible(true),
+      action: 'Restart',
     },
     {
       label: 'Remote Shutdown',
-      navigation: () => setModalVisible(true),
+      action: 'Shutdown',
       line: 'no',
     },
   ];
+
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
       <CustomHeader
@@ -41,7 +67,7 @@ const RemoteRestartScreen = ({navigation}) => {
                 <View style={styles.featureContent}>
                   <Text style={styles.featureText}>{item.label}</Text>
                 </View>
-                <TouchableOpacity onPress={item.navigation}>
+                <TouchableOpacity onPress={() => handlePress(item?.action)}>
                   <RightArrowIcon color="black" marginRight={10} />
                 </TouchableOpacity>
               </View>
@@ -75,14 +101,10 @@ const RemoteRestartScreen = ({navigation}) => {
             <Text
               style={{
                 fontSize: DimensionConstants.fourteen,
+                textAlign: 'center',
               }}>
-              Are you sure you want to restart
-            </Text>
-            <Text
-              style={{
-                fontSize: DimensionConstants.fourteen,
-              }}>
-              your device
+              Are you sure you want to {selectedAction.toLowerCase()} your
+              device?
             </Text>
           </View>
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -94,7 +116,11 @@ const RemoteRestartScreen = ({navigation}) => {
               borderColor={'rgba(0, 0, 0, 0.3)'}
               onPress={() => setModalVisible(false)}
             />
-            <CustomButton text={'Restart'} width={'48%'} />
+            <CustomButton
+              text={selectedAction}
+              width={'48%'}
+              onPress={() => resetMutation.mutate()}
+            />
           </View>
         </View>
       </CustomModal>
@@ -122,7 +148,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   featureText: {
-    // marginLeft: DimensionConstants.twenty,
     fontSize: DimensionConstants.fourteen,
     fontWeight: '500',
   },
