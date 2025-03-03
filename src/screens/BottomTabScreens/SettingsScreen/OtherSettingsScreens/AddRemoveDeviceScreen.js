@@ -14,7 +14,7 @@ import InputModal from '../../../../components/InputModal';
 import {useTranslation} from 'react-i18next';
 import {useForm} from 'react-hook-form';
 
-const AddRemoveDeviceScreen = ({navigation}) => {
+const AddRemoveDeviceScreen = () => {
   const [inputModalVisible, setInputModalVisible] = useState(false);
   const {t} = useTranslation();
 
@@ -44,6 +44,7 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     queryKey: ['deviceDetails'],
     queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
   });
+  
   const mutation = useMutation({
     mutationFn: async data => {
       return fetcher({
@@ -110,7 +111,6 @@ const AddRemoveDeviceScreen = ({navigation}) => {
       <CustomHeader
         title={'Add / remove device'}
         backgroundColor={theme.background}
-        backPress={() => navigation.goBack()}
       />
       <View style={styles.container}>
         {data?.devices[0]?.deviceId ? (

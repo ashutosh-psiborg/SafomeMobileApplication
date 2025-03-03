@@ -6,12 +6,12 @@ import CustomCard from './CustomCard';
 import RevenueIcon from '../assets/icons/RevenueIcon';
 import {LineChart} from 'react-native-chart-kit';
 import {DimensionConstants} from '../constants/DimensionConstants';
-import Spacing from './Spacing';
 import HeartIcon from '../assets/icons/HeartIcon';
 import BloodOxygenIcon from '../assets/icons/BloodOxygenIcon';
 import BloodPressureIcon from '../assets/icons/BloodPressureIcon';
 const StatisticsCards = ({data}) => {
-  const dataPoints = data?.heartRateHistory || [0, 0, 0, 0, 0];
+  const dataPoints =
+    data?.heartRateHistory?.length > 0 ? data.heartRateHistory : [0, 0, 0, 0];
   const formatCustomDate = isoString => {
     const date = new Date(isoString);
 
