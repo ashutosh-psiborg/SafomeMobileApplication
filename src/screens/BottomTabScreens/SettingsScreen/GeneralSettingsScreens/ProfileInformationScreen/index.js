@@ -81,7 +81,7 @@ const ProfileInformationScreen = ({navigation}) => {
     {
       name: 'phoneNumber',
       placeholder: 'Phone Number',
-      icon: <DeviceCallIcon />,
+      icon: <DeviceCallIcon size={24} />,
       maxLength: 10,
       keyboardType: 'phone-pad',
       disabled: true,
@@ -159,40 +159,41 @@ const ProfileInformationScreen = ({navigation}) => {
   };
 
   return (
-    <MainBackground>
+    <MainBackground noPadding>
       <CustomHeader
         title={'Profile information'}
-        icon={<MenuIcon />}
+        icon={<MenuIcon marginRight={DimensionConstants.ten} />}
         backPress={() => navigation.goBack()}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Spacing height={DimensionConstants.thirtyTwo} />
-        <View style={{alignItems: 'center'}}>
-          <View style={{position: 'relative'}}>
-            <Image
-              source={ImageConstants?.avatar}
-              style={{
-                height: DimensionConstants.oneHundred,
-                width: DimensionConstants.oneHundred,
-                borderRadius: DimensionConstants.fifty,
-              }}
-            />
-            <TouchableOpacity
-              style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                padding: 4,
-              }}>
-              <EditImageIcon />
-            </TouchableOpacity>
+      <View style={{padding: DimensionConstants.sixteen}}>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <Spacing height={DimensionConstants.thirtyTwo} />
+          <View style={{alignItems: 'center'}}>
+            <View style={{position: 'relative'}}>
+              <Image
+                source={ImageConstants?.avatar}
+                style={{
+                  height: DimensionConstants.oneHundred,
+                  width: DimensionConstants.oneHundred,
+                  borderRadius: DimensionConstants.fifty,
+                }}
+              />
+              <TouchableOpacity
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  right: 0,
+                  padding: 4,
+                }}>
+                <EditImageIcon />
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-        <Spacing height={DimensionConstants.thirtyTwo} />
-        <CommonForm control={control} fields={fields} errors={errors} />
-      </ScrollView>
-      <CustomButton text={'Save Details'} onPress={handleSubmit(onSubmit)} />
-
+          <Spacing height={DimensionConstants.thirtyTwo} />
+          <CommonForm control={control} fields={fields} errors={errors} />
+        </ScrollView>
+        <CustomButton text={'Save Details'} onPress={handleSubmit(onSubmit)} />
+      </View>
       {isLoading && <Loader />}
     </MainBackground>
   );

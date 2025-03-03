@@ -269,7 +269,7 @@ const SettingSection = ({title, data, theme, styles}) => (
     <CustomCard style={styles.featuresCard}>
       {data.map((item, index) => (
         <View key={index}>
-          <View style={styles.featureRow}>
+          <TouchableOpacity style={styles.featureRow} onPress={item.navigation}>
             <View style={styles.featureContent}>
               {item.icon}
               <Text style={styles.featureText}>{item.title}</Text>
@@ -280,7 +280,7 @@ const SettingSection = ({title, data, theme, styles}) => (
                 marginRight={DimensionConstants.twenty}
               />
             </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
           {item?.line !== false && <View style={styles.separator} />}
         </View>
       ))}

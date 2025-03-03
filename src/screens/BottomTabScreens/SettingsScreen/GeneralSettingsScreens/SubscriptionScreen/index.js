@@ -34,7 +34,7 @@ const plans = [
   },
 ];
 
-const SubscriptionScreen = () => {
+const SubscriptionScreen = ({navigation}) => {
   const [selectedPlan, setSelectedPlan] = useState(1);
   const [modalSelectedPlan, setModalSelectedPlan] = useState(1); // For modal selection
   const [modalVisible, setModalVisible] = useState(false);

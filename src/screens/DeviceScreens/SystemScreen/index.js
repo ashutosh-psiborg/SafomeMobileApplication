@@ -89,10 +89,12 @@ const SystemScreen = ({navigation}) => {
           {icons.map((item, index) => (
             <View key={index}>
               <View style={styles.featureRow}>
-                <View style={styles.featureContent}>
+                <TouchableOpacity
+                  style={styles.featureContent}
+                  onPress={item.navigation}>
                   {item.component}
                   <Text style={styles.featureText}>{item.label}</Text>
-                </View>
+                </TouchableOpacity>
                 <TouchableOpacity onPress={item.navigation}>
                   <RightArrowIcon color="black" marginRight={10} />
                 </TouchableOpacity>
