@@ -1,19 +1,23 @@
+import React, {useState, useCallback} from 'react';
 import {View, Text, TouchableOpacity, Switch, StyleSheet} from 'react-native';
-import React, {useState} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+import {useQuery} from '@tanstack/react-query';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import PlusIcon from '../../../../assets/icons/PlusIcon';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import ThreeDots from '../../../../assets/icons/ThreeDots';
 import Spacing from '../../../../components/Spacing';
-import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
 import Loader from '../../../../components/Loader';
 
 const daysMap = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 const formatDays = binaryString => {
-  if (!binaryString || binaryString.length !== 7) return 'Once';
+  if (!binaryString) return 'Once';
+  if (binaryString === '2') return 'Daily';
+  if (binaryString.length !== 7) return 'Once';
+
   return daysMap.map((day, index) => (
     <Text
       key={index}
@@ -40,8 +44,16 @@ const AlarmScreen = ({navigation}) => {
       }),
   });
 
+  // Fetch data when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, []),
+  );
+
   const alarms = data;
   console.log(`Alarms`, alarms);
+
   const alarmList = alarms
     ? Object.keys(alarms)
         .filter(key => key.startsWith('alarm'))

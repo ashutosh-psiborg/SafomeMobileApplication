@@ -21,7 +21,8 @@ import {useRoute} from '@react-navigation/native';
 const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const repeatOptions = [
   {label: 'Once', value: 'Once'},
-  {label: 'Repeat', value: 'Repeat'},
+  {label: 'Daily', value: 'Daily'},
+  {label: 'Custom', value: 'Custom'},
 ];
 
 const SetAlarmScreen = ({navigation}) => {
@@ -51,35 +52,38 @@ const SetAlarmScreen = ({navigation}) => {
   };
   const setAlarmMutation = useMutation({
     mutationFn: async () => {
-      // Convert time to 24-hour format
       const hours = time.getHours();
       const minutes = time.getMinutes();
       const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
         .toString()
         .padStart(2, '0')}`;
 
-      // Determine repeat flag
-      const repeatFlag = repeat === 'Once' ? '1' : '2';
+      let repeatFlag = '1';
+      if (repeat === 'Daily') {
+        repeatFlag = '2';
+      } else if (repeat === 'Custom') {
+        // Changed from "Repeat" to "Custom"
+        repeatFlag = '3';
+      }
 
-      // Convert selected days into binary format (if repeat is selected)
       let daysBinary = '';
-      if (repeat === 'Repeat') {
+      if (repeat === 'Custom') {
+        // Updated condition
         const weekDaysMap = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
         daysBinary = weekDaysMap
           .map(day => (selectedDays.includes(day) ? '1' : '0'))
           .join('');
       }
 
-      // Ensure index 0 also gets one comma
       const commas = ','.repeat(index + 1);
-
-      // Generate dynamic payload
       let remindString = `[REMIND${commas}${formattedTime}-1-${repeatFlag}`;
-      if (repeat === 'Repeat') {
+
+      if (repeat === 'Custom') {
+        // Updated condition
         remindString += `-${daysBinary}`;
       }
-      remindString += ']';
 
+      remindString += ']';
       console.log(remindString);
 
       return fetcher({
@@ -150,7 +154,7 @@ const SetAlarmScreen = ({navigation}) => {
             />
           </View>
 
-          {repeat === 'Repeat' && (
+          {repeat === 'Custom' && (
             <View style={styles.section}>
               <View style={styles.daysContainer}>
                 {daysOfWeek.map(day => (
@@ -173,6 +177,7 @@ const SetAlarmScreen = ({navigation}) => {
               </View>
             </View>
           )}
+
           <Spacing height={DimensionConstants.twentyFour} />
 
           <View
