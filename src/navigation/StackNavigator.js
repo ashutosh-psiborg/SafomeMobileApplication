@@ -81,7 +81,7 @@ const StackNavigator = () => {
 
   return (
     <Stack.Navigator
-      initialRouteName={isAuthenticated ? 'MainApp' : 'WelcomeScreen'}>
+      initialRouteName={isAuthenticated ? 'MainApp' : 'OnboardingScreen'}>
       <Stack.Screen
         options={{headerShown: false}}
         name="LoginScreen"

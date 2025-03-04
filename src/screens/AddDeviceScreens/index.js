@@ -11,13 +11,14 @@ import {useSelector} from 'react-redux';
 import CustomModal from '../../components/CustomModal';
 import {AddDeviceStyles} from './Styles/AddDeviceStyles';
 import GlobeIcon from '../../assets/icons/GlobeIcon';
-import {useMutation} from '@tanstack/react-query';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import fetcher from '../../utils/ApiService';
 import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import {validationSchema} from '../../utils/Validations';
 import CommonForm from '../../utils/CommonForm';
 import InputModal from '../../components/InputModal';
+
 const AddDeviceScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [inputModalVisible, setInputModalVisible] = useState(false);
@@ -27,16 +28,30 @@ const AddDeviceScreen = ({navigation}) => {
   );
   const {t} = useTranslation();
   const styles = AddDeviceStyles(theme);
-
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: ['deviceDetails'],
+    queryFn: () => fetcher({method: 'GET', url: 'devices/getUid'}),
+  });
+  console.log(data);
   const {
     control,
     handleSubmit,
-    formState: {errors},
+    formState: { errors },
   } = useForm({
-    // resolver: yupResolver(validationSchema.pick(['deviceName', 'macId'])),
+    resolver: yupResolver(validationSchema.pick(['deviceName', 'deviceId', 'imei'])),
+    defaultValues: {
+      UID: data?.data?.uid || '',  // Set UID dynamically when available
+    },
   });
+  
 
   const fields = [
+    {
+      name: 'uid',
+      placeholder: data?.data?.uid || 'Fetching UID...', // Show placeholder if UID is not available
+      defaultValue: data?.data?.uid || '', // Set default value
+      disabled: true,
+    },
     {
       name: 'deviceName',
       placeholder: t('Enter device name'),
@@ -44,12 +59,15 @@ const AddDeviceScreen = ({navigation}) => {
     {
       name: 'imei',
       placeholder: t('IMEI'),
+      maxLength: 15,
     },
     {
       name: 'deviceId',
       placeholder: t('Device ID'),
+      maxLength: 10,
     },
   ];
+  
 
   const mutation = useMutation({
     mutationFn: async data => {

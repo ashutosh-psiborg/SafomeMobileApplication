@@ -1,5 +1,5 @@
-import {View, Text, Image, StyleSheet, Alert} from 'react-native';
-import React, {useState} from 'react';
+import {View, Text, Image, StyleSheet, Alert, ScrollView} from 'react-native';
+import React, {useState, useEffect} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {useSelector} from 'react-redux';
@@ -13,20 +13,53 @@ import CustomButton from '../../../../components/CustomButton';
 import InputModal from '../../../../components/InputModal';
 import {useTranslation} from 'react-i18next';
 import {useForm} from 'react-hook-form';
+import {validationSchema} from '../../../../utils/Validations';
+import {yupResolver} from '@hookform/resolvers/yup';
 
-const AddRemoveDeviceScreen = () => {
+const AddRemoveDeviceScreen = ({navigation}) => {
   const [inputModalVisible, setInputModalVisible] = useState(false);
   const {t} = useTranslation();
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
 
+  /** ✅ Fetch UID */
+  const {data: uidData} = useQuery({
+    queryKey: ['deviceUid'],
+    queryFn: () => fetcher({method: 'GET', url: 'devices/getUid'}),
+  });
+
+  /** ✅ Fetch device details */
+  const {data, refetch} = useQuery({
+    queryKey: ['deviceDetails'],
+    queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
+  });
+
+  /** ✅ Form setup */
   const {
     control,
     handleSubmit,
     formState: {errors},
-  } = useForm({});
-  const theme = useSelector(
-    state => state.theme.themes[state.theme.currentTheme],
-  );
+    reset,
+  } = useForm({
+    resolver: yupResolver(validationSchema.pick(['deviceName', 'deviceId', 'imei'])),
+  });
+
+  /** ✅ Reset UID when available */
+  useEffect(() => {
+    if (uidData?.data?.uid) {
+      reset({ uid: uidData.data.uid });
+    }
+  }, [uidData, reset]);
+
+  /** ✅ Form fields */
   const fields = [
+    {
+      name: 'uid',
+      placeholder: uidData?.data?.uid || 'Fetching UID...',
+      defaultValue: uidData?.data?.uid || '',
+      disabled: true,
+    },
     {
       name: 'deviceName',
       placeholder: t('Enter device name'),
@@ -34,46 +67,31 @@ const AddRemoveDeviceScreen = () => {
     {
       name: 'imei',
       placeholder: t('IMEI'),
+      maxLength: 15,
     },
     {
       name: 'deviceId',
       placeholder: t('Device ID'),
+      maxLength: 10,
     },
   ];
-  const {data, isLoading, error, refetch} = useQuery({
-    queryKey: ['deviceDetails'],
-    queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
-  });
-  
+
+  /** ✅ Add Device Mutation */
   const mutation = useMutation({
-    mutationFn: async data => {
-      return fetcher({
-        method: 'POST',
-        url: '/devices/addDevices',
-        data,
-      });
-    },
+    mutationFn: data => fetcher({method: 'POST', url: '/devices/addDevices', data}),
     onSuccess: () => {
       Alert.alert('Success', 'Device added successfully!');
       refetch();
       setInputModalVisible(false);
     },
     onError: error => {
-      const errorMessage = error?.response?.data?.message;
-      Alert.alert('Error', errorMessage);
+      Alert.alert('Error', error?.response?.data?.message || 'Failed to add device.');
     },
   });
 
-  const onSubmit = data => {
-    console.log('🚀 Submitting Data:', data);
-    mutation.mutate(data);
-  };
+  /** ✅ Remove Device Mutation */
   const deleteDevice = useMutation({
-    mutationFn: deviceId =>
-      fetcher({
-        method: 'PATCH',
-        url: `devices/deleteDevice/${deviceId}`,
-      }),
+    mutationFn: deviceId => fetcher({method: 'PATCH', url: `devices/deleteDevice/${deviceId}`}),
     onSuccess: () => {
       Alert.alert('Success', 'Device removed successfully.');
       refetch();
@@ -83,82 +101,67 @@ const AddRemoveDeviceScreen = () => {
     },
   });
 
-  const handleRemoveDevice = () => {
+  /** ✅ Handle device removal */
+  const handleRemoveDevice = deviceId => {
     Alert.alert(
       'Confirm',
       'Are you sure you want to remove this device?',
       [
-        {text: 'Cancel', style: 'cancel'},
+        { text: 'Cancel', style: 'cancel' },
         {
           text: 'Remove',
           style: 'destructive',
-          onPress: () => {
-            const deviceId = data?.devices[0]?._id;
-            if (deviceId) {
-              deleteDevice.mutate(deviceId);
-            } else {
-              Alert.alert('Error', 'Device ID not found.');
-            }
-          },
+          onPress: () => deleteDevice.mutate(deviceId),
         },
       ],
-      {cancelable: true},
+      { cancelable: true }
     );
   };
 
   return (
     <MainBackground noPadding style={{backgroundColor: theme.otpBox}}>
-      <CustomHeader
-        title={'Add / remove device'}
-        backgroundColor={theme.background}
-      />
-      <View style={styles.container}>
-        {data?.devices[0]?.deviceId ? (
-          <CustomCard style={styles.card}>
-            <View style={styles.innerContainer}>
-              <Image source={ImageConstants.blackWatch} />
-              <Spacing height={DimensionConstants.thirty} />
-              <Text style={styles.deviceName}>
-                SOS {data?.devices[0]?.deviceName}
-              </Text>
-              <Text style={styles.macId}>
-                MAC ID : {data?.devices[0]?.deviceId}
-              </Text>
-              <CustomButton
-                width={'110%'}
-                text={'Remove device'}
-                onPress={handleRemoveDevice}
-              />
-            </View>
-          </CustomCard>
-        ) : (
+      {/* ✅ Pass function reference instead of executing navigation.goBack() */}
+      <CustomHeader title="Add / Remove Device" backgroundColor={theme.background} backPress={() => navigation.goBack()} />
+
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={styles.container}>
+          {/* ✅ Add Device Section */}
           <View style={styles.dashedContainer}>
-            <Text
-              style={{fontSize: DimensionConstants.sixteen, fontWeight: '500'}}>
-              No device found
-            </Text>
-            <CustomButton
-              width={'100%'}
-              text={'Add device'}
-              onPress={() => setInputModalVisible(true)}
-            />
+            <Text style={styles.addDeviceText}>Add New Device</Text>
+            <CustomButton width="100%" text="Add Device" onPress={() => setInputModalVisible(true)} />
           </View>
-        )}
-      </View>
-      <InputModal
-        isVisible={inputModalVisible}
-        onClose={() => setInputModalVisible(false)}
-        control={control}
-        fields={fields}
-        errors={errors}
-        onSubmit={handleSubmit(onSubmit)}
-        theme={theme}
-        t={t}
-      />
+
+          {/* ✅ Display Devices */}
+          {data?.devices?.map(item => (
+            <CustomCard key={item?._id} style={styles.card}>
+              <View style={styles.innerContainer}>
+                <Image source={ImageConstants.blackWatch} />
+                <Spacing height={DimensionConstants.thirty} />
+                <Text style={styles.deviceName}>SOS {item?.deviceName}</Text>
+                <Text style={styles.macId}>MAC ID: {item?.deviceId}</Text>
+                <CustomButton width="110%" text="Remove Device" onPress={() => handleRemoveDevice(item?._id)} />
+              </View>
+            </CustomCard>
+          ))}
+        </View>
+
+        {/* ✅ Input Modal */}
+        <InputModal
+          isVisible={inputModalVisible}
+          onClose={() => setInputModalVisible(false)}
+          control={control}
+          fields={fields}
+          errors={errors}
+          onSubmit={handleSubmit(data => mutation.mutate(data))}
+          theme={theme}
+          t={t}
+        />
+      </ScrollView>
     </MainBackground>
   );
 };
 
+/** ✅ Styles Optimized */
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: DimensionConstants.sixteen,
@@ -166,6 +169,7 @@ const styles = StyleSheet.create({
   },
   card: {
     borderRadius: DimensionConstants.twelve,
+    marginTop: DimensionConstants.ten,
   },
   innerContainer: {
     alignItems: 'center',
@@ -185,6 +189,10 @@ const styles = StyleSheet.create({
     borderWidth: DimensionConstants.one,
     borderRadius: DimensionConstants.twelve,
     padding: DimensionConstants.fifteen,
+  },
+  addDeviceText: {
+    fontSize: DimensionConstants.sixteen,
+    fontWeight: '500',
   },
 });
 

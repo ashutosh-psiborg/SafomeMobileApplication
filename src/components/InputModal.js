@@ -19,7 +19,7 @@ const InputModal = ({
   return (
     <CustomModal
       isVisible={isVisible}
-      modalHeight={height / 2.2}
+      modalHeight={height / 1.6}
       onClose={onClose}>
       <View
         style={{
