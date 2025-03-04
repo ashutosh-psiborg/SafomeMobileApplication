@@ -52,7 +52,7 @@ const OnboardingScreen = ({navigation}) => {
 
   const handleNext = () => {
     if (currentIndex === slides.length - 1) {
-      navigation.replace('WelcomeScreen');
+      navigation.navigate('WelcomeScreen');
     } else {
       flatListRef.current.scrollToIndex({index: currentIndex + 1});
       setCurrentIndex(currentIndex + 1);

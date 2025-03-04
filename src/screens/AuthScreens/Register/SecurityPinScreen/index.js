@@ -18,6 +18,7 @@ const SecurityPinScreen = () => {
   const [pin, setPin] = useState('');
   const {t} = useTranslation();
   const styles = BioMetricStyles(theme);
+  const user = useSelector(state => state.user);
 
   const handlePinChange = async text => {
     if (/^\d*$/.test(text) && text.length <= 4) {
@@ -27,6 +28,7 @@ const SecurityPinScreen = () => {
         try {
           const payload = {
             mPin: text,
+            email :user.email
           };
 
           const response = await fetcher({
@@ -55,6 +57,8 @@ const SecurityPinScreen = () => {
       <CustomHeader
         title={t('Biometric')}
         backPress={() => navigation.goBack()}
+        skip
+        onSkipPress={() => navigation.navigate('LoginScreen')}
       />
       <Spacing height={DimensionConstants.thirtyEight} />
       <Text style={styles.title}>Add security</Text>

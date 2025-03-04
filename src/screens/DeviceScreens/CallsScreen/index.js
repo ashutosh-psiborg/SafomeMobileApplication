@@ -20,7 +20,7 @@ import CustomCard from '../../../components/CustomCard';
 import HomeMidHeader from '../../../components/HomeMidHeader';
 import Spacing from '../../../components/Spacing';
 
-const CallsScreen = () => {
+const CallsScreen = ({navigation}) => {
   const [callHistory, setCallHistory] = useState([]);
   const [loading, setLoading] = useState(true);
 

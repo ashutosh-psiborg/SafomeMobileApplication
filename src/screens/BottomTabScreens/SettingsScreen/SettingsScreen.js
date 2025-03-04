@@ -91,7 +91,7 @@ const SettingsScreen = ({navigation}) => {
       await AsyncStorage.removeItem('authToken');
       navigation.reset({
         index: 0,
-        routes: [{name: 'LoginScreen'}],
+        routes: [{name: 'OnboardingScreen'}],
       });
     } catch (error) {
       console.log('Error signing out:', error);

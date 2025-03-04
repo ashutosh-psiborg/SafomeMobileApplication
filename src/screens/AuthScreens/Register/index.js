@@ -59,8 +59,8 @@ const RegisterScreen = ({navigation}) => {
     },
     {
       name: 'country',
+      placeholder: 'Country',
       options: [
-        {label: 'Country', value: ''},
         {label: 'India', value: 'India'},
         {label: 'Australia', value: 'Australia'},
       ],

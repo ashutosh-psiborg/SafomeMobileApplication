@@ -13,10 +13,12 @@ import ReactNativeBiometrics from 'react-native-biometrics';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import fetcher from '../../../../utils/ApiService';
 
-const BioMetricScreen = ({ route, navigation }) => {
+const BioMetricScreen = ({route, navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
+  const user = useSelector(state => state.user);
+  console.log(user);
   const {t} = useTranslation();
   const styles = BioMetricStyles(theme);
   const authenticateAndSendBiometric = async () => {
@@ -62,7 +64,10 @@ const BioMetricScreen = ({ route, navigation }) => {
       const response = await fetcher({
         method: 'POST',
         url: 'auth/bioMetric',
-        data: {bioMetricToken: signature},
+        data: {
+          email: user.email,
+          bioMetricToken: signature,
+        },
       });
 
       // Handle API success
@@ -79,7 +84,23 @@ const BioMetricScreen = ({ route, navigation }) => {
       );
     }
   };
-  
+  const requestBiometricPermission = () => {
+    Alert.alert(
+      'Enable Biometric Authentication',
+      'Do you want to enable biometric authentication for quick and secure access?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Enable',
+          onPress: authenticateAndSendBiometric, // Call the function only if the user agrees
+        },
+      ],
+    );
+  };
+
   return (
     <MainBackground>
       <View style={styles.container}>
@@ -87,6 +108,8 @@ const BioMetricScreen = ({ route, navigation }) => {
           <CustomHeader
             title={t('Biometric')}
             backPress={() => navigation.goBack()}
+            skip
+            onSkipPress={() => navigation.navigate('SecurityPinScreen')}
           />
           <Spacing height={DimensionConstants.thirtyEight} />
           <Text style={styles.title}>{t('Enable Biometric Security')}</Text>
@@ -120,10 +143,7 @@ const BioMetricScreen = ({ route, navigation }) => {
           </View>
         </View>
 
-        <CustomButton
-          onPress={authenticateAndSendBiometric}
-          text={t('Enable')}
-        />
+        <CustomButton onPress={requestBiometricPermission} text={t('Enable')} />
       </View>
     </MainBackground>
   );
