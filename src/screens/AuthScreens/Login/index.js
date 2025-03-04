@@ -20,6 +20,8 @@ import {validationSchema} from '../../../utils/Validations';
 import CommonForm from '../../../utils/CommonForm';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import EyeCloseIcon from '../../../assets/icons/EyeCloseIcon';
+import EyeOpenIcon from '../../../assets/icons/EyeOpenIcon';
 const LoginScreen = ({navigation}) => {
   GoogleSignin.configure({
     webClientId:
@@ -176,7 +178,7 @@ const LoginScreen = ({navigation}) => {
           icon={<GoogleIcon />}
           onPress={() => signIn()}
         />
-
+        
         <CustomButton
           textColor={theme.blackText}
           borderColor={theme.buttonBorder}

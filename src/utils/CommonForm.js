@@ -11,13 +11,24 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import {Controller} from 'react-hook-form';
 import {Dropdown} from 'react-native-element-dropdown';
 import {DimensionConstants} from '../constants/DimensionConstants';
+import EyeCloseIcon from '../assets/icons/EyeCloseIcon';
+import EyeOpenIcon from '../assets/icons/EyeOpenIcon';
 
 const CommonForm = ({control, fields, errors}) => {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [currentField, setCurrentField] = useState(null);
+  const [passwordVisible, setPasswordVisible] = useState({});
+
+  // Toggle password visibility
+  const togglePasswordVisibility = fieldName => {
+    setPasswordVisible(prev => ({
+      ...prev,
+      [fieldName]: !prev[fieldName],
+    }));
+  };
 
   // Date formatting function
-  const formatDate = (date) => {
+  const formatDate = date => {
     if (!date) return '';
     const d = new Date(date);
     const year = d.getFullYear();
@@ -32,7 +43,6 @@ const CommonForm = ({control, fields, errors}) => {
         <View key={index} style={styles.inputWrapper}>
           <View style={styles.inputContainer}>
             {field.icon && <View style={styles.icon}>{field.icon}</View>}
-
             <Controller
               control={control}
               render={({field: {onChange, value}}) =>
@@ -40,7 +50,7 @@ const CommonForm = ({control, fields, errors}) => {
                   <Dropdown
                     style={[
                       styles.dropdown,
-                      field.disabled && {color: '#A0A0A0'}, 
+                      field.disabled && {color: '#A0A0A0'},
                     ]}
                     data={field.options}
                     labelField="label"
@@ -56,19 +66,18 @@ const CommonForm = ({control, fields, errors}) => {
                       fontSize: DimensionConstants.fourteen,
                       color: '#000',
                     }}
-                    disabled={field.disabled} 
+                    disabled={field.disabled}
                   />
                 ) : field.isDate ? (
                   <>
                     <TouchableOpacity
                       onPress={() => {
-                        if (!field.disabled) { 
+                        if (!field.disabled) {
                           setCurrentField(field.name);
                           setDatePickerVisible(true);
                         }
                       }}
-                      activeOpacity={field.disabled ? 1 : 0.7} 
-                    >
+                      activeOpacity={field.disabled ? 1 : 0.7}>
                       <TextInput
                         style={styles.input}
                         value={formatDate(value)}
@@ -94,21 +103,37 @@ const CommonForm = ({control, fields, errors}) => {
                     )}
                   </>
                 ) : (
-                  //  Default TextInput Component
-                  <TextInput
-                    style={[
-                      styles.input,
-                      field.disabled && {color: '#A0A0A0'}, 
-                    ]}
-                    onChangeText={onChange}
-                    value={value}
-                    placeholder={field.placeholder}
-                    secureTextEntry={field.secureTextEntry}
-                    keyboardType={field.keyboardType}
-                    placeholderTextColor={'#5E6368'}
-                    maxLength={field.maxLength}
-                    editable={!field.disabled} // Disable TextInput
-                  />
+                  <View style={styles.textInputWrapper}>
+                    <TextInput
+                      style={[
+                        styles.input,
+                        field.disabled && {color: '#A0A0A0'},
+                      ]}
+                      onChangeText={onChange}
+                      value={value}
+                      placeholder={field.placeholder}
+                      secureTextEntry={
+                        field.secureTextEntry && !passwordVisible[field.name]
+                      }
+                      keyboardType={field.keyboardType}
+                      placeholderTextColor={'#5E6368'}
+                      maxLength={field.maxLength}
+                      editable={!field.disabled}
+                    />
+
+                    {/* Show/Hide Password Icon */}
+                    {field.secureTextEntry && (
+                      <TouchableOpacity
+                        onPress={() => togglePasswordVisibility(field.name)}
+                        style={styles.eyeIcon}>
+                        {passwordVisible[field.name] ? (
+                          <EyeOpenIcon />
+                        ) : (
+                          <EyeCloseIcon />
+                        )}
+                      </TouchableOpacity>
+                    )}
+                  </View>
                 )
               }
               name={field.name}
@@ -146,6 +171,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: DimensionConstants.ten,
     height: DimensionConstants.fortyEight,
   },
+  textInputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
   icon: {
     marginRight: DimensionConstants.eight,
   },
@@ -161,6 +191,9 @@ const styles = StyleSheet.create({
     height: DimensionConstants.forty,
     color: '#5E6368',
     paddingHorizontal: DimensionConstants.eight,
+  },
+  eyeIcon: {
+    padding: DimensionConstants.eight,
   },
   rightText: {
     marginLeft: DimensionConstants.eight,
