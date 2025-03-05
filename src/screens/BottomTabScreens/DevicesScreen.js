@@ -21,14 +21,9 @@ import AppsIcon from '../../assets/icons/AppsIcon';
 import SystemIcon from '../../assets/icons/SystemIcon';
 import FeaturesIcon from '../../assets/icons/FeaturesIcon';
 import RightArrowIcon from '../../assets/icons/RightArrowIcon';
-import {useQuery} from '@tanstack/react-query';
-import fetcher from '../../utils/ApiService';
+
 import Loader from '../../components/Loader';
 const DevicesScreen = ({navigation}) => {
-  const {data, isLoading, error, refetch} = useQuery({
-    queryKey: ['deviceDetails'],
-    queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
-  });
   const icons = [
     {
       component: <DeviceCallIcon />,
@@ -64,78 +59,72 @@ const DevicesScreen = ({navigation}) => {
 
   return (
     <MainBackground style={styles.mainBackground}>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <View>
-          <LogoHeader
-            onPress={() => navigation.navigate('NotificationScreen')}
-          />
-          <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={styles.container}>
-              <Spacing height={DimensionConstants.twentyFour} />
+      <View>
+        <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.container}>
+            <Spacing height={DimensionConstants.twentyFour} />
 
-              <CustomCard style={styles.deviceCard}>
-                <View style={styles.deviceHeader}>
-                  <BlackWatchIcon />
-                  <Spacing width={DimensionConstants.thirty} />
-                  <View>
-                    <View style={styles.deviceRow}>
-                      <Text style={styles.deviceName}>
-                        {data?.devices[0]?.deviceName}
-                      </Text>
-                      <DownArrowIcon marginLeft={DimensionConstants.twelve} />
-                    </View>
-
-                    <View style={styles.deviceRow}>
-                      <Text style={styles.label}>Signal :</Text>
-                      <Text style={[styles.value, {color: theme.primary}]}>
-                        Medium
-                      </Text>
-                    </View>
-
-                    <View style={styles.deviceRow}>
-                      <Text style={styles.label}>Battery :</Text>
-                      <Text style={[styles.value, {color: theme.primary}]}>
-                        98%
-                      </Text>
-                    </View>
-
-                    <CustomButton
-                      text={'Sync'}
-                      color={'#F4D9DC'}
-                      height={DimensionConstants.thirtyFive}
-                      width={DimensionConstants.eighty}
-                      textColor={'#FE605D'}
-                    />
+            <CustomCard style={styles.deviceCard}>
+              <View style={styles.deviceHeader}>
+                <BlackWatchIcon />
+                <Spacing width={DimensionConstants.thirty} />
+                <View>
+                  <View style={styles.deviceRow}>
+                    <Text style={styles.deviceName}>Device</Text>
+                    <DownArrowIcon marginLeft={DimensionConstants.twelve} />
                   </View>
+
+                  <View style={styles.deviceRow}>
+                    <Text style={styles.label}>Signal :</Text>
+                    <Text style={[styles.value, {color: theme.primary}]}>
+                      Medium
+                    </Text>
+                  </View>
+
+                  <View style={styles.deviceRow}>
+                    <Text style={styles.label}>Battery :</Text>
+                    <Text style={[styles.value, {color: theme.primary}]}>
+                      98%
+                    </Text>
+                  </View>
+
+                  <CustomButton
+                    text={'Sync'}
+                    color={'#F4D9DC'}
+                    height={DimensionConstants.thirtyFive}
+                    width={DimensionConstants.eighty}
+                    textColor={'#FE605D'}
+                  />
                 </View>
-                <CustomButton text={'Edit'} />
-              </CustomCard>
+              </View>
+              <CustomButton text={'Edit'} />
+            </CustomCard>
 
-              <Spacing height={DimensionConstants.eighteen} />
+            <Spacing height={DimensionConstants.eighteen} />
 
-              <CustomCard style={styles.featuresCard}>
-                {icons.map((item, index) => (
-                  <View key={index}>
-                    <TouchableOpacity style={styles.featureRow} onPress={item.navigation}>
-                      <View style={styles.featureContent}>
-                        {item.component}
-                        <Text style={styles.featureText}>{item.label}</Text>
-                      </View>
-                      <TouchableOpacity onPress={item.navigation}>
-                        <RightArrowIcon color="black" />
-                      </TouchableOpacity>
+            <CustomCard style={styles.featuresCard}>
+              {icons.map((item, index) => (
+                <View key={index}>
+                  <TouchableOpacity
+                    style={styles.featureRow}
+                    onPress={item.navigation}>
+                    <View style={styles.featureContent}>
+                      {item.component}
+                      <Text style={styles.featureText}>{item.label}</Text>
+                    </View>
+                    <TouchableOpacity onPress={item.navigation}>
+                      <RightArrowIcon color="black" />
                     </TouchableOpacity>
+                  </TouchableOpacity>
 
-                    {item?.line !== 'no' && <View style={styles.separator} />}
-                  </View>
-                ))}
-              </CustomCard>
-            </View>
-          </ScrollView>
-        </View>
-      )}
+                  {item?.line !== 'no' && <View style={styles.separator} />}
+                </View>
+              ))}
+            </CustomCard>
+          </View>
+        </ScrollView>
+      </View>
     </MainBackground>
   );
 };

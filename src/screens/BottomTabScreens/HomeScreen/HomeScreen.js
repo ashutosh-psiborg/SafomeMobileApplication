@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef} from 'react';
-import {View, Text, ScrollView, TouchableOpacity, Image} from 'react-native';
+import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {useSelector} from 'react-redux';
 import {useQuery} from '@tanstack/react-query';
@@ -17,18 +17,18 @@ import HomeMidHeader from '../../../components/HomeMidHeader';
 import CardStack from '../../../components/CardStack';
 import LogoHeader from '../../../components/LogoHeader';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
+
 const HomeScreen = ({navigation}) => {
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('Week');
   const options = ['Today', 'Week', 'Month'];
 
-  const theme = useSelector(
-    state => state.theme.themes[state.theme.currentTheme],
-  );
+  const theme = useSelector(state => state.theme.themes[state.theme.currentTheme]);
   const styles = HomeScreenStyles(theme);
 
   const locationRef = useRef(null);
   const [location, setLocation] = useState(null);
+  const [mapKey, setMapKey] = useState(0);
 
   const {
     data: fitnessData,
@@ -62,16 +62,10 @@ const HomeScreen = ({navigation}) => {
         const long = parseFloat(data.data.longitude);
 
         if (!isNaN(lat) && !isNaN(long)) {
-          if (
-            !locationRef.current ||
-            locationRef.current.latitude !== lat ||
-            locationRef.current.longitude !== long
-          ) {
-            locationRef.current = {latitude: lat, longitude: long};
-            setLocation(locationRef.current);
-          }
-        } else {
-          console.warn('Invalid location data:', data.data);
+          const newLocation = {latitude: lat, longitude: long};
+          locationRef.current = newLocation;
+          setLocation(newLocation);
+          setMapKey(prevKey => prevKey + 1); // Force re-render of MapView
         }
       }
     },
@@ -83,11 +77,18 @@ const HomeScreen = ({navigation}) => {
       const long = parseFloat(locationData.data.longitude);
 
       if (!isNaN(lat) && !isNaN(long)) {
-        locationRef.current = {latitude: lat, longitude: long};
-        setLocation(locationRef.current);
+        const newLocation = {latitude: lat, longitude: long};
+        locationRef.current = newLocation;
+        setLocation(newLocation);
+        setMapKey(prevKey => prevKey + 1); // Force re-render of MapView
       }
     }
   }, [locationData]);
+
+  const handleRefresh = async () => {
+    await refetchLocation();
+    await refetchFitness();
+  };
 
   if (isLocationLoading || !locationData?.data) {
     return (
@@ -105,17 +106,12 @@ const HomeScreen = ({navigation}) => {
         <View style={styles.addressContainer}>
           <View style={styles.rowContainer}>
             <AddressIcon />
-            <Text
-              style={styles.placeText}
-              numberOfLines={1}
-              ellipsizeMode="tail">
-              {locationData?.data?.placeName}
+            <Text style={styles.placeText} numberOfLines={1} ellipsizeMode="tail">
+              {locationData?.data?.placeName || 'Location not available'}
             </Text>
           </View>
           <View style={styles.refreshContainer}>
-            <TouchableOpacity
-              onPress={refetchLocation}
-              style={styles.refreshButton}>
+            <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton}>
               <Text style={styles.refreshText}>Refresh</Text>
               <RefreshIcon />
             </TouchableOpacity>
@@ -126,18 +122,17 @@ const HomeScreen = ({navigation}) => {
         <View style={styles.mapContainer}>
           {location ? (
             <MapView
+              key={mapKey} // Force re-render of MapView
               style={styles.map}
               provider={PROVIDER_GOOGLE}
-              region={{
+              initialRegion={{
                 latitude: location.latitude,
                 longitude: location.longitude,
-                latitudeDelta: 0.002,
-                longitudeDelta: 0.002,
-              }}>
-              <Marker
-                coordinate={location}
-                title="Your Location"
-                description={locationData?.data?.placeName}></Marker>
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}
+            >
+              <Marker coordinate={location} title="Your Location" description={locationData?.data?.placeName} />
             </MapView>
           ) : (
             <Loader />
@@ -146,18 +141,10 @@ const HomeScreen = ({navigation}) => {
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title="Statistics" showViewAll={false} />
         <Spacing height={20} />
-        <FilterContainer
-          options={options}
-          selected={selected}
-          onSelect={setSelected}
-          theme={theme}
-        />
+        <FilterContainer options={options} selected={selected} onSelect={setSelected} theme={theme} />
         {isFitnessLoading ? <Loader /> : <StatisticsCards data={fitnessData} />}
         <Spacing height={DimensionConstants.twentyFour} />
-        <HomeMidHeader
-          title="Recent Notifications"
-          onPress={() => setExpanded(!expanded)}
-        />
+        <HomeMidHeader title="Recent Notifications" onPress={() => setExpanded(!expanded)} />
         <CardStack expanded={expanded} />
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title="My Contacts" />
