@@ -2,7 +2,13 @@ import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import React from 'react';
 import {useSelector} from 'react-redux';
 import CustomCard from './CustomCard';
-import {LineChart} from 'react-native-chart-kit';
+import {
+  BarChart,
+  LineChart,
+  PieChart,
+  PopulationPyramid,
+  RadarChart,
+} from 'react-native-gifted-charts';
 import {DimensionConstants} from '../constants/DimensionConstants';
 import HeartIcon from '../assets/icons/HeartIcon';
 import BloodOxygenIcon from '../assets/icons/BloodOxygenIcon';
@@ -10,7 +16,17 @@ import BloodPressureIcon from '../assets/icons/BloodPressureIcon';
 
 const StatisticsCards = ({data}) => {
   const dataPoints =
-    data?.heartRateHistory?.length > 0 ? data.heartRateHistory : [0, 0, 0, 0];
+    data?.heartRateHistory?.length > 0
+      ? data.heartRateHistory
+      : [70, 70, 70, 75, 78, 80];
+
+  const newData = dataPoints
+    .filter(value => value !== '1')
+    .map(value => ({
+      value: parseInt(value, 10),
+      dataPointText: value,
+    }))
+    .reverse();
 
   const formatCustomDate = isoString => {
     const date = new Date(isoString);
@@ -31,43 +47,35 @@ const StatisticsCards = ({data}) => {
 
   return (
     <View style={styles.container}>
-      {/* Full-width Heart Rate Card */}
       <CustomCard style={styles.fullWidthCard}>
         <View>
           <View style={styles.rowContainer}>
             <HeartIcon size={20} />
             <Text style={styles.cardTitle}>Heart Rate</Text>
           </View>
-          {/* <ScrollView horizontal={true} showsHorizontalScrollIndicator={false}> */}
-            <View style={{alignItems: 'center'}}>
-              <LineChart
-                data={{
-                  datasets: [{data: dataPoints}],
-                }}
-                width={DimensionConstants.fiveHundred}
-                height={DimensionConstants.oneHundred}
-                chartConfig={{
-                  backgroundColor: 'white',
-                  backgroundGradientFrom: 'white',
-                  backgroundGradientTo: '#ffffff',
-                  color: () => theme.primary,
-                  style: {
-                    borderRadius: DimensionConstants.sixteen,
-                    marginLeft: DimensionConstants.ten,
-                  },
-                  propsForDots: {display: 'none'},
-                }}
-                bezier
-                withDots={false}
-                withInnerLines={false}
-                withOuterLines={false}
-                withVerticalLabels={false}
-                withHorizontalLabels={false}
-                fromZero={true}
-                style={{marginVertical: DimensionConstants.twenty}}
-              />
-            </View>
-          {/* </ScrollView> */}
+          <View style={{alignItems: 'center'}}>
+            <LineChart
+              areaChart
+              initialSpacing={15}
+              data={newData}
+              spacing={60}
+              textColor1="black"
+              textShiftY={-10}
+              textFontSize={DimensionConstants.ten}
+              thickness={5}
+              hideRules
+              height={DimensionConstants.oneHundredEighty}
+              hideYAxisText
+              yAxisColor="white"
+              // showVerticalLines
+              scrollAnimation={true}
+              scrollToEnd
+              xAxisColor="white"
+              color="#0279E1"
+              curved
+              startFillColor="#3f9ef1"
+            />
+          </View>
 
           <Text style={styles.cardContent}>
             {data?.bphrt?.heartRate}

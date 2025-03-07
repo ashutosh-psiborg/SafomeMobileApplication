@@ -14,12 +14,14 @@ const AppScreen = ({navigation}) => {
       component: <AlarmIcon />,
       label: 'Alarm',
       navigation: () => navigation.navigate('AlarmScreen'),
-    },
-    {
-      component: <SyncEventIcon />,
-      label: 'Sync events',
       line: 'no',
+
     },
+    // {
+    //   component: <SyncEventIcon />,
+    //   label: 'Sync events',
+    //   line: 'no',
+    // },
   ];
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>

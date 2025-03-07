@@ -4,7 +4,7 @@ import CustomModal from './CustomModal';
 import CustomButton from './CustomButton';
 import Spacing from './Spacing';
 import CommonForm from '../utils/CommonForm';
-import { DimensionConstants,height } from '../constants/DimensionConstants';
+import {DimensionConstants, height} from '../constants/DimensionConstants';
 
 const InputModal = ({
   isVisible,
@@ -41,21 +41,16 @@ const InputModal = ({
 
         <CommonForm control={control} fields={fields} errors={errors} />
 
-        <View
-          style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
           <CustomButton
             width={'48%'}
             text={t('Cancel')}
             color={theme.background}
-            borderColor={theme.otpBox}
+            borderColor={theme.grey}
             textColor={theme.text}
             onPress={onClose}
           />
-          <CustomButton
-            text={t('Add')}
-            width={'48%'}
-            onPress={onSubmit}
-          />
+          <CustomButton text={t('Add')} width={'48%'} onPress={onSubmit} />
         </View>
       </View>
     </CustomModal>

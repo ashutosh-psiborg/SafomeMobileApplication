@@ -20,7 +20,7 @@ import ContactCards from '../../components/ContactCards';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import MainBackground from '../../components/MainBackground';
 
-const LocationScreen = () => {
+const LocationScreen = ({navigation}) => {
   const snapPoints = ['25%', '80%'];
   const bottomSheetRef = useRef(null);
   const data = [
@@ -98,7 +98,6 @@ const LocationScreen = () => {
                           {item?.subHeading}
                         </Text>
                       </View>
-                      
                     </View>
                     <BlueGPSIcon />
                   </CustomCard>
@@ -107,7 +106,14 @@ const LocationScreen = () => {
                 <Spacing height={DimensionConstants.twentyFour} />
                 <HomeMidHeader title="My Communities" />
                 <Spacing height={DimensionConstants.sixteen} />
-                <ContactCards />
+                <ContactCards
+                  familyCardPress={() =>
+                    navigation.navigate('FamilyScreen', {type: 'family'})
+                  }
+                  friendCardPress={() =>
+                    navigation.navigate('FamilyScreen', {type: 'friends'})
+                  }
+                />
               </ScrollView>
             </BottomSheetView>
           </BottomSheet>

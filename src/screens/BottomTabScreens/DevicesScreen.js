@@ -25,11 +25,11 @@ import RightArrowIcon from '../../assets/icons/RightArrowIcon';
 import Loader from '../../components/Loader';
 const DevicesScreen = ({navigation}) => {
   const icons = [
-    {
-      component: <DeviceCallIcon />,
-      navigation: () => navigation.navigate('CallsScreen'),
-      label: 'Calls',
-    },
+    // {
+    //   component: <DeviceCallIcon />,
+    //   navigation: () => navigation.navigate('CallsScreen'),
+    //   label: 'Calls',
+    // },
     {
       component: <FitnessIcon />,
       label: 'Fitness & Health',
@@ -44,13 +44,14 @@ const DevicesScreen = ({navigation}) => {
       component: <SystemIcon />,
       label: 'System',
       navigation: () => navigation.navigate('SystemScreen'),
-    },
-    {
-      component: <FeaturesIcon />,
-      navigation: () => navigation.navigate('FeaturesScreens'),
-      label: 'Features',
       line: 'no',
     },
+    // {
+    //   component: <FeaturesIcon />,
+    //   navigation: () => navigation.navigate('FeaturesScreens'),
+    //   label: 'Features',
+    //   line: 'no',
+    // },
   ];
 
   const theme = useSelector(
@@ -135,9 +136,10 @@ const styles = StyleSheet.create({
   },
   container: {
     justifyContent: 'space-between',
+    flex: 1,
   },
   deviceCard: {
-    padding: DimensionConstants.twentyFour,
+    padding: DimensionConstants.fifteen,
   },
   deviceHeader: {
     flexDirection: 'row',

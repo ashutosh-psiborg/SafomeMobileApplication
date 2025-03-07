@@ -194,11 +194,18 @@ const SettingsScreen = ({navigation}) => {
               <Text style={styles.subscriptionText}>
                 Subscription ends in 7 days
               </Text>
-              <CustomButton text="Upgrade plan" width="150%" />
+              <CustomButton
+                text="Upgrade plan"
+                width="150%"
+                onPress={() => navigation.navigate('SubscriptionScreen')}
+              />
               <Spacing height={DimensionConstants.twenty} />
-              <Text style={[styles.subscriptionLink, {color: theme.primary}]}>
-                View available subscriptions
-              </Text>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('SubscriptionScreen')}>
+                <Text style={[styles.subscriptionLink, {color: theme.primary}]}>
+                  View available subscriptions
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
           {sections.map((section, index) => (

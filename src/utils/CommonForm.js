@@ -50,23 +50,25 @@ const CommonForm = ({control, fields, errors}) => {
                   <Dropdown
                     style={[
                       styles.dropdown,
-                      field.disabled && {color: '#A0A0A0'},
+                      {opacity: field.disabled ? 0.5 : 1}, // Visually dimmed
                     ]}
                     data={field.options}
                     labelField="label"
                     valueField="value"
                     value={value}
-                    onChange={item => onChange(item.value)}
+                    onChange={
+                      !field.disabled ? item => onChange(item.value) : undefined
+                    } // Prevent selection
                     placeholder={field.placeholder}
                     placeholderStyle={{
                       fontSize: DimensionConstants.fourteen,
-                      color: '#5E6368',
+                      color: field.disabled ? '#A0A0A0' : '#5E6368', // Change color when disabled
                     }}
                     selectedTextStyle={{
                       fontSize: DimensionConstants.fourteen,
-                      color: '#000',
+                      color: field.disabled ? '#565454' : '#000', // Change selected text color
                     }}
-                    disabled={field.disabled}
+                    disable={field.disabled} // Fully disables the dropdown
                   />
                 ) : field.isDate ? (
                   <>
@@ -79,11 +81,14 @@ const CommonForm = ({control, fields, errors}) => {
                       }}
                       activeOpacity={field.disabled ? 1 : 0.7}>
                       <TextInput
-                        style={styles.input}
+                        style={[
+                          styles.input,
+                          field.disabled && styles.disabledInput,
+                        ]}
                         value={formatDate(value)}
                         placeholder={field.placeholder}
                         editable={false}
-                        placeholderTextColor={'#5E6368'}
+                        placeholderTextColor={'#A0A0A0'}
                       />
                     </TouchableOpacity>
 
@@ -107,7 +112,7 @@ const CommonForm = ({control, fields, errors}) => {
                     <TextInput
                       style={[
                         styles.input,
-                        field.disabled && {color: '#A0A0A0'},
+                        field.disabled && styles.disabledInput,
                       ]}
                       onChangeText={onChange}
                       value={value}
@@ -116,7 +121,7 @@ const CommonForm = ({control, fields, errors}) => {
                         field.secureTextEntry && !passwordVisible[field.name]
                       }
                       keyboardType={field.keyboardType}
-                      placeholderTextColor={'#5E6368'}
+                      placeholderTextColor={'#A0A0A0'}
                       maxLength={field.maxLength}
                       editable={!field.disabled}
                     />
@@ -189,8 +194,10 @@ const styles = StyleSheet.create({
   dropdown: {
     flex: 1,
     height: DimensionConstants.forty,
-    color: '#5E6368',
     paddingHorizontal: DimensionConstants.eight,
+  },
+  disabledInput: {
+    color: '#A0A0A0',
   },
   eyeIcon: {
     padding: DimensionConstants.eight,
@@ -205,6 +212,14 @@ const styles = StyleSheet.create({
     fontSize: DimensionConstants.twelve,
     marginTop: DimensionConstants.four,
     marginLeft: DimensionConstants.ten,
+  },
+  placeholderText: {
+    fontSize: DimensionConstants.fourteen,
+    color: '#A0A0A0',
+  },
+  selectedText: {
+    fontSize: DimensionConstants.fourteen,
+    color: '#000',
   },
 });
 

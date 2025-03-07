@@ -45,6 +45,7 @@ import WifiSetingsScreen from '../screens/DeviceScreens/SystemScreen/WifiSetting
 import FeaturesScreens from '../screens/DeviceScreens/FeaturesScreens/index';
 import NotificationScreen from '../screens/NotificationScreen/index';
 import CallsScreen from '../screens/DeviceScreens/CallsScreen/index';
+import SetDndScreen from '../screens/DeviceScreens/SystemScreen/DNDScreen/SetDndScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -296,6 +297,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="CallsScreen"
         component={CallsScreen}
+      />
+       <Stack.Screen
+        options={{headerShown: false}}
+        name="SetDndScreen"
+        component={SetDndScreen}
       />
     </Stack.Navigator>
   );

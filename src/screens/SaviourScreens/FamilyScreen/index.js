@@ -15,6 +15,7 @@ import SearchContainer from '../../../components/SearchContainer';
 import CustomCard from '../../../components/CustomCard';
 import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
 import {ImageConstants} from '../../../constants/ImageConstants';
+import {useRoute} from '@react-navigation/native';
 
 const FamilyScreen = ({navigation}) => {
   const allContacts = [
@@ -27,10 +28,13 @@ const FamilyScreen = ({navigation}) => {
     {heading: 'Rohan Mehta', subHeading: 'rohan.mehta@email.com'},
     {heading: 'Kavita Das', subHeading: 'kavita.das@email.com'},
     {heading: 'Arjun Malhotra', subHeading: 'arjun.malhotra@email.com'},
-    { heading: 'Simran Kaur', subHeading: 'simran.kaur@email.com' },  ];
+    {heading: 'Simran Kaur', subHeading: 'simran.kaur@email.com'},
+  ];
 
   const [filteredContacts, setFilteredContacts] = useState(allContacts);
-
+  const route = useRoute();
+  const {type} = route.params;
+  // console.log(type)
   const handleSearch = query => {
     if (!query.trim()) {
       setFilteredContacts(allContacts);
@@ -47,11 +51,10 @@ const FamilyScreen = ({navigation}) => {
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
       <CustomHeader
-        title={'Family'}
+        title={type === 'friends' ? 'Friends' : 'Family'}
         icon={<PlusIcon marginRight={DimensionConstants.ten} />}
-        backgroundColor={ '#fff' }
+        backgroundColor={'#fff'}
         backPress={() => navigation.goBack()}
-
       />
       <View style={{padding: DimensionConstants.sixteen}}>
         <SearchContainer onSearch={handleSearch} />

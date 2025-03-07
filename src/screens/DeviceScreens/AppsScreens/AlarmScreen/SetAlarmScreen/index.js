@@ -18,7 +18,7 @@ import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../../utils/ApiService';
 import {useRoute} from '@react-navigation/native';
 
-const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const daysOfWeek = [ 'Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const repeatOptions = [
   {label: 'Once', value: 'Once'},
   {label: 'Daily', value: 'Daily'},
@@ -69,7 +69,7 @@ const SetAlarmScreen = ({navigation}) => {
       let daysBinary = '';
       if (repeat === 'Custom') {
         // Updated condition
-        const weekDaysMap = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        const weekDaysMap = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', ];
         daysBinary = weekDaysMap
           .map(day => (selectedDays.includes(day) ? '1' : '0'))
           .join('');

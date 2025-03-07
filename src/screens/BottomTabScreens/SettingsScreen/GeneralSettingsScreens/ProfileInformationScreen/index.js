@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Image, TouchableOpacity, ScrollView, Alert} from 'react-native';
 import {validationSchema} from '../../../../../utils/Validations';
 import MainBackground from '../../../../../components/MainBackground';
@@ -24,6 +24,7 @@ import CustomButton from '../../../../../components/CustomButton';
 import {useMutation, useQuery} from '@tanstack/react-query';
 
 const ProfileInformationScreen = ({navigation}) => {
+  const [isEditing, setIsEditing] = useState(false);
   const {data, isLoading, error} = useQuery({
     queryKey: ['userProfile'],
     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
@@ -69,6 +70,7 @@ const ProfileInformationScreen = ({navigation}) => {
       icon: <ProfileEditIcon />,
       placeholder: 'Full name',
       keyboardType: 'default',
+      disabled: !isEditing,
     },
     {
       name: 'email',
@@ -91,6 +93,7 @@ const ProfileInformationScreen = ({navigation}) => {
       icon: <CalenderIcon />,
       placeholder: 'Date of Birth',
       isDate: true,
+      disabled: !isEditing,
     },
     {
       name: 'country',
@@ -100,12 +103,14 @@ const ProfileInformationScreen = ({navigation}) => {
         {label: 'Australia', value: 'Australia'},
       ],
       icon: <CountryIcon />,
+      disabled: !isEditing,
     },
     {
       name: 'address',
       icon: <ProfileLocationIcon />,
       placeholder: 'Address',
       keyboardType: 'default',
+      disabled: !isEditing,
     },
     {
       name: 'gender',
@@ -115,6 +120,7 @@ const ProfileInformationScreen = ({navigation}) => {
         {label: 'Male', value: 'MALE'},
         {label: 'Female', value: 'FEMALE'},
       ],
+      disabled: !isEditing,
     },
   ];
 
@@ -127,17 +133,14 @@ const ProfileInformationScreen = ({navigation}) => {
       });
     },
     onSuccess: response => {
-      console.log('Update Success:', response.data);
-
       Alert.alert(
         'Profile Updated',
         'Your profile details have been updated successfully!',
         [{text: 'OK'}],
       );
+      setIsEditing(false);
     },
     onError: error => {
-      console.log('Update Error:', error);
-
       Alert.alert(
         'Update Failed',
         error?.response?.data?.message || 'Something went wrong!',
@@ -153,9 +156,8 @@ const ProfileInformationScreen = ({navigation}) => {
         return !field?.disabled;
       }),
     );
-
-    console.log('Filtered Data:', filteredData);
     mutate(filteredData);
+    
   };
 
   return (
@@ -192,7 +194,28 @@ const ProfileInformationScreen = ({navigation}) => {
           <Spacing height={DimensionConstants.thirtyTwo} />
           <CommonForm control={control} fields={fields} errors={errors} />
         </ScrollView>
-        <CustomButton text={'Save Details'} onPress={handleSubmit(onSubmit)} />
+        {isEditing ? (
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <CustomButton
+              text={'Cancel'}
+              onPress={() => setIsEditing(false)}
+              width={'48%'}
+              color="white"
+              textColor={'black'}
+              borderColor={'#C4C4C4'}
+            />
+            <CustomButton
+              text={'Save'}
+              onPress={handleSubmit(onSubmit)}
+              width={'48%'}
+            />
+          </View>
+        ) : (
+          <CustomButton
+            text={'Edit Details'}
+            onPress={() => setIsEditing(true)}
+          />
+        )}
       </View>
       {isLoading && <Loader />}
     </MainBackground>

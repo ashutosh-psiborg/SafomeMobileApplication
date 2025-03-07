@@ -29,16 +29,16 @@ const SystemScreen = ({navigation}) => {
       label: 'Sleep mode',
       navigation: () => navigation.navigate('SleepModeScreen'),
     },
-    {
-      component: <TrackingIcon />,
-      label: 'Tracking frequency',
-      navigation: () => navigation.navigate('TrackingFrequencyScreen'),
-    },
-    {
-      component: <DisableIcon />,
-      label: 'Disable Functions',
-      navigation: () => navigation.navigate('DisableFunctionScreen'),
-    },
+    // {
+    //   component: <TrackingIcon />,
+    //   label: 'Tracking frequency',
+    //   navigation: () => navigation.navigate('TrackingFrequencyScreen'),
+    // },
+    // {
+    //   component: <DisableIcon />,
+    //   label: 'Disable Functions',
+    //   navigation: () => navigation.navigate('DisableFunctionScreen'),
+    // },
     {
       component: <WifiIcon />,
       label: 'Watch Wi-Fi settings',
@@ -49,26 +49,27 @@ const SystemScreen = ({navigation}) => {
       label: 'DND',
       navigation: () => navigation.navigate('DNDScreen'),
     },
-    {
-      component: <ScheduleIcon />,
-      label: 'Schedule Restart/Shutdown',
-      navigation: () => navigation.navigate('ScheduleRestartScreen'),
-    },
+    // {
+    //   component: <ScheduleIcon />,
+    //   label: 'Schedule Restart/Shutdown',
+    //   navigation: () => navigation.navigate('ScheduleRestartScreen'),
+    // },
     {
       component: <RemoteIcon />,
       label: 'Remote Restart/Shutdown',
       navigation: () => navigation.navigate('RemoteRestartScreen'),
+      // line: 'no',
     },
-    {
-      component: <TimeZoneIcon />,
-      label: 'Time zone',
-      navigation: () => navigation.navigate('TimeZoneScreen'),
-    },
-    {
-      component: <SystemLocation />,
-      label: 'Location based service',
-      navigation: () => navigation.navigate('LocationBasedServiceScreen'),
-    },
+    // {
+    //   component: <TimeZoneIcon />,
+    //   label: 'Time zone',
+    //   navigation: () => navigation.navigate('TimeZoneScreen'),
+    // },
+    // {
+    //   component: <SystemLocation />,
+    //   label: 'Location based service',
+    //   navigation: () => navigation.navigate('LocationBasedServiceScreen'),
+    // },
     {
       component: <ResetIcon />,
       label: 'Reset device',
@@ -88,7 +89,9 @@ const SystemScreen = ({navigation}) => {
         <CustomCard style={styles.featuresCard}>
           {icons.map((item, index) => (
             <View key={index}>
-              <View style={styles.featureRow}>
+              <TouchableOpacity
+                style={styles.featureRow}
+                onPress={item.navigation}>
                 <TouchableOpacity
                   style={styles.featureContent}
                   onPress={item.navigation}>
@@ -98,7 +101,7 @@ const SystemScreen = ({navigation}) => {
                 <TouchableOpacity onPress={item.navigation}>
                   <RightArrowIcon color="black" marginRight={10} />
                 </TouchableOpacity>
-              </View>
+              </TouchableOpacity>
 
               {item?.line !== 'no' && <View style={styles.separator} />}
             </View>

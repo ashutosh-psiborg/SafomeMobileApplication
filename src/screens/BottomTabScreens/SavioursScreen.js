@@ -71,10 +71,8 @@ const SavioursScreen = ({navigation}) => {
     {
       name: 'relation',
       options: [
-        {label: 'Father', value: 'India'},
-        {label: 'Mother', value: 'Australia'},
-        {label: 'Brother', value: 'Brother'},
-        {label: 'Sister', value: 'Sister'},
+        {label: 'Family', value: 'Family'},
+        {label: 'Friend', value: 'Friend'},
       ],
       placeholder: 'Relation',
       icon: <GlobeIcon />,
@@ -99,7 +97,12 @@ const SavioursScreen = ({navigation}) => {
           />
           <Spacing height={DimensionConstants.twentyFour} />
           <ContactCards
-            familyCardPress={() => navigation.navigate('FamilyScreen')}
+            familyCardPress={() =>
+              navigation.navigate('FamilyScreen', {type: 'family'})
+            }
+            friendCardPress={() =>
+              navigation.navigate('FamilyScreen', {type: 'friends'})
+            }
           />
           <Spacing height={DimensionConstants.fourteen} />
           {data.map((item, index) => (
@@ -178,7 +181,11 @@ const SavioursScreen = ({navigation}) => {
               text={'Cancel'}
               onPress={() => setModalVisible(false)}
             />
-            <CustomButton width={'48%'} text={'Add'} />
+            <CustomButton
+              width={'48%'}
+              text={'Add'}
+              onPress={() => setModalVisible(false)}
+            />
           </View>
         </View>
       </CustomModal>

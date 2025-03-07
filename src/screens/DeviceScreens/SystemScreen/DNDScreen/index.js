@@ -1,14 +1,49 @@
-import {View, Text, Switch, StyleSheet} from 'react-native';
-import React, {useState} from 'react';
+import {View, Text, Switch, StyleSheet, TouchableOpacity} from 'react-native';
+import React, {useCallback} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import Spacing from '../../../../components/Spacing';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import ThreeDots from '../../../../assets/icons/ThreeDots';
+import {useQuery} from '@tanstack/react-query';
+import fetcher from '../../../../utils/ApiService';
+import {useFocusEffect} from '@react-navigation/native';
+
+const DAYS_MAP = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
+const parseTimeSection = timeSection => {
+  if (!timeSection) return null;
+  const [startTime, endTime, daysBinary] = timeSection.split('-');
+  const activeDays = daysBinary
+    .split('')
+    .map((bit, index) => (bit === '1' ? DAYS_MAP[index] : null))
+    .filter(Boolean);
+  return {startTime, endTime, activeDays};
+};
 
 const DNDScreen = ({navigation}) => {
-  const [isEnabled, setIsEnabled] = useState(true);
-  const toggleSwitch = () => setIsEnabled(prevState => !prevState);
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: ['alarm'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `deviceDataResponse/getSilenceTime/6907390711/SILENCETIME2`,
+      }),
+  });
+
+  // Use useFocusEffect to refresh data when screen comes into focus
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch]),
+  );
+
+  const timeSections = [
+    data?.timeSection1,
+    data?.timeSection2,
+    data?.timeSection3,
+    data?.timeSection4,
+  ].map(parseTimeSection);
 
   return (
     <MainBackground noPadding style={styles.mainBackground}>
@@ -18,36 +53,61 @@ const DNDScreen = ({navigation}) => {
         backPress={() => navigation.goBack()}
       />
       <View style={styles.container}>
-        {[0, 1].map(item => (
-          <View key={item}>
-            <Spacing height={DimensionConstants.eighteen} />
-            <View style={styles.timeContainer}>
-              <View style={styles.row}>
-                <Text style={styles.timeText}>02:00 AM - 04:00 PM</Text>
-                <View style={styles.switchContainer}>
-                  <Switch
-                    value={isEnabled}
-                    onValueChange={toggleSwitch}
-                    trackColor={{false: '#ccc', true: 'rgba(0, 91, 187, 0.1)'}}
-                    thumbColor={isEnabled ? '#0279E1' : '#f4f3f4'}
-                  />
-                  <ThreeDots />
+        {timeSections.map((item, index) => {
+          const isEnabled = item !== null;
+          return (
+            <TouchableOpacity
+              key={index}
+              onPress={() =>
+                navigation.navigate('SetDndScreen', {index: index})
+              }>
+              <Spacing height={DimensionConstants.eighteen} />
+              <View style={styles.timeContainer}>
+                <View style={styles.row}>
+                  <Text style={styles.timeText}>
+                    {item
+                      ? `${item.startTime} - ${item.endTime}`
+                      : 'Set time period'}
+                  </Text>
+                  <View style={styles.switchContainer}>
+                    <Switch
+                      value={isEnabled}
+                      onValueChange={() => {}}
+                      trackColor={{
+                        false: '#ccc',
+                        true: 'rgba(0, 91, 187, 0.1)',
+                      }}
+                      thumbColor={isEnabled ? '#0279E1' : '#f4f3f4'}
+                      disabled={!isEnabled}
+                    />
+                    <ThreeDots />
+                  </View>
                 </View>
               </View>
-            </View>
-            <View style={styles.daysContainer}>
-              <Text style={styles.daysText}>
-                S M <Text style={styles.highlightedDaysText}>T W T</Text> F S
-              </Text>
-            </View>
-          </View>
-        ))}
+              <View style={styles.daysContainer}>
+                <Text style={styles.daysText}>
+                  {DAYS_MAP.map((day, i) => (
+                    <Text
+                      key={`${day}-${i}`}
+                      style={
+                        item?.activeDays?.some(
+                          (activeDay, index) => index === i,
+                        ) // ✅ Correct comparison using index
+                          ? styles.highlightedDaysText
+                          : styles.daysText
+                      }>
+                      {day}{' '}
+                    </Text>
+                  ))}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          );
+        })}
       </View>
     </MainBackground>
   );
 };
-
-export default DNDScreen;
 
 const styles = StyleSheet.create({
   mainBackground: {
@@ -93,3 +153,5 @@ const styles = StyleSheet.create({
     color: '#0279E1',
   },
 });
+
+export default DNDScreen;

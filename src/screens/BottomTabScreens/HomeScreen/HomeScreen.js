@@ -23,7 +23,9 @@ const HomeScreen = ({navigation}) => {
   const [selected, setSelected] = useState('Week');
   const options = ['Today', 'Week', 'Month'];
 
-  const theme = useSelector(state => state.theme.themes[state.theme.currentTheme]);
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
   const styles = HomeScreenStyles(theme);
 
   const locationRef = useRef(null);
@@ -80,7 +82,7 @@ const HomeScreen = ({navigation}) => {
         const newLocation = {latitude: lat, longitude: long};
         locationRef.current = newLocation;
         setLocation(newLocation);
-        setMapKey(prevKey => prevKey + 1); // Force re-render of MapView
+        setMapKey(prevKey => prevKey + 1);
       }
     }
   }, [locationData]);
@@ -106,12 +108,17 @@ const HomeScreen = ({navigation}) => {
         <View style={styles.addressContainer}>
           <View style={styles.rowContainer}>
             <AddressIcon />
-            <Text style={styles.placeText} numberOfLines={1} ellipsizeMode="tail">
+            <Text
+              style={styles.placeText}
+              numberOfLines={1}
+              ellipsizeMode="tail">
               {locationData?.data?.placeName || 'Location not available'}
             </Text>
           </View>
           <View style={styles.refreshContainer}>
-            <TouchableOpacity onPress={handleRefresh} style={styles.refreshButton}>
+            <TouchableOpacity
+              onPress={handleRefresh}
+              style={styles.refreshButton}>
               <Text style={styles.refreshText}>Refresh</Text>
               <RefreshIcon />
             </TouchableOpacity>
@@ -130,9 +137,12 @@ const HomeScreen = ({navigation}) => {
                 longitude: location.longitude,
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
-              }}
-            >
-              <Marker coordinate={location} title="Your Location" description={locationData?.data?.placeName} />
+              }}>
+              <Marker
+                coordinate={location}
+                title="Your Location"
+                description={locationData?.data?.placeName}
+              />
             </MapView>
           ) : (
             <Loader />
@@ -141,15 +151,27 @@ const HomeScreen = ({navigation}) => {
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title="Statistics" showViewAll={false} />
         <Spacing height={20} />
-        <FilterContainer options={options} selected={selected} onSelect={setSelected} theme={theme} />
+        <FilterContainer
+          options={options}
+          selected={selected}
+          onSelect={setSelected}
+          theme={theme}
+        />
         {isFitnessLoading ? <Loader /> : <StatisticsCards data={fitnessData} />}
-        <Spacing height={DimensionConstants.twentyFour} />
-        <HomeMidHeader title="Recent Notifications" onPress={() => setExpanded(!expanded)} />
-        <CardStack expanded={expanded} />
+        {/* <Spacing height={DimensionConstants.twentyFour} /> */}
+        {/* <HomeMidHeader title="Recent Notifications" onPress={() => setExpanded(!expanded)} />
+        <CardStack expanded={expanded} /> */}
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title="My Contacts" />
         <Spacing height={DimensionConstants.ten} />
-        <ContactCards />
+        <ContactCards
+          familyCardPress={() =>
+            navigation.navigate('FamilyScreen', {type: 'family'})
+          }
+          friendCardPress={() =>
+            navigation.navigate('FamilyScreen', {type: 'friends'})
+          }
+        />
       </ScrollView>
     </MainBackground>
   );

@@ -1,4 +1,12 @@
-import {View, Text, Image, StyleSheet, Alert, ScrollView} from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  Alert,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
 import React, {useState, useEffect} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
@@ -18,6 +26,7 @@ import {yupResolver} from '@hookform/resolvers/yup';
 
 const AddRemoveDeviceScreen = ({navigation}) => {
   const [inputModalVisible, setInputModalVisible] = useState(false);
+  const [selectedDeviceId, setSelectedDeviceId] = useState(null);
   const {t} = useTranslation();
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -30,10 +39,17 @@ const AddRemoveDeviceScreen = ({navigation}) => {
   });
 
   /** ✅ Fetch device details */
-  const {data, refetch} = useQuery({
+  const {data, loading, refetch} = useQuery({
     queryKey: ['deviceDetails'],
     queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
   });
+
+  // Set the first device as selected when data is loaded
+  useEffect(() => {
+    if (data?.devices && data.devices.length > 0 && !selectedDeviceId) {
+      setSelectedDeviceId(data.devices[data.devices.length - 1]?._id);
+    }
+  }, [data, selectedDeviceId]);
 
   /** ✅ Form setup */
   const {
@@ -42,13 +58,15 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     formState: {errors},
     reset,
   } = useForm({
-    resolver: yupResolver(validationSchema.pick(['deviceName', 'deviceId', 'imei'])),
+    resolver: yupResolver(
+      validationSchema.pick(['deviceName', 'deviceId', 'imei']),
+    ),
   });
 
   /** ✅ Reset UID when available */
   useEffect(() => {
     if (uidData?.data?.uid) {
-      reset({ uid: uidData.data.uid });
+      reset({uid: uidData.data.uid});
     }
   }, [uidData, reset]);
 
@@ -68,30 +86,37 @@ const AddRemoveDeviceScreen = ({navigation}) => {
       name: 'imei',
       placeholder: t('IMEI'),
       maxLength: 15,
+      keyboardType: 'phone-pad',
     },
     {
       name: 'deviceId',
       placeholder: t('Device ID'),
       maxLength: 10,
+      keyboardType: 'phone-pad',
     },
   ];
 
   /** ✅ Add Device Mutation */
   const mutation = useMutation({
-    mutationFn: data => fetcher({method: 'POST', url: '/devices/addDevices', data}),
+    mutationFn: data =>
+      fetcher({method: 'POST', url: '/devices/addDevices', data}),
     onSuccess: () => {
       Alert.alert('Success', 'Device added successfully!');
       refetch();
       setInputModalVisible(false);
     },
     onError: error => {
-      Alert.alert('Error', error?.response?.data?.message || 'Failed to add device.');
+      Alert.alert(
+        'Error',
+        error?.response?.data?.message || 'Failed to add device.',
+      );
     },
   });
 
   /** ✅ Remove Device Mutation */
   const deleteDevice = useMutation({
-    mutationFn: deviceId => fetcher({method: 'PATCH', url: `devices/deleteDevice/${deviceId}`}),
+    mutationFn: deviceId =>
+      fetcher({method: 'PATCH', url: `devices/deleteDevice/${deviceId}`}),
     onSuccess: () => {
       Alert.alert('Success', 'Device removed successfully.');
       refetch();
@@ -107,56 +132,107 @@ const AddRemoveDeviceScreen = ({navigation}) => {
       'Confirm',
       'Are you sure you want to remove this device?',
       [
-        { text: 'Cancel', style: 'cancel' },
+        {text: 'Cancel', style: 'cancel'},
         {
           text: 'Remove',
           style: 'destructive',
           onPress: () => deleteDevice.mutate(deviceId),
         },
       ],
-      { cancelable: true }
+      {cancelable: true},
     );
+  };
+
+  // Handle device selection
+  const handleSelectDevice = deviceId => {
+    setSelectedDeviceId(deviceId);
+    // No API call needed as requested
   };
 
   return (
     <MainBackground noPadding style={{backgroundColor: theme.otpBox}}>
       {/* ✅ Pass function reference instead of executing navigation.goBack() */}
-      <CustomHeader title="Add / Remove Device" backgroundColor={theme.background} backPress={() => navigation.goBack()} />
-
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
-          {/* ✅ Add Device Section */}
-          <View style={styles.dashedContainer}>
-            <Text style={styles.addDeviceText}>Add New Device</Text>
-            <CustomButton width="100%" text="Add Device" onPress={() => setInputModalVisible(true)} />
+      <CustomHeader
+        title="Add / Remove Device"
+        backgroundColor={theme.background}
+        backPress={() => navigation.goBack()}
+      />
+      {loading ? (
+        <Loader />
+      ) : (
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.container}>
+            {/* ✅ Add Device Section */}
+            <View style={styles.dashedContainer}>
+              <Text style={styles.addDeviceText}>Add New Device</Text>
+              <CustomButton
+                width="100%"
+                text="Add Device"
+                onPress={() => setInputModalVisible(true)}
+              />
+            </View>
+            <Spacing height={DimensionConstants.twenty} />
+            <Text
+              style={{
+                fontSize: DimensionConstants.fourteen,
+                fontWeight: '500',
+              }}>
+              {' '}
+              Select Device
+            </Text>
+            {/* ✅ Display Devices */}
+            {data?.devices
+              ?.slice()
+              .reverse()
+              .map(item => (
+                <TouchableOpacity
+                  key={item?._id}
+                  activeOpacity={0.7}
+                  onPress={() => handleSelectDevice(item?._id)}>
+                  <CustomCard
+                    key={item?._id}
+                    style={[
+                      styles.card,
+                      selectedDeviceId === item?._id && styles.selectedCard,
+                    ]}>
+                    <View style={styles.innerContainer}>
+                      <Image source={ImageConstants.blackWatch} />
+                      <Spacing height={DimensionConstants.thirty} />
+                      <Text
+                        style={[
+                          styles.deviceName,
+                          selectedDeviceId === item?._id,
+                        ]}>
+                        SOS {item?.deviceName}
+                      </Text>
+                      <Text style={styles.macId}>MAC ID: {item?.deviceId}</Text>
+                      <CustomButton
+                        width="110%"
+                        text="Remove Device"
+                        onPress={e => {
+                          e.stopPropagation();
+                          handleRemoveDevice(item?._id);
+                        }}
+                      />
+                    </View>
+                  </CustomCard>
+                </TouchableOpacity>
+              ))}
           </View>
 
-          {/* ✅ Display Devices */}
-          {data?.devices?.map(item => (
-            <CustomCard key={item?._id} style={styles.card}>
-              <View style={styles.innerContainer}>
-                <Image source={ImageConstants.blackWatch} />
-                <Spacing height={DimensionConstants.thirty} />
-                <Text style={styles.deviceName}>SOS {item?.deviceName}</Text>
-                <Text style={styles.macId}>MAC ID: {item?.deviceId}</Text>
-                <CustomButton width="110%" text="Remove Device" onPress={() => handleRemoveDevice(item?._id)} />
-              </View>
-            </CustomCard>
-          ))}
-        </View>
-
-        {/* ✅ Input Modal */}
-        <InputModal
-          isVisible={inputModalVisible}
-          onClose={() => setInputModalVisible(false)}
-          control={control}
-          fields={fields}
-          errors={errors}
-          onSubmit={handleSubmit(data => mutation.mutate(data))}
-          theme={theme}
-          t={t}
-        />
-      </ScrollView>
+          {/* ✅ Input Modal */}
+          <InputModal
+            isVisible={inputModalVisible}
+            onClose={() => setInputModalVisible(false)}
+            control={control}
+            fields={fields}
+            errors={errors}
+            onSubmit={handleSubmit(data => mutation.mutate(data))}
+            theme={theme}
+            t={t}
+          />
+        </ScrollView>
+      )}
     </MainBackground>
   );
 };
@@ -170,6 +246,15 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: DimensionConstants.twelve,
     marginTop: DimensionConstants.ten,
+  },
+  selectedCard: {
+    backgroundColor: '#7fbaee', // Light blue background for selected
+    borderWidth: 1,
+    borderColor: '#599dd8',
+  },
+  selectedText: {
+    fontWeight: '600',
+    color: '#3B41AC', // Change text color for selected device
   },
   innerContainer: {
     alignItems: 'center',

@@ -11,12 +11,14 @@ const FilterContainer = ({options, selected, onSelect, theme}) => {
           onPress={() => onSelect(option)}
           style={[
             styles.filterButton,
-            selected === option && {backgroundColor: theme.primary},
+            selected === option
+              ? {backgroundColor: theme.primary}
+              : {backgroundColor: 'white', borderColor: theme.primary, borderWidth: 1},
           ]}>
           <Text
             style={[
               styles.filterText,
-              selected === option && {color: 'white'},
+              selected === option ? {color: 'white'} : {color: theme.primary},
             ]}>
             {option}
           </Text>
@@ -28,15 +30,13 @@ const FilterContainer = ({options, selected, onSelect, theme}) => {
 
 const styles = StyleSheet.create({
   filterContainer: {
-    backgroundColor: 'white',
-    borderColor: 'rgba(59, 65, 172, 0.2)',
-    borderWidth: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
     padding: DimensionConstants.four,
     borderRadius: DimensionConstants.twentyNine,
     alignItems: 'center',
-    // width : '80%'
+    width: '70%',
+    // backgroundColor: 'white', // Background of the filter container
   },
   filterButton: {
     paddingVertical: DimensionConstants.five,
@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
     borderRadius: DimensionConstants.twenty,
   },
   filterText: {
-    color: '#797C7E',
     fontWeight: '500',
     fontSize: DimensionConstants.fourteen,
   },

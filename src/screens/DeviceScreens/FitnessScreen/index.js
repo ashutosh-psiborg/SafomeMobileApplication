@@ -21,15 +21,17 @@ import HomeMidHeader from '../../../components/HomeMidHeader';
 import StatisticsCards from '../../../components/StatisticsCards';
 import FilterContainer from '../../../components/FilterContainer';
 import Loader from '../../../components/Loader';
+import fetcher from '../../../utils/ApiService';
+import {ProgressBar} from 'react-native-paper'; // For bars
+
 const FitnessScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
 
   const [selected, setSelected] = useState('Week');
-  const steps = 5500;
   const maxSteps = 8000;
-  const options = ['Today', 'Week', 'Month',];
+  const options = ['Today', 'Week', 'Month'];
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['fitness', selected],
     queryFn: () =>
@@ -38,7 +40,27 @@ const FitnessScreen = ({navigation}) => {
         url: `deviceDataResponse/fitness-health/6907390711?range=${selected.toLowerCase()}`,
       }),
   });
-  if (isLoading) {
+  const {
+    data: stepData,
+    isLoading: stepLoading,
+    error: stepError,
+    refetch: stepRefetch,
+  } = useQuery({
+    queryKey: ['steps'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `deviceDataResponse/getStepData/6907390711/LK`,
+      }),
+  });
+  const steps =
+    selected === 'Today'
+      ? stepData?.data?.todaySteps || 0
+      : selected === 'Week'
+      ? stepData?.data?.weeklySteps || 0
+      : stepData?.data?.monthlySteps || 0;
+
+  if (isLoading || stepLoading) {
     return (
       <MainBackground style={{backgroundColor: theme.otpBox}}>
         <Loader />
@@ -107,20 +129,104 @@ const FitnessScreen = ({navigation}) => {
             </View>
             <Spacing height={DimensionConstants.eighteen} />
 
-            <CustomCard style={styles.statisticsCard}>
-              <View style={styles.statisticsContainer}>
+            <CustomCard
+              style={{
+                backgroundColor: '#F7FAFF',
+                borderRadius: 16,
+                padding: 16,
+                shadowColor: '#3B41AC',
+                shadowOffset: {width: 0, height: 4},
+                shadowOpacity: 0.1,
+                shadowRadius: 12,
+                elevation: 2,
+              }}>
+              <View style={{gap: 16}}>
                 {icon?.map(item => (
-                  <View style={styles.statisticsItem} key={item.id}>
-                    <View>
-                      {item?.component}
-                      <Text style={styles.statisticsLabel}>{item.label}</Text>
-                      <Text style={styles.statisticsValue}>{item.value}</Text>
-                      <Text style={styles.statisticsMaxValue}>
-                        {item?.maxValue}
-                      </Text>
+                  <View key={item.id} style={{marginBottom: 8}}>
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        marginBottom: 8,
+                      }}>
+                      <View
+                        style={{
+                          backgroundColor: 'rgba(59, 65, 172, 0.1)',
+                          borderRadius: 8,
+                          padding: 6,
+                          marginRight: 12,
+                        }}>
+                        {item?.component}
+                      </View>
+                      <View style={{flex: 1}}>
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            fontWeight: '500',
+                            color: '#333333',
+                          }}>
+                          {item.label}
+                        </Text>
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'baseline',
+                          }}>
+                          <Text
+                            style={{
+                              fontSize: 18,
+                              fontWeight: '600',
+                              color: '#333333',
+                              marginRight: 4,
+                            }}>
+                            {item.value}
+                          </Text>
+                          <Text
+                            style={{
+                              fontSize: 12,
+                              fontWeight: '500',
+                              color: '#9E9E9E',
+                            }}>
+                            {item?.maxValue}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
-                    <Spacing width={DimensionConstants.twenty} />
-                    {item?.line !== 'no' && <View style={styles.divider} />}
+
+                    {/* Calculate progress value */}
+                    {(() => {
+                      // Extract numeric values for calculations
+                      const currentValue = parseInt(
+                        item.value.replace(/,/g, ''),
+                        10,
+                      );
+                      const maxValueString = item.maxValue.split('/')[1].trim();
+                      const maxValue = parseInt(
+                        maxValueString.split(' ')[0].replace(/,/g, ''),
+                        10,
+                      );
+                      const progress = currentValue / maxValue;
+
+                      // Determine color based on metric type
+                      let progressColor = '#3B41AC'; // Default blue
+                      if (item.label === 'Calories') progressColor = '#0279E1'; // Orange
+                      if (item.label === 'Base goal') progressColor = '#0279E1'; // Green
+                      if (item.label === 'Moving') progressColor = '#0279E1'; // Purple
+
+                      return (
+                        <View style={{height: 12, marginTop: 4}}>
+                          <ProgressBar
+                            progress={progress}
+                            color={progressColor}
+                            style={{
+                              height: 8,
+                              borderRadius: 4,
+                              backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                            }}
+                          />
+                        </View>
+                      );
+                    })()}
                   </View>
                 ))}
               </View>
