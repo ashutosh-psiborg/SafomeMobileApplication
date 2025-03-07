@@ -14,7 +14,6 @@ import FilterContainer from '../../../components/FilterContainer';
 import StatisticsCards from '../../../components/StatisticsCards';
 import ContactCards from '../../../components/ContactCards';
 import HomeMidHeader from '../../../components/HomeMidHeader';
-import CardStack from '../../../components/CardStack';
 import LogoHeader from '../../../components/LogoHeader';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
 
