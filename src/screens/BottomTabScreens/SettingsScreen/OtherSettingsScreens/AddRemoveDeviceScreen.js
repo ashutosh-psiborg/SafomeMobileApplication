@@ -23,6 +23,7 @@ import {useTranslation} from 'react-i18next';
 import {useForm} from 'react-hook-form';
 import {validationSchema} from '../../../../utils/Validations';
 import {yupResolver} from '@hookform/resolvers/yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const AddRemoveDeviceScreen = ({navigation}) => {
   const [inputModalVisible, setInputModalVisible] = useState(false);
@@ -32,26 +33,31 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     state => state.theme.themes[state.theme.currentTheme],
   );
 
-  /** ✅ Fetch UID */
   const {data: uidData} = useQuery({
     queryKey: ['deviceUid'],
     queryFn: () => fetcher({method: 'GET', url: 'devices/getUid'}),
   });
 
-  /** ✅ Fetch device details */
   const {data, loading, refetch} = useQuery({
     queryKey: ['deviceDetails'],
     queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
   });
 
-  // Set the first device as selected when data is loaded
   useEffect(() => {
-    if (data?.devices && data.devices.length > 0 && !selectedDeviceId) {
-      setSelectedDeviceId(data.devices[data.devices.length - 1]?._id);
-    }
-  }, [data, selectedDeviceId]);
+    const getStoredDeviceId = async () => {
+      try {
+        const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+        if (storedDeviceId) {
+          setSelectedDeviceId(storedDeviceId);
+        }
+      } catch (error) {
+        console.error('Failed to retrieve device ID:', error);
+      }
+    };
 
-  /** ✅ Form setup */
+    getStoredDeviceId();
+  }, []);
+
   const {
     control,
     handleSubmit,
@@ -63,14 +69,12 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     ),
   });
 
-  /** ✅ Reset UID when available */
   useEffect(() => {
     if (uidData?.data?.uid) {
       reset({uid: uidData.data.uid});
     }
   }, [uidData, reset]);
 
-  /** ✅ Form fields */
   const fields = [
     {
       name: 'uid',
@@ -96,7 +100,6 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     },
   ];
 
-  /** ✅ Add Device Mutation */
   const mutation = useMutation({
     mutationFn: data =>
       fetcher({method: 'POST', url: '/devices/addDevices', data}),
@@ -113,7 +116,6 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     },
   });
 
-  /** ✅ Remove Device Mutation */
   const deleteDevice = useMutation({
     mutationFn: deviceId =>
       fetcher({method: 'PATCH', url: `devices/deleteDevice/${deviceId}`}),
@@ -126,7 +128,6 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     },
   });
 
-  /** ✅ Handle device removal */
   const handleRemoveDevice = deviceId => {
     Alert.alert(
       'Confirm',
@@ -143,15 +144,18 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     );
   };
 
-  // Handle device selection
-  const handleSelectDevice = deviceId => {
+  const handleSelectDevice = async deviceId => {
     setSelectedDeviceId(deviceId);
-    // No API call needed as requested
+    console.log('dee', deviceId);
+    try {
+      await AsyncStorage.setItem('selectedDeviceId', deviceId);
+    } catch (error) {
+      console.error('Failed to save device ID:', error);
+    }
   };
 
   return (
     <MainBackground noPadding style={{backgroundColor: theme.otpBox}}>
-      {/* ✅ Pass function reference instead of executing navigation.goBack() */}
       <CustomHeader
         title="Add / Remove Device"
         backgroundColor={theme.background}
@@ -162,7 +166,6 @@ const AddRemoveDeviceScreen = ({navigation}) => {
       ) : (
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
-            {/* ✅ Add Device Section */}
             <View style={styles.dashedContainer}>
               <Text style={styles.addDeviceText}>Add New Device</Text>
               <CustomButton
@@ -180,28 +183,39 @@ const AddRemoveDeviceScreen = ({navigation}) => {
               {' '}
               Select Device
             </Text>
-            {/* ✅ Display Devices */}
             {data?.devices
               ?.slice()
               .reverse()
               .map(item => (
                 <TouchableOpacity
-                  key={item?._id}
+                  key={item?.deviceId}
                   activeOpacity={0.7}
-                  onPress={() => handleSelectDevice(item?._id)}>
+                  onPress={() => handleSelectDevice(item?.deviceId)}>
                   <CustomCard
-                    key={item?._id}
+                    key={item?.deviceId}
                     style={[
                       styles.card,
-                      selectedDeviceId === item?._id && styles.selectedCard,
+                      selectedDeviceId === item?.deviceId &&
+                        styles.selectedCard,
                     ]}>
+                    {selectedDeviceId === item?.deviceId && (
+                      <Text
+                        style={{
+                          color: theme.primary,
+                          fontSize: DimensionConstants.fourteen,
+                          fontWeight: '600',
+                          textAlign: 'right',
+                        }}>
+                        Selected
+                      </Text>
+                    )}
                     <View style={styles.innerContainer}>
                       <Image source={ImageConstants.blackWatch} />
                       <Spacing height={DimensionConstants.thirty} />
                       <Text
                         style={[
                           styles.deviceName,
-                          selectedDeviceId === item?._id,
+                          selectedDeviceId === item?.deviceId,
                         ]}>
                         SOS {item?.deviceName}
                       </Text>
@@ -219,8 +233,6 @@ const AddRemoveDeviceScreen = ({navigation}) => {
                 </TouchableOpacity>
               ))}
           </View>
-
-          {/* ✅ Input Modal */}
           <InputModal
             isVisible={inputModalVisible}
             onClose={() => setInputModalVisible(false)}
@@ -237,7 +249,6 @@ const AddRemoveDeviceScreen = ({navigation}) => {
   );
 };
 
-/** ✅ Styles Optimized */
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: DimensionConstants.sixteen,
