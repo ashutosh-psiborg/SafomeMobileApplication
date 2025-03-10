@@ -14,12 +14,11 @@ import {DimensionConstants} from '../constants/DimensionConstants';
 import EyeCloseIcon from '../assets/icons/EyeCloseIcon';
 import EyeOpenIcon from '../assets/icons/EyeOpenIcon';
 
-const CommonForm = ({control, fields, errors}) => {
+const CommonForm = ({control, fields, errors, countryCode, setCountryCode}) => {
   const [datePickerVisible, setDatePickerVisible] = useState(false);
   const [currentField, setCurrentField] = useState(null);
   const [passwordVisible, setPasswordVisible] = useState({});
 
-  // Toggle password visibility
   const togglePasswordVisibility = fieldName => {
     setPasswordVisible(prev => ({
       ...prev,
@@ -27,12 +26,11 @@ const CommonForm = ({control, fields, errors}) => {
     }));
   };
 
-  // Date formatting function
   const formatDate = date => {
     if (!date) return '';
     const d = new Date(date);
     const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0'); // Months are 0-based
+    const month = String(d.getMonth() + 1).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
     return `${year}/${month}/${day}`;
   };
@@ -42,15 +40,35 @@ const CommonForm = ({control, fields, errors}) => {
       {fields.map((field, index) => (
         <View key={index} style={styles.inputWrapper}>
           <View style={styles.inputContainer}>
+            {/* Icon */}
             {field.icon && <View style={styles.icon}>{field.icon}</View>}
+
+            {/* Country Code Dropdown (only on fields where needed) */}
+            {field.showCountryCodeDropdown && (
+              <Dropdown
+                style={styles.countryCodeDropdown}
+                data={field.countryCodes}
+                labelField="label"
+                valueField="value"
+                value={countryCode}
+                onChange={item => setCountryCode(item.value)}
+                placeholder=""
+                selectedTextStyle={styles.countryCodeText}
+                disable={field.disabled}
+              />
+            )}
+
+            {/* Main Controller */}
             <Controller
               control={control}
+              name={field.name}
+              defaultValue={field.defaultValue || ''}
               render={({field: {onChange, value}}) =>
                 field.options ? (
                   <Dropdown
                     style={[
                       styles.dropdown,
-                      {opacity: field.disabled ? 0.5 : 1}, // Visually dimmed
+                      {opacity: field.disabled ? 0.5 : 1},
                     ]}
                     data={field.options}
                     labelField="label"
@@ -58,17 +76,11 @@ const CommonForm = ({control, fields, errors}) => {
                     value={value}
                     onChange={
                       !field.disabled ? item => onChange(item.value) : undefined
-                    } // Prevent selection
+                    }
                     placeholder={field.placeholder}
-                    placeholderStyle={{
-                      fontSize: DimensionConstants.fourteen,
-                      color: field.disabled ? '#A0A0A0' : '#5E6368', // Change color when disabled
-                    }}
-                    selectedTextStyle={{
-                      fontSize: DimensionConstants.fourteen,
-                      color: field.disabled ? '#565454' : '#000', // Change selected text color
-                    }}
-                    disable={field.disabled} // Fully disables the dropdown
+                    placeholderStyle={styles.placeholderText}
+                    selectedTextStyle={styles.selectedText}
+                    disable={field.disabled}
                   />
                 ) : field.isDate ? (
                   <>
@@ -92,7 +104,6 @@ const CommonForm = ({control, fields, errors}) => {
                       />
                     </TouchableOpacity>
 
-                    {/* DateTimePicker Component */}
                     {datePickerVisible && currentField === field.name && (
                       <DateTimePicker
                         value={value ? new Date(value) : new Date()}
@@ -126,7 +137,6 @@ const CommonForm = ({control, fields, errors}) => {
                       editable={!field.disabled}
                     />
 
-                    {/* Show/Hide Password Icon */}
                     {field.secureTextEntry && (
                       <TouchableOpacity
                         onPress={() => togglePasswordVisibility(field.name)}
@@ -141,11 +151,9 @@ const CommonForm = ({control, fields, errors}) => {
                   </View>
                 )
               }
-              name={field.name}
-              defaultValue={field.defaultValue || ''}
             />
 
-            {/* Right Text or Button */}
+            {/* Optional Right-Aligned Text */}
             {field.text && (
               <TouchableOpacity>
                 <Text style={styles.rightText}>{field.text}</Text>
@@ -153,7 +161,7 @@ const CommonForm = ({control, fields, errors}) => {
             )}
           </View>
 
-          {/* Show Validation Errors Below Input */}
+          {/* Error Text */}
           {errors[field.name] && (
             <Text style={styles.errorText}>{errors[field.name].message}</Text>
           )}
@@ -164,6 +172,9 @@ const CommonForm = ({control, fields, errors}) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+  },
   inputWrapper: {
     marginBottom: DimensionConstants.sixteen,
   },
@@ -176,13 +187,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: DimensionConstants.ten,
     height: DimensionConstants.fortyEight,
   },
+  icon: {
+    marginRight: DimensionConstants.eight,
+  },
   textInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-  },
-  icon: {
-    marginRight: DimensionConstants.eight,
   },
   input: {
     flex: 1,
@@ -195,6 +206,16 @@ const styles = StyleSheet.create({
     flex: 1,
     height: DimensionConstants.forty,
     paddingHorizontal: DimensionConstants.eight,
+  },
+  countryCodeDropdown: {
+    width: DimensionConstants.oneHundredThirty,
+    height: DimensionConstants.forty,
+    justifyContent: 'center',
+    paddingLeft: DimensionConstants.ten,
+  },
+  countryCodeText: {
+    fontSize: DimensionConstants.fourteen,
+    color: '#000',
   },
   disabledInput: {
     color: '#A0A0A0',

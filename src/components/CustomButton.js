@@ -21,7 +21,7 @@ const CustomButton = ({
       style={[
         styles.button,
         {
-          backgroundColor: color || theme.primary,
+          backgroundColor: color || '#FF310C',
           width: width || 'auto',
           height: height || DimensionConstants.fortyEight,
         },

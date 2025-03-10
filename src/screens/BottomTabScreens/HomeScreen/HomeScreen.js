@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useCallback} from 'react';
 import {View, Text, ScrollView, TouchableOpacity} from 'react-native';
 import MapView, {PROVIDER_GOOGLE, Marker} from 'react-native-maps';
 import {useSelector} from 'react-redux';
@@ -16,12 +16,19 @@ import ContactCards from '../../../components/ContactCards';
 import HomeMidHeader from '../../../components/HomeMidHeader';
 import LogoHeader from '../../../components/LogoHeader';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
+import moment from 'moment';
+import CustomCard from '../../../components/CustomCard';
+import TimeLineIcon from '../../../assets/icons/TimeLineIcon';
 
 const HomeScreen = ({navigation}) => {
   const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('Week');
-  const options = ['Today', 'Week', 'Month'];
+  const [showAllLocations, setShowAllLocations] = useState(false);
 
+  const options = ['Today', 'Week', 'Month', 'Custom'];
+  const [deviceId, setDeviceId] = useState('');
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -30,7 +37,51 @@ const HomeScreen = ({navigation}) => {
   const locationRef = useRef(null);
   const [location, setLocation] = useState(null);
   const [mapKey, setMapKey] = useState(0);
+  const getSelectedDevice = async () => {
+    try {
+      const deviceId = await AsyncStorage.getItem('selectedDeviceId');
+      setDeviceId(deviceId);
+      console.log('Selected Device ID:', deviceId);
+    } catch (error) {
+      console.error('Error retrieving device ID:', error);
+    }
+  };
+  const getDateRange = () => {
+    const today = moment().format('DD-MM-YYYY');
 
+    if (selected?.label === 'Custom') {
+      return {
+        startDate: moment(selected.startDate).format('DD-MM-YYYY'),
+        endDate: moment(selected.endDate).format('DD-MM-YYYY'),
+      };
+    }
+
+    switch (selected) {
+      case 'Today':
+        return {startDate: today, endDate: today};
+      case 'Week':
+        return {
+          startDate: moment().subtract(7, 'days').format('DD-MM-YYYY'),
+          endDate: today,
+        };
+      case 'Month':
+        return {
+          startDate: moment().subtract(30, 'days').format('DD-MM-YYYY'),
+          endDate: today,
+        };
+      default:
+        return {startDate: today, endDate: today};
+    }
+  };
+  console.log(deviceId);
+  const {startDate, endDate} = getDateRange();
+  useFocusEffect(
+    useCallback(() => {
+      getSelectedDevice();
+      refetchFitness();
+      refetchLocation();
+    }, []),
+  );
   const {
     data: fitnessData,
     isLoading: isFitnessLoading,
@@ -40,10 +91,12 @@ const HomeScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/fitness-health/6907390711?range=${selected.toLowerCase()}`,
+        url: `deviceDataResponse/fitness-health/${
+          deviceId || 6907390711
+        }?startDate=${startDate}&endDate=${endDate}`,
       }),
   });
-
+  console.log('====', fitnessData);
   const {
     data: locationData,
     isLoading: isLocationLoading,
@@ -53,14 +106,15 @@ const HomeScreen = ({navigation}) => {
     queryFn: async () => {
       const response = await fetcher({
         method: 'GET',
-        url: `deviceDataResponse/locations/6907390711`,
+        url: `deviceDataResponse/locations/${6907390711}`,
       });
       return response;
     },
     onSuccess: data => {
-      if (data?.data?.latitude && data?.data?.longitude) {
-        const lat = parseFloat(data.data.latitude);
-        const long = parseFloat(data.data.longitude);
+      const latestLocation = data?.locations?.[0];
+      if (latestLocation?.latitude && latestLocation?.longitude) {
+        const lat = parseFloat(latestLocation?.latitude);
+        const long = parseFloat(latestLocation?.longitude);
 
         if (!isNaN(lat) && !isNaN(long)) {
           const newLocation = {latitude: lat, longitude: long};
@@ -72,10 +126,14 @@ const HomeScreen = ({navigation}) => {
     },
   });
 
+  console.log('longitude', locationData?.locations[0]?.longitude);
+  console.log('latitude', locationData?.locations[0]?.latitude);
+
   useEffect(() => {
-    if (locationData?.data?.latitude && locationData?.data?.longitude) {
-      const lat = parseFloat(locationData.data.latitude);
-      const long = parseFloat(locationData.data.longitude);
+    const latestLocation = locationData?.locations?.[0];
+    if (latestLocation?.latitude && latestLocation?.longitude) {
+      const lat = parseFloat(latestLocation?.latitude);
+      const long = parseFloat(latestLocation?.longitude);
 
       if (!isNaN(lat) && !isNaN(long)) {
         const newLocation = {latitude: lat, longitude: long};
@@ -91,10 +149,27 @@ const HomeScreen = ({navigation}) => {
     await refetchFitness();
   };
 
-  if (isLocationLoading || !locationData?.data) {
+  if (isLocationLoading) {
     return (
       <MainBackground style={{backgroundColor: theme.otpBox}}>
         <Loader />
+      </MainBackground>
+    );
+  }
+
+  if (
+    !locationData?.locations ||
+    !Array.isArray(locationData?.locations) ||
+    locationData?.locations?.length === 0
+  ) {
+    return (
+      <MainBackground style={{backgroundColor: theme.otpBox}}>
+        <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
+        <View style={{alignItems: 'center'}}>
+          <Text style={{color: theme.text, fontSize: 16}}>
+            No Data Found, Please Select Device in settings
+          </Text>
+        </View>
       </MainBackground>
     );
   }
@@ -111,7 +186,8 @@ const HomeScreen = ({navigation}) => {
               style={styles.placeText}
               numberOfLines={1}
               ellipsizeMode="tail">
-              {locationData?.data?.placeName || 'Location not available'}
+              {locationData?.locations?.[0]?.placeName ||
+                'Location not available'}
             </Text>
           </View>
           <View style={styles.refreshContainer}>
@@ -140,13 +216,65 @@ const HomeScreen = ({navigation}) => {
               <Marker
                 coordinate={location}
                 title="Your Location"
-                description={locationData?.data?.placeName}
+                description={
+                  locationData?.locations?.[0]?.placeName ||
+                  'Location not available'
+                }
               />
             </MapView>
           ) : (
             <Loader />
           )}
         </View>
+        <Spacing height={DimensionConstants.twentyFour} />
+        <HomeMidHeader
+          title={'Recent Location'}
+          showViewAll={locationData?.locations?.length > 3}
+          onPress={() => setShowAllLocations(prev => !prev)}
+          viewAllLabel={showAllLocations ? 'Collapse' : 'View All'}
+        />
+        <Spacing height={DimensionConstants.ten} />
+
+        <CustomCard>
+          {(showAllLocations
+            ? locationData?.locations
+            : locationData?.locations?.slice(0, 3)
+          ).map((item, index, arr) => (
+            <View
+              key={index}
+              style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+              {/* Timeline column */}
+              <View style={{width: 20, alignItems: 'center'}}>
+                <TimeLineIcon />
+                {index !== arr.length - 1 && (
+                  <View
+                    style={{
+                      width: 1,
+                      flex: 1,
+                      backgroundColor: 'transparent',
+                      borderLeftWidth: 1,
+                      borderLeftColor: '#FF310C',
+                      borderStyle: 'dashed',
+                      marginTop: 2,
+                    }}
+                  />
+                )}
+              </View>
+
+              {/* Content section */}
+              <View style={{marginLeft: 10, paddingBottom: 20}}>
+                <Text style={{fontWeight: 'bold'}}>
+                  {moment(item?.createdAt).format('DD-MM-YYYY')}
+                </Text>
+                <Text style={{color: '#666'}}>
+                  {moment(item?.createdAt).format('hh:mm A')}
+                </Text>
+                <Text style={{marginTop: 4}}>{item?.placeName}</Text>
+              </View>
+            </View>
+          ))}
+        </CustomCard>
+
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title="Statistics" showViewAll={false} />
         <Spacing height={20} />

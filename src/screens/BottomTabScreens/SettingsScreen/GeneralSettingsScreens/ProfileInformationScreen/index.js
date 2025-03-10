@@ -22,9 +22,12 @@ import fetcher from '../../../../../utils/ApiService';
 import Loader from '../../../../../components/Loader';
 import CustomButton from '../../../../../components/CustomButton';
 import {useMutation, useQuery} from '@tanstack/react-query';
+import {launchImageLibrary} from 'react-native-image-picker';
 
 const ProfileInformationScreen = ({navigation}) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
+
   const {data, isLoading, error} = useQuery({
     queryKey: ['userProfile'],
     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
@@ -61,8 +64,33 @@ const ProfileInformationScreen = ({navigation}) => {
         address: data?.user?.address || '',
         gender: data?.user?.gender || '',
       });
+
+      if (data?.user?.profileImage) {
+        setProfileImage(data?.user?.profileImage);
+      }
     }
   }, [data, reset]);
+
+  const handleSelectImage = () => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.7,
+      },
+      response => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.errorMessage) {
+          Alert.alert('Error', response.errorMessage);
+        } else {
+          const uri = response.assets?.[0]?.uri;
+          if (uri) {
+            setProfileImage(uri);
+          }
+        }
+      },
+    );
+  };
 
   const fields = [
     {
@@ -126,10 +154,29 @@ const ProfileInformationScreen = ({navigation}) => {
 
   const {mutate, isLoading: isUpdating} = useMutation({
     mutationFn: async formData => {
+      const payload = new FormData();
+
+      // Append text fields
+      for (let key in formData) {
+        payload.append(key, formData[key]);
+      }
+
+      // Append image if it exists and is a new local file (not URL)
+      if (profileImage && !profileImage.startsWith('http')) {
+        payload.append('profileImage', {
+          uri: profileImage,
+          type: 'image/jpeg',
+          name: 'profile.jpg',
+        });
+      }
+
       return fetcher({
         method: 'PUT',
         url: 'auth/updateUser',
-        data: formData,
+        data: payload,
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
     },
     onSuccess: response => {
@@ -157,7 +204,6 @@ const ProfileInformationScreen = ({navigation}) => {
       }),
     );
     mutate(filteredData);
-    
   };
 
   return (
@@ -173,7 +219,11 @@ const ProfileInformationScreen = ({navigation}) => {
           <View style={{alignItems: 'center'}}>
             <View style={{position: 'relative'}}>
               <Image
-                source={ImageConstants?.avatar}
+                source={
+                  profileImage
+                    ? {uri: profileImage}
+                    : ImageConstants?.avatar
+                }
                 style={{
                   height: DimensionConstants.oneHundred,
                   width: DimensionConstants.oneHundred,
@@ -181,6 +231,7 @@ const ProfileInformationScreen = ({navigation}) => {
                 }}
               />
               <TouchableOpacity
+                onPress={handleSelectImage}
                 style={{
                   position: 'absolute',
                   bottom: 0,
@@ -208,6 +259,7 @@ const ProfileInformationScreen = ({navigation}) => {
               text={'Save'}
               onPress={handleSubmit(onSubmit)}
               width={'48%'}
+              isLoading={isUpdating}
             />
           </View>
         ) : (

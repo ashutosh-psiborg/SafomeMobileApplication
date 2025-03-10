@@ -4,8 +4,10 @@ const initialState = {
   email: '',
   fullName: '',
   phoneNumber: '',
-  country: '',
+  // country: '',
   password: '',
+  countryCode: '', 
+
 };
 
 const userSlice = createSlice({

@@ -1,6 +1,6 @@
 import {yupResolver} from '@hookform/resolvers/yup';
 import {View, Text} from 'react-native';
-import React from 'react';
+import React, {useState} from 'react';
 import MainBackground from '../../../components/MainBackground';
 import CustomButton from '../../../components/CustomButton';
 import CustomHeader from '../../../components/CustomHeader';
@@ -25,10 +25,10 @@ const RegisterScreen = ({navigation}) => {
     formState: {errors},
   } = useForm({
     resolver: yupResolver(
-      validationSchema.pick(['fullName', 'email', 'phoneNumber', 'country']),
+      validationSchema.pick(['fullName', 'email', 'phoneNumber']),
     ),
   });
-
+  const [countryCode, setCountryCode] = useState('India (+91)');
   const {t} = useTranslation();
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -56,20 +56,35 @@ const RegisterScreen = ({navigation}) => {
       icon: <DeviceCallIcon viewBoxSize={24} size={24} />,
       maxLength: 10,
       keyboardType: 'phone-pad',
-    },
-    {
-      name: 'country',
-      placeholder: 'Country',
-      options: [
-        {label: 'India', value: 'India'},
-        {label: 'Australia', value: 'Australia'},
+      showCountryCodeDropdown: true,
+      countryCodes: [
+        {label: 'India (+91)', value: 'India (+91)'},
+        {label: 'Australia (+61)', value: 'Australia (+61)'},
       ],
-      icon: <CountryIcon />,
     },
+    // {
+    //   name: 'country',
+    //   placeholder: 'Country',
+    //   options: [
+    //     {label: 'India', value: 'India'},
+    //     {label: 'Australia', value: 'Australia'},
+    //   ],
+    //   icon: <CountryIcon />,
+    // },
   ];
 
-  const onSubmit = async data => {
-    dispatch(setUserData(data));
+  // const onSubmit = async data => {
+  //   dispatch(setUserData({...data, countryCode}));
+  //   navigation.navigate('VerifyMailOtpScreen');
+  // };
+  const onSubmit = data => {
+    const formPayload = {
+      ...data,
+      countryCode: countryCode,
+    };
+    console.log('||||', formPayload);
+
+    dispatch(setUserData(formPayload));
     navigation.navigate('VerifyMailOtpScreen');
   };
 
@@ -82,7 +97,13 @@ const RegisterScreen = ({navigation}) => {
       <Spacing height={DimensionConstants.twenty} />
       <View style={styles.container}>
         <View>
-          <CommonForm control={control} fields={fields} errors={errors} />
+          <CommonForm
+            control={control}
+            fields={fields}
+            errors={errors}
+            setCountryCode={setCountryCode}
+            countryCode={countryCode}
+          />
 
           <Text
             style={{

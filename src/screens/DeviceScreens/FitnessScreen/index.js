@@ -23,23 +23,56 @@ import FilterContainer from '../../../components/FilterContainer';
 import Loader from '../../../components/Loader';
 import fetcher from '../../../utils/ApiService';
 import {ProgressBar} from 'react-native-paper'; // For bars
+import moment from 'moment';
 
 const FitnessScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
 
-  const [selected, setSelected] = useState('Week');
+  const [selected, setSelected] = useState('Month');
   const maxSteps = 8000;
-  const options = ['Today', 'Week', 'Month'];
+  const options = ['Today', 'Week', 'Month', 'Custom'];
+  const getDateRange = () => {
+    const today = moment().format('DD-MM-YYYY');
+
+    if (selected?.label === 'Custom') {
+      return {
+        startDate: moment(selected.startDate).format('DD-MM-YYYY'),
+        endDate: moment(selected.endDate).format('DD-MM-YYYY'),
+      };
+    }
+
+    switch (selected) {
+      case 'Today':
+        return {startDate: today, endDate: today};
+      case 'Week':
+        return {
+          startDate: moment().subtract(7, 'days').format('DD-MM-YYYY'),
+          endDate: today,
+        };
+      case 'Month':
+        return {
+          startDate: moment().subtract(30, 'days').format('DD-MM-YYYY'),
+          endDate: today,
+        };
+      default:
+        return {startDate: today, endDate: today};
+    }
+  };
+  const {startDate, endDate} = getDateRange();
+  console.log(startDate, endDate);
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['fitness', selected],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/fitness-health/6907390711?range=${selected.toLowerCase()}`,
+        url: `deviceDataResponse/fitness-health/${
+          deviceId || 6907390711
+        }?startDate=${startDate}&endDate=${endDate}`,
       }),
   });
+  console.log('newdata+++++', data);
   const {
     data: stepData,
     isLoading: stepLoading,
@@ -50,9 +83,10 @@ const FitnessScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getStepData/6907390711/LK`,
+        url: `deviceDataResponse/getStepData/6907390711?startDate=${startDate}&endDate=${endDate}`,
       }),
   });
+  console.log("dteps====",stepData)
   const steps =
     selected === 'Today'
       ? stepData?.data?.todaySteps || 0
