@@ -32,7 +32,6 @@ const ProfileInformationScreen = ({navigation}) => {
     queryKey: ['userProfile'],
     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
   });
-
   const {
     control,
     handleSubmit,
@@ -59,7 +58,7 @@ const ProfileInformationScreen = ({navigation}) => {
         fullName: data?.user?.fullName || '',
         phoneNumber: data?.user?.phoneNumber || '',
         email: data?.user?.email || '',
-        country: data?.user?.country || '',
+        country: data?.user?.countryCode?.split(' (')[0] || '',
         dateOfBirth: data?.user?.dateOfBirth || '',
         address: data?.user?.address || '',
         gender: data?.user?.gender || '',
@@ -131,7 +130,7 @@ const ProfileInformationScreen = ({navigation}) => {
         {label: 'Australia', value: 'Australia'},
       ],
       icon: <CountryIcon />,
-      disabled: !isEditing,
+      disabled: true,
     },
     {
       name: 'address',
@@ -153,32 +152,14 @@ const ProfileInformationScreen = ({navigation}) => {
   ];
 
   const {mutate, isLoading: isUpdating} = useMutation({
-    mutationFn: async formData => {
-      const payload = new FormData();
-
-      // Append text fields
-      for (let key in formData) {
-        payload.append(key, formData[key]);
-      }
-
-      // Append image if it exists and is a new local file (not URL)
-      if (profileImage && !profileImage.startsWith('http')) {
-        payload.append('profileImage', {
-          uri: profileImage,
-          type: 'image/jpeg',
-          name: 'profile.jpg',
-        });
-      }
-
+    mutationFn: formData => {
       return fetcher({
         method: 'PUT',
         url: 'auth/updateUser',
-        data: payload,
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        data: formData,
       });
     },
+
     onSuccess: response => {
       Alert.alert(
         'Profile Updated',
@@ -220,9 +201,7 @@ const ProfileInformationScreen = ({navigation}) => {
             <View style={{position: 'relative'}}>
               <Image
                 source={
-                  profileImage
-                    ? {uri: profileImage}
-                    : ImageConstants?.avatar
+                  profileImage ? {uri: profileImage} : ImageConstants?.avatar
                 }
                 style={{
                   height: DimensionConstants.oneHundred,

@@ -83,7 +83,12 @@ const LocationScreen = ({navigation}) => {
                 </View>
 
                 <Spacing height={DimensionConstants.twentyFour} />
-                <HomeMidHeader title="My Contacts" />
+                <HomeMidHeader
+                  title="My Contacts"
+                  onPress={() =>
+                    navigation.navigate('MainApp', {screen: 'Saviours'})
+                  }
+                />
                 <Spacing height={DimensionConstants.sixteen} />
                 {contactData.map((item, index) => (
                   <CustomCard key={index} style={styles.contactCard}>
@@ -104,7 +109,12 @@ const LocationScreen = ({navigation}) => {
                 ))}
 
                 <Spacing height={DimensionConstants.twentyFour} />
-                <HomeMidHeader title="My Communities" />
+                <HomeMidHeader
+                  title="My Communities"
+                  onPress={() =>
+                    navigation.navigate('MainApp', {screen: 'Saviours'})
+                  }
+                />
                 <Spacing height={DimensionConstants.sixteen} />
                 <ContactCards
                   familyCardPress={() =>

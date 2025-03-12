@@ -178,14 +178,14 @@ const LoginScreen = ({navigation}) => {
           onPress={() => signIn()}
         />
 
-        <CustomButton
+        {/* <CustomButton
           textColor={theme.blackText}
           borderColor={theme.buttonBorder}
           color={theme.background}
           text={t('Continue with Apple')}
           icon={<AppleIcon />}
           onPress={() => navigation.navigate('MainApp')}
-        />
+        /> */}
         <Spacing height={DimensionConstants.twentyFour} />
         <Text style={styles.terms}>
           {t('By clicking login you agree to recognates')}{' '}

@@ -157,13 +157,13 @@ const LoginWithMobileScreen = ({navigation}) => {
               text={t('Continue with Google')}
               icon={<GoogleIcon />}
             />
-            <CustomButton
+            {/* <CustomButton
               textColor={theme.blackText}
               borderColor={theme.buttonBorder}
               color={theme.background}
               text={t('Continue with Apple')}
               icon={<AppleIcon />}
-            />
+            /> */}
             <Spacing height={DimensionConstants.twentyFour} />
             <Text style={Styles.terms}>
               By clicking login you agree to recognates{' '}

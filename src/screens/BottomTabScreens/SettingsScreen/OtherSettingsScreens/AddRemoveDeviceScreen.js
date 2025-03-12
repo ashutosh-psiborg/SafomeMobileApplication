@@ -118,7 +118,10 @@ const AddRemoveDeviceScreen = ({navigation}) => {
 
   const deleteDevice = useMutation({
     mutationFn: deviceId =>
-      fetcher({method: 'PATCH', url: `devices/deleteDevice/${deviceId}`}),
+      fetcher({
+        method: 'DELETE',
+        url: `recycleBin/deleteDevicePermanent/${deviceId}`,
+      }),
     onSuccess: () => {
       Alert.alert('Success', 'Device removed successfully.');
       refetch();

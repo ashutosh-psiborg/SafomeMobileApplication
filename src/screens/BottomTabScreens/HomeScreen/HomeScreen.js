@@ -75,6 +75,7 @@ const HomeScreen = ({navigation}) => {
   };
   console.log(deviceId);
   const {startDate, endDate} = getDateRange();
+  console.log(startDate, endDate);
   useFocusEffect(
     useCallback(() => {
       getSelectedDevice();
@@ -106,7 +107,7 @@ const HomeScreen = ({navigation}) => {
     queryFn: async () => {
       const response = await fetcher({
         method: 'GET',
-        url: `deviceDataResponse/locations/${6907390711}`,
+        url: `deviceDataResponse/locations/${deviceId || 6907390711}`,
       });
       return response;
     },
@@ -284,12 +285,16 @@ const HomeScreen = ({navigation}) => {
           onSelect={setSelected}
           theme={theme}
         />
-        {isFitnessLoading ? <Loader /> : <StatisticsCards data={fitnessData} />}
+
+        <StatisticsCards data={fitnessData} loading={isFitnessLoading} />
         {/* <Spacing height={DimensionConstants.twentyFour} /> */}
         {/* <HomeMidHeader title="Recent Notifications" onPress={() => setExpanded(!expanded)} />
         <CardStack expanded={expanded} /> */}
         <Spacing height={DimensionConstants.twentyFour} />
-        <HomeMidHeader title="My Contacts" />
+        <HomeMidHeader
+          title="My Contacts"
+          onPress={() => navigation.navigate('MainApp', {screen: 'Saviours'})}
+        />
         <Spacing height={DimensionConstants.ten} />
         <ContactCards
           familyCardPress={() =>

@@ -4,11 +4,21 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Platform,
+  Keyboard,
+  Modal,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
 } from 'react-native';
-import React, {useState} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
+import {
+  DimensionConstants,
+  height,
+  width,
+} from '../../../constants/DimensionConstants';
 import {useQuery} from '@tanstack/react-query';
 import {useSelector} from 'react-redux';
 import Spacing from '../../../components/Spacing';
@@ -22,28 +32,130 @@ import StatisticsCards from '../../../components/StatisticsCards';
 import FilterContainer from '../../../components/FilterContainer';
 import Loader from '../../../components/Loader';
 import fetcher from '../../../utils/ApiService';
-import {ProgressBar} from 'react-native-paper'; // For bars
+import {ProgressBar} from 'react-native-paper';
 import moment from 'moment';
+import {BarChart} from 'react-native-gifted-charts';
+import EditIcon from '../../../assets/icons/EditIcon';
+import {useForm} from 'react-hook-form';
+import CommonForm from '../../../utils/CommonForm';
+import CustomButton from '../../../components/CustomButton';
+import {useMutation} from '@tanstack/react-query';
 
 const FitnessScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
+  const [modalVisible, setModalVisible] = useState(false);
 
-  const [selected, setSelected] = useState('Month');
+  const [isStepReady, setIsStepReady] = useState(false);
+  const [selected, setSelected] = useState('Today');
+  const {
+    data: profileData,
+    isLoading: profileDataLoading,
+    error: profileError,
+    refetch: profileRefetch,
+  } = useQuery({
+    queryKey: ['userProfile'],
+    queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
+  });
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+    setValue,
+  } = useForm({
+    defaultValues: {
+      weight: '',
+      stepLength: '',
+      speed: '',
+      baseGoal: '',
+    },
+  });
+  useEffect(() => {
+    if (profileData?.user) {
+      setValue('weight', profileData.user.weight?.toString() || '');
+      setValue('stepLength', profileData.user.stepLength?.toString() || '');
+      setValue('speed', profileData.user.speed?.toString() || '');
+      setValue('baseGoal', profileData.user.baseGoal?.toString() || '');
+    }
+  }, [profileData, setValue]);
+
+  const userWeight = profileData?.user?.weight;
+  console.log('profile', profileData?.user?.weight);
+
+  console.log('Weight:', userWeight);
   const maxSteps = 8000;
+
+  const updateUserMutation = useMutation({
+    mutationFn: updatedData =>
+      fetcher({
+        method: 'PUT',
+        url: 'auth/updateUser',
+        data: updatedData,
+      }),
+    onSuccess: response => {
+      console.log('Update successful', response);
+      refetchFitnessData();
+      refetchStepData();
+      setModalVisible(false);
+    },
+    onError: error => {
+      console.log('Update failed', error);
+    },
+  });
+
+  const onSubmit = data => {
+    console.log('Submitting payload:', data);
+    updateUserMutation.mutate(data);
+    refetchStepData();
+
+    setModalVisible(false);
+  };
+
   const options = ['Today', 'Week', 'Month', 'Custom'];
-  const getDateRange = () => {
+  const fields = [
+    {
+      name: 'weight',
+      placeholder: 'Weight(in kg)',
+      keyboardType: 'phone-pad',
+      maxLength: 3,
+    },
+    {
+      name: 'baseGoal',
+      placeholder: 'Base Goal',
+      maxLength: 6,
+      keyboardType: 'phone-pad',
+    },
+    {
+      name: 'stepLength',
+      placeholder: 'Step Length(in cm)',
+      maxLength: 10,
+      keyboardType: 'phone-pad',
+    },
+
+    {
+      name: 'speed',
+      placeholder: 'Select speed',
+      options: [
+        {label: 'Slow Walk (< 3.2 km/h)', value: '2'},
+        {label: 'Moderate Walk (3.2 - 5.5 km/h)', value: '3.5'},
+        {label: 'Fast Walk (5.5 - 8.0 km/h)', value: '5'},
+        {label: 'Running (> 8.0 km/h)', value: '8'},
+      ],
+    },
+  ];
+  const getDateRange = selection => {
     const today = moment().format('DD-MM-YYYY');
 
-    if (selected?.label === 'Custom') {
+    if (typeof selection === 'object' && selection.label === 'Custom') {
       return {
-        startDate: moment(selected.startDate).format('DD-MM-YYYY'),
-        endDate: moment(selected.endDate).format('DD-MM-YYYY'),
+        startDate: moment(selection.startDate).format('DD-MM-YYYY'),
+        endDate: moment(selection.endDate).format('DD-MM-YYYY'),
       };
     }
 
-    switch (selected) {
+    switch (selection) {
       case 'Today':
         return {startDate: today, endDate: today};
       case 'Week':
@@ -60,39 +172,56 @@ const FitnessScreen = ({navigation}) => {
         return {startDate: today, endDate: today};
     }
   };
-  const {startDate, endDate} = getDateRange();
-  console.log(startDate, endDate);
-  const {data, isLoading, error, refetch} = useQuery({
-    queryKey: ['fitness', selected],
+
+  const {startDate, endDate} = useMemo(
+    () => getDateRange(selected),
+    [selected],
+  );
+  const {
+    data,
+    isLoading,
+    error,
+    refetch: refetchFitnessData,
+  } = useQuery({
+    queryKey: ['fitness', startDate, endDate],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/fitness-health/${
-          deviceId || 6907390711
-        }?startDate=${startDate}&endDate=${endDate}`,
+        url: `deviceDataResponse/fitness-health/6907390711?startDate=${startDate}&endDate=${endDate}`,
       }),
   });
-  console.log('newdata+++++', data);
+
   const {
     data: stepData,
     isLoading: stepLoading,
-    error: stepError,
-    refetch: stepRefetch,
+    refetch: refetchStepData,
   } = useQuery({
-    queryKey: ['steps'],
+    queryKey: ['steps', startDate, endDate],
     queryFn: () =>
       fetcher({
         method: 'GET',
         url: `deviceDataResponse/getStepData/6907390711?startDate=${startDate}&endDate=${endDate}`,
       }),
   });
-  console.log("dteps====",stepData)
+
   const steps =
-    selected === 'Today'
-      ? stepData?.data?.todaySteps || 0
+    (typeof selected === 'string' && selected === 'Today') ||
+    (typeof selected === 'object' && selected.label === 'Custom')
+      ? stepData?.data?.[0]?.totalSteps || 0
       : selected === 'Week'
       ? stepData?.data?.weeklySteps || 0
       : stepData?.data?.monthlySteps || 0;
+
+  useEffect(() => {
+    if (!stepLoading && stepData) {
+      const timeout = setTimeout(() => {
+        setIsStepReady(true);
+      }, 300);
+      return () => clearTimeout(timeout);
+    } else {
+      setIsStepReady(false);
+    }
+  }, [stepData, stepLoading]);
 
   if (isLoading || stepLoading) {
     return (
@@ -101,30 +230,25 @@ const FitnessScreen = ({navigation}) => {
       </MainBackground>
     );
   }
+
   const icon = [
     {
       id: 1,
       component: <CalorieBurnIcon />,
       label: 'Calories',
-      value: '201',
-      maxValue: '/ 400 Kcal',
+      value: stepData?.totalCaloriesBurned,
+      maxValue: '',
     },
     {
       id: 2,
       component: <BlueFlagIcon />,
       label: 'Base goal',
-      value: '5,500',
-      maxValue: '/ 8000 steps',
-    },
-    {
-      id: 3,
-      component: <BlueClockIcon />,
-      label: 'Moving',
-      value: '7',
-      maxValue: '/ 30 min',
-      line: 'no',
+      value: stepData?.totalStepsOverall,
+      maxValue: `/ ${stepData?.baseGoal * stepData?.dateDifference} steps`,
     },
   ];
+  console.log(stepData);
+
   return (
     <MainBackground style={styles.mainBackground} noPadding>
       <CustomHeader
@@ -141,28 +265,55 @@ const FitnessScreen = ({navigation}) => {
             theme={theme}
           />
           <Spacing height={DimensionConstants.twentyFour} />
-
           <CustomCard>
             <Spacing height={DimensionConstants.ten} />
-            <Text style={styles.sectionTitle}>Steps</Text>
-            <View style={styles.progressContainer}>
-              <CircularProgress
-                value={(steps / maxSteps) * 100}
-                rotation={-180}
-                radius={DimensionConstants.oneHundred}
-                activeStrokeColor={'#FF310C'}
-                activeStrokeWidth={DimensionConstants.twenty}
-                inActiveStrokeWidth={DimensionConstants.twenty}
-                inActiveStrokeColor={theme.otpBox}
-                showProgressValue={false}
-              />
-              <View style={styles.stepsTextContainer}>
-                <Text style={styles.stepsLabel}>Steps</Text>
-                <Text style={styles.stepsCount}>{steps}</Text>
-              </View>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              <Text style={styles.sectionTitle}>Steps</Text>
+              <TouchableOpacity onPress={() => setModalVisible(true)}>
+                <EditIcon />
+              </TouchableOpacity>
             </View>
-            <Spacing height={DimensionConstants.eighteen} />
+            {isStepReady && stepData?.data?.length > 2 ? (
+              <View style={{paddingVertical: 20}}>
+                <BarChart
+                  data={stepData.data.map(item => ({
+                    value: item.totalSteps,
+                    label: `${item.date.split('-')[0]}/${
+                      item.date.split('-')[1]
+                    }`,
+                    frontColor: '#FF310C',
+                  }))}
+                  barWidth={24}
+                  barBorderRadius={6}
+                  yAxisThickness={0}
+                  xAxisLabelTextStyle={{color: '#333', fontSize: 10}}
+                  stepValue={500}
+                  maxValue={2000}
+                  noOfSections={4}
+                  isAnimated
+                />
+              </View>
+            ) : (
+              <View style={styles.progressContainer}>
+                <CircularProgress
+                  value={(steps / maxSteps) * 100}
+                  rotation={-180}
+                  radius={DimensionConstants.oneHundred}
+                  activeStrokeColor={'#FF310C'}
+                  activeStrokeWidth={DimensionConstants.twenty}
+                  inActiveStrokeWidth={DimensionConstants.twenty}
+                  inActiveStrokeColor={theme.otpBox}
+                  showProgressValue={false}
+                />
+                <View style={styles.stepsTextContainer}>
+                  <Text style={styles.stepsLabel}>Steps</Text>
+                  <Text style={styles.stepsCount}>{steps}</Text>
+                </View>
+              </View>
+            )}
 
+            <Spacing height={DimensionConstants.eighteen} />
             <CustomCard
               style={{
                 backgroundColor: '#F7FAFF',
@@ -175,83 +326,75 @@ const FitnessScreen = ({navigation}) => {
                 elevation: 2,
               }}>
               <View style={{gap: 16}}>
-                {icon?.map(item => (
-                  <View key={item.id} style={{marginBottom: 8}}>
-                    <View
-                      style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        marginBottom: 8,
-                      }}>
+                {icon?.map(item => {
+                  const numericMax = parseInt(
+                    item.maxValue.replace(/[^0-9]/g, ''),
+                    10,
+                  );
+                  const progress =
+                    typeof numericMax === 'number' &&
+                    !isNaN(numericMax) &&
+                    numericMax > 0
+                      ? item.value / numericMax
+                      : 0;
+
+                  return (
+                    <View key={item.id} style={{marginBottom: 8}}>
                       <View
                         style={{
-                          backgroundColor: 'rgba(59, 65, 172, 0.1)',
-                          borderRadius: 8,
-                          padding: 6,
-                          marginRight: 12,
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          marginBottom: 8,
                         }}>
-                        {item?.component}
-                      </View>
-                      <View style={{flex: 1}}>
-                        <Text
-                          style={{
-                            fontSize: 14,
-                            fontWeight: '500',
-                            color: '#333333',
-                          }}>
-                          {item.label}
-                        </Text>
                         <View
                           style={{
-                            flexDirection: 'row',
-                            alignItems: 'baseline',
+                            backgroundColor: 'rgba(59, 65, 172, 0.1)',
+                            borderRadius: 8,
+                            padding: 6,
+                            marginRight: 12,
                           }}>
+                          {item.component}
+                        </View>
+                        <View style={{flex: 1}}>
                           <Text
                             style={{
-                              fontSize: 18,
-                              fontWeight: '600',
-                              color: '#333333',
-                              marginRight: 4,
-                            }}>
-                            {item.value}
-                          </Text>
-                          <Text
-                            style={{
-                              fontSize: 12,
+                              fontSize: 14,
                               fontWeight: '500',
-                              color: '#9E9E9E',
+                              color: '#333333',
                             }}>
-                            {item?.maxValue}
+                            {item.label}
                           </Text>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'baseline',
+                            }}>
+                            <Text
+                              style={{
+                                fontSize: 18,
+                                fontWeight: '600',
+                                color: '#333333',
+                                marginRight: 4,
+                              }}>
+                              {item.value}
+                            </Text>
+                            <Text
+                              style={{
+                                fontSize: 12,
+                                fontWeight: '500',
+                                color: '#9E9E9E',
+                              }}>
+                              {item.maxValue}
+                            </Text>
+                          </View>
                         </View>
                       </View>
-                    </View>
 
-                    {/* Calculate progress value */}
-                    {(() => {
-                      // Extract numeric values for calculations
-                      const currentValue = parseInt(
-                        item.value.replace(/,/g, ''),
-                        10,
-                      );
-                      const maxValueString = item.maxValue.split('/')[1].trim();
-                      const maxValue = parseInt(
-                        maxValueString.split(' ')[0].replace(/,/g, ''),
-                        10,
-                      );
-                      const progress = currentValue / maxValue;
-
-                      // Determine color based on metric type
-                      let progressColor = '#3B41AC'; // Default blue
-                      if (item.label === 'Calories') progressColor = '#0279E1'; // Orange
-                      if (item.label === 'Base goal') progressColor = '#0279E1'; // Green
-                      if (item.label === 'Moving') progressColor = '#0279E1'; // Purple
-
-                      return (
+                      {item.label !== 'Calories' && (
                         <View style={{height: 12, marginTop: 4}}>
                           <ProgressBar
                             progress={progress}
-                            color={progressColor}
+                            color={'#0279E1'}
                             style={{
                               height: 8,
                               borderRadius: 4,
@@ -259,10 +402,10 @@ const FitnessScreen = ({navigation}) => {
                             }}
                           />
                         </View>
-                      );
-                    })()}
-                  </View>
-                ))}
+                      )}
+                    </View>
+                  );
+                })}
               </View>
             </CustomCard>
             <Spacing height={DimensionConstants.ten} />
@@ -272,6 +415,63 @@ const FitnessScreen = ({navigation}) => {
           <StatisticsCards data={data} />
         </View>
       </ScrollView>
+      <View>
+        <Modal
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}>
+          <View
+            style={{
+              flex: 1,
+            }}>
+            <View
+              style={{
+                backgroundColor: 'white',
+                borderTopLeftRadius: 12,
+                borderTopRightRadius: 12,
+                padding: DimensionConstants.twenty,
+                top: height / 2.8,
+                borderColor: '#C4C4C4',
+                borderWidth: 1,
+              }}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{paddingBottom: 20}}>
+                <Text
+                  style={{fontSize: 18, fontWeight: '600', marginBottom: 16}}>
+                  Personalize Your Fitness Goals
+                </Text>
+                <Text>
+                  Enter your weight, step length, speed, and step goal to
+                  personalize your fitness tracking.
+                </Text>
+                <Spacing height={DimensionConstants.ten} />
+                <CommonForm control={control} fields={fields} errors={errors} />
+                <Spacing height={DimensionConstants.twentyFour} />
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    justifyContent: 'space-between',
+                  }}>
+                  <CustomButton
+                    text={'Cancel'}
+                    width={'48%'}
+                    color={'white'}
+                    textColor={'#000'}
+                    borderColor={'#C4C4C4'}
+                    onPress={() => setModalVisible(false)}
+                  />
+                  <CustomButton
+                    text={'Add'}
+                    width={'48%'}
+                    onPress={handleSubmit(onSubmit)}
+                  />
+                </View>
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+      </View>
     </MainBackground>
   );
 };
@@ -282,26 +482,6 @@ const styles = StyleSheet.create({
   },
   container: {
     padding: DimensionConstants.sixteen,
-  },
-  filterContainer: {
-    backgroundColor: 'white',
-    borderColor: 'rgba(59, 65, 172, 0.2)',
-    borderWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: DimensionConstants.four,
-    borderRadius: DimensionConstants.twentyNine,
-    alignItems: 'center',
-  },
-  filterButton: {
-    paddingVertical: DimensionConstants.five,
-    paddingHorizontal: DimensionConstants.fifteen,
-    borderRadius: DimensionConstants.twenty,
-  },
-  filterText: {
-    color: '#797C7E',
-    fontWeight: '500',
-    fontSize: DimensionConstants.fourteen,
   },
   sectionTitle: {
     fontSize: DimensionConstants.fourteen,
@@ -322,35 +502,6 @@ const styles = StyleSheet.create({
   stepsCount: {
     fontSize: DimensionConstants.thirtyTwo,
     fontWeight: '600',
-  },
-  statisticsCard: {
-    backgroundColor: '#F2F7FC',
-  },
-  statisticsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  statisticsItem: {
-    flexDirection: 'row',
-  },
-  statisticsLabel: {
-    fontSize: DimensionConstants.fourteen,
-    fontWeight: '500',
-    marginTop: DimensionConstants.seven,
-  },
-  statisticsValue: {
-    fontSize: DimensionConstants.twentyFour,
-    fontWeight: '500',
-  },
-  statisticsMaxValue: {
-    fontSize: DimensionConstants.fourteen,
-    fontWeight: '500',
-    color: 'rgba(128, 128, 128, 1)',
-  },
-  divider: {
-    height: DimensionConstants.oneHundred,
-    width: DimensionConstants.two,
-    backgroundColor: 'rgba(0, 0, 0, 0.05)',
   },
 });
 

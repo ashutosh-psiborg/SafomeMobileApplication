@@ -9,7 +9,7 @@ import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
 import {useFocusEffect} from '@react-navigation/native';
 
-const DAYS_MAP = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const DAYS_MAP = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const parseTimeSection = timeSection => {
   if (!timeSection) return null;
@@ -18,6 +18,7 @@ const parseTimeSection = timeSection => {
     .split('')
     .map((bit, index) => (bit === '1' ? DAYS_MAP[index] : null))
     .filter(Boolean);
+  console.log('Parsed Days:', daysBinary, activeDays); // 👈 Debug this
   return {startTime, endTime, activeDays};
 };
 
@@ -27,10 +28,10 @@ const DNDScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getSilenceTime/6907390711/SILENCETIME2`,
+        url: `deviceDataResponse/getSilenceTime/SILENCETIME2/6907390711`,
       }),
   });
-
+  console.log(data);
   // Use useFocusEffect to refresh data when screen comes into focus
   useFocusEffect(
     useCallback(() => {
@@ -84,7 +85,7 @@ const DNDScreen = ({navigation}) => {
                   </View>
                 </View>
               </View>
-              <View style={styles.daysContainer}>
+              {/* <View style={styles.daysContainer}>
                 <Text style={styles.daysText}>
                   {DAYS_MAP.map((day, i) => (
                     <Text
@@ -93,6 +94,21 @@ const DNDScreen = ({navigation}) => {
                         item?.activeDays?.some(
                           (activeDay, index) => index === i,
                         ) // ✅ Correct comparison using index
+                          ? styles.highlightedDaysText
+                          : styles.daysText
+                      }>
+                      {day}{' '}
+                    </Text>
+                  ))}
+                </Text>
+              </View> */}
+              <View style={styles.daysContainer}>
+                <Text style={styles.daysText}>
+                  {DAYS_MAP.map((day, i) => (
+                    <Text
+                      key={`${day}-${i}`}
+                      style={
+                        item?.activeDays?.includes(day) // ✅ compare by value, not index
                           ? styles.highlightedDaysText
                           : styles.daysText
                       }>
@@ -143,13 +159,13 @@ const styles = StyleSheet.create({
   },
   daysText: {
     fontSize: DimensionConstants.fourteen,
-    letterSpacing: DimensionConstants.two,
+    // letterSpacing: DimensionConstants.two,
     color: '#979797',
   },
   highlightedDaysText: {
     fontSize: DimensionConstants.fourteen,
     fontWeight: '500',
-    letterSpacing: DimensionConstants.two,
+    // letterSpacing: DimensionConstants.two,
     color: '#0279E1',
   },
 });

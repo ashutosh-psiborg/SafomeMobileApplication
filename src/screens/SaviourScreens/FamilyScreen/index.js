@@ -52,7 +52,7 @@ const FamilyScreen = ({navigation}) => {
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
       <CustomHeader
         title={type === 'friends' ? 'Friends' : 'Family'}
-        icon={<PlusIcon marginRight={DimensionConstants.ten} />}
+        // icon={<PlusIcon marginRight={DimensionConstants.ten} />}
         backgroundColor={'#fff'}
         backPress={() => navigation.goBack()}
       />

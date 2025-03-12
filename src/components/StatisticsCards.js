@@ -1,4 +1,4 @@
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, ActivityIndicator} from 'react-native';
 import React from 'react';
 import {useSelector} from 'react-redux';
 import CustomCard from './CustomCard';
@@ -8,10 +8,18 @@ import HeartIcon from '../assets/icons/HeartIcon';
 import BloodOxygenIcon from '../assets/icons/BloodOxygenIcon';
 import BloodPressureIcon from '../assets/icons/BloodPressureIcon';
 
-const StatisticsCards = ({data}) => {
+const StatisticsCards = ({data, loading}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
+
+  if (loading) {
+    return (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#0279E1" />
+      </View>
+    );
+  }
 
   const heartRateHistory = data?.heartRateHistory || [];
 
@@ -81,11 +89,8 @@ const StatisticsCards = ({data}) => {
               thickness={5}
               hideRules
               height={DimensionConstants.oneHundredEighty}
-              // hideYAxisText
-              // yAxisColor="white"
               scrollAnimation={true}
               scrollToEnd
-              // xAxisColor="white"
               color="#0279E1"
               curved
               startFillColor="#3f9ef1"
@@ -151,7 +156,7 @@ const styles = StyleSheet.create({
     marginLeft: DimensionConstants.five,
   },
   cardContent: {
-    fontSize: DimensionConstants.twentyFour,
+    fontSize: DimensionConstants.eighteen,
     fontWeight: '500',
     marginTop: DimensionConstants.five,
   },
@@ -163,5 +168,11 @@ const styles = StyleSheet.create({
   rowContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  loaderContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: DimensionConstants.twenty,
   },
 });

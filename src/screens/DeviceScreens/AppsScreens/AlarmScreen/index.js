@@ -40,7 +40,7 @@ const AlarmScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getDeviceAlarms/6907390711/REMIND`,
+        url: `deviceDataResponse/getDeviceAlarms/REMIND/6907390711`,
       }),
   });
 

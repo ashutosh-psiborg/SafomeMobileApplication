@@ -8,7 +8,7 @@ const CustomCard = ({children, style}) => {
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: DimensionConstants.twentyFour,
+    borderRadius: DimensionConstants.fifteen,
     padding: 15,
     backgroundColor: '#fff',
     shadowColor: '#000',
