@@ -38,7 +38,7 @@ const SettingsScreen = ({navigation}) => {
   const [tempSelected, setTempSelected] = useState(0);
 
   const dispatch = useDispatch();
-
+  const {appStrings} = useSelector(state => state.language);
   const themeOptions = [
     {label: 'Light theme'},
     {label: 'Dark theme'},
@@ -99,26 +99,29 @@ const SettingsScreen = ({navigation}) => {
   };
   const sections = [
     {
-      title: 'General',
+      title: appStrings?.settings?.general?.text,
       data: [
         {
-          title: 'Profile information',
+          title: appStrings?.settings?.profileInformation?.text,
           icon: <ProfileIcon />,
           navigation: () => navigation.navigate('ProfileInformationScreen'),
         },
         {
-          title: 'Language',
+          title: appStrings?.settings?.language?.text,
           icon: <LanguageIcon />,
           navigation: () => navigation.navigate('LanguageScreen'),
         },
         {
-          title: 'Subscription',
+          title: appStrings?.settings?.subscription?.text,
           icon: <SubscriptionIcon />,
           navigation: () => navigation.navigate('SubscriptionScreen'),
         },
-        {title: 'Geofencing', icon: <GeoLocationIcon />},
         {
-          title: 'About device',
+          title: appStrings?.settings?.geofencing?.text,
+          icon: <GeoLocationIcon />,
+        },
+        {
+          title: appStrings?.settings?.aboutDevice?.text,
           icon: <AboutDeviceIcon />,
           navigation: () => navigation.navigate('AboutDeviceScreen'),
           line: false,
@@ -126,15 +129,15 @@ const SettingsScreen = ({navigation}) => {
       ],
     },
     {
-      title: 'Preference',
+      title: appStrings?.settings?.preference?.text,
       data: [
         {
-          title: 'Notifications',
+          title: appStrings?.notification?.title?.text,
           icon: <ProfileNotificationIcon />,
           navigation: () => navigation.navigate('NotificationsScreen'),
         },
         {
-          title: 'Appearance',
+          title: appStrings?.settings?.appearance?.text,
           icon: <AppearanceIcon />,
           navigation: () => setModalVisible(true),
 
@@ -143,11 +146,14 @@ const SettingsScreen = ({navigation}) => {
       ],
     },
     {
-      title: 'Other settings',
+      title: appStrings?.settings?.otherSettings?.text,
       data: [
-        {title: 'Security', icon: <SecurityIcon />},
         {
-          title: 'Add / remove device',
+          title: appStrings?.settings?.security?.text,
+          icon: <SecurityIcon />,
+        },
+        {
+          title: appStrings?.settings?.addRemoveDevice?.text,
           icon: <AddRemoteIcon />,
           navigation: () => navigation.navigate('AddRemoveDeviceScreen'),
           line: false,
@@ -155,12 +161,25 @@ const SettingsScreen = ({navigation}) => {
       ],
     },
     {
-      title: 'App settings',
+      title: appStrings?.settings?.appSettings?.text,
       data: [
-        {title: 'FAQ', icon: <FAQIcon />},
-        {title: 'About us', icon: <AboutIcon />},
-        {title: 'Rate App', icon: <RateAppIcon />},
-        {title: 'Privacy policy', icon: <PrivacyIcon />, line: false},
+        {
+          title: appStrings?.settings?.faq?.text,
+          icon: <FAQIcon />,
+        },
+        {
+          title: appStrings?.settings?.aboutUs?.text,
+          icon: <AboutIcon />,
+        },
+        {
+          title: appStrings?.settings?.rateApp?.text,
+          icon: <RateAppIcon />,
+        },
+        {
+          title: appStrings?.settings?.privacyPolicy?.text,
+          icon: <PrivacyIcon />,
+          line: false,
+        },
       ],
     },
   ];
@@ -195,7 +214,7 @@ const SettingsScreen = ({navigation}) => {
                 Subscription ends in 7 days
               </Text>
               <CustomButton
-                text="Upgrade plan"
+                text={appStrings?.settings?.upgradePlan?.text}
                 width="150%"
                 onPress={() => navigation.navigate('SubscriptionScreen')}
               />
@@ -203,7 +222,7 @@ const SettingsScreen = ({navigation}) => {
               <TouchableOpacity
                 onPress={() => navigation.navigate('SubscriptionScreen')}>
                 <Text style={[styles.subscriptionLink, {color: theme.primary}]}>
-                  View available subscriptions
+                  {appStrings?.settings?.viewAvailableSubscriptions?.text}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -218,7 +237,10 @@ const SettingsScreen = ({navigation}) => {
             />
           ))}
           <Spacing height={DimensionConstants.ten} />
-          <CustomButton text={'Sign out'} onPress={signOut} />
+          <CustomButton
+            text={appStrings?.settings?.signOut?.text}
+            onPress={signOut}
+          />
           <Spacing height={DimensionConstants.sixteen} />
           <Text
             style={{
@@ -226,7 +248,7 @@ const SettingsScreen = ({navigation}) => {
               color: '#889CA3',
               fontSize: DimensionConstants.fourteen,
             }}>
-            App version 0.1
+            {appStrings?.settings?.appVersion?.text} 0.1
           </Text>
         </View>
       </ScrollView>

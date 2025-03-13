@@ -3,7 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import enJson from '../../constants/STRINGS/en.json';
 import {processJson} from '../../utils/translate';
 
-const SOURCE_VERSION = '1.2'; // Increment this manually whenever en.json is updated
+const SOURCE_VERSION = '1.3'; // Increment this manually whenever en.json is updated
 
 export const loadLanguageStrings = createAsyncThunk(
   'language/loadLanguageStrings',

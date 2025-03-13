@@ -16,7 +16,6 @@ const NotificationsScreen = ({navigation}) => {
   const toggleSwitch = () => setIsEnabled(prev => !prev);
 
   const {appStrings} = useSelector(state => state.language);
-  console.log('appsstrings', appStrings);
   return (
     <MainBackground style={styles.mainBackground} noPadding>
       <CustomHeader

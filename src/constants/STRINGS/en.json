@@ -20,5 +20,112 @@
       "translate": true,
       "transliterate": false
     }
+  },
+  "settings": {
+    "title": {
+      "text": "Profile",
+      "translate": true,
+      "transliterate": false
+    },
+    "profileInformation": {
+      "text": "Profile Information",
+      "translate": true,
+      "transliterate": false
+    },
+    "language": {
+      "text": "Language",
+      "translate": true,
+      "transliterate": false
+    },
+    "subscription": {
+      "text": "Subscription",
+      "translate": true,
+      "transliterate": false
+    },
+    "geofencing": {
+      "text": "Geofencing",
+      "translate": true,
+      "transliterate": false
+    },
+    "aboutDevice": {
+      "text": "About device",
+      "translate": true,
+      "transliterate": false
+    },
+    "appearance": {
+      "text": "Appearance",
+      "translate": true,
+      "transliterate": false
+    },
+    "security": {
+      "text": "Security",
+      "translate": true,
+      "transliterate": false
+    },
+    "addRemoveDevice": {
+      "text": "Add / remove device",
+      "translate": true,
+      "transliterate": false
+    },
+    "faq": {
+      "text": "FAQ",
+      "translate": true,
+      "transliterate": false
+    },
+    "aboutUs": {
+      "text": "About us",
+      "translate": true,
+      "transliterate": false
+    },
+    "rateApp": {
+      "text": "Rate App",
+      "translate": true,
+      "transliterate": false
+    },
+    "privacyPolicy": {
+      "text": "Privacy policy",
+      "translate": true,
+      "transliterate": false
+    },
+    "general": {
+      "text": "General",
+      "translate": true,
+      "transliterate": false
+    },
+    "preference": {
+      "text": "Preference",
+      "translate": true,
+      "transliterate": false
+    },
+    "otherSettings": {
+      "text": "Other settings",
+      "translate": true,
+      "transliterate": false
+    },
+    "appSettings": {
+      "text": "App settings",
+      "translate": true,
+      "transliterate": false
+    },
+    "signOut": {
+      "text": "Sign out",
+      "translate": true,
+      "transliterate": false
+    },
+    "appVersion": {
+      "text": "App version",
+      "translate": true,
+      "transliterate": false
+    },
+    "viewAvailableSubscriptions": {
+      "text": "View available subscriptions",
+      "translate": true,
+      "transliterate": false
+    },
+    "upgradePlan": {
+      "text": "Upgrade plan",
+      "translate": true,
+      "transliterate": false
+    }
   }
 }
