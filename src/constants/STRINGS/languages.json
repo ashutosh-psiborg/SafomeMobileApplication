@@ -1,0 +1,23 @@
+[
+  {"name": "Hindi", "label": "हिंदी", "code": "hi", "dateLocale": "hi", "dateFnsLocale": "hi"},
+  {"name": "English", "label": "English", "code": "en", "dateLocale": "en", "dateFnsLocale": "en"},
+  {"name": "Tamil", "label": "தமிழ்", "code": "ta", "dateLocale": "ta", "dateFnsLocale": "ta"},
+  {"name": "Punjabi", "label": "ਪੰਜਾਬੀ", "code": "pa", "dateLocale": "pa", "dateFnsLocale": "pa"},
+  {"name": "Bangla", "label": "বাংলা", "code": "bn", "dateLocale": "bn", "dateFnsLocale": "bn"},
+  {"name": "Assamese", "label": "অসমীয়া", "code": "as", "dateLocale": "hi", "dateFnsLocale": "hi"},
+  {"name": "Gujarati", "label": "ગુજરાતી", "code": "gu", "dateLocale": "gu", "dateFnsLocale": "gu"},
+  {"name": "Kannada", "label": "ಕನ್ನಡ", "code": "kn", "dateLocale": "kn", "dateFnsLocale": "kn"},
+  {"name": "Malayalam", "label": "മലയാളം", "code": "ml", "dateLocale": "ml", "dateFnsLocale": "ml"},
+  {"name": "Marathi", "label": "मराठी", "code": "mr", "dateLocale": "mr", "dateFnsLocale": "mr"},
+  {"name": "Nepali", "label": "नेपाली", "code": "ne", "dateLocale": "ne", "dateFnsLocale": "ne"},
+  {"name": "Odia", "label": "ଓଡ଼ିଆ", "code": "or", "dateLocale": "hi", "dateFnsLocale": "hi"},
+  {"name": "Sindhi", "label": "سنڌي", "code": "sd", "dateLocale": "ur", "dateFnsLocale": "ur"},
+  {"name": "Telugu", "label": "తెలుగు", "code": "te", "dateLocale": "te", "dateFnsLocale": "te"},
+  {"name": "Urdu", "label": "اردو", "code": "ur", "dateLocale": "ur", "dateFnsLocale": "ur"},
+  {"name": "Dogri", "label": "डोगरी", "code": "doi", "dateLocale": "hi", "dateFnsLocale": "hi"},
+  {"name": "Maithili", "label": "मैथिली", "code": "mai", "dateLocale": "hi", "dateFnsLocale": "hi"},
+  {"name": "Bhojpuri", "label": "भोजपुरी", "code": "bho", "dateLocale": "hi", "dateFnsLocale": "hi"},
+  {"name": "Sinhala", "label": "සිංහල", "code": "si", "dateLocale": "si", "dateFnsLocale": "si"},
+{"name": "Konkani", "label": "कोंकणी", "code": "gom", "dateLocale": "hi", "dateFnsLocale": "hi"},
+  {"name": "Meitei(Manipuri)", "label": "মৈতৈলোন", "code": "mni-Mtei", "dateLocale": "hi", "dateFnsLocale": "hi"}
+]

@@ -1,5 +1,8 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {View, Text, Switch, TouchableOpacity, StyleSheet} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useDispatch, useSelector} from 'react-redux';
+import {translateLabels} from '../../../../../redux/slices/languageSlice';
 import MainBackground from '../../../../../components/MainBackground';
 import CustomHeader from '../../../../../components/CustomHeader';
 import CustomCard from '../../../../../components/CustomCard';
@@ -10,12 +13,14 @@ import RightArrowIcon from '../../../../../assets/icons/RightArrowIcon';
 const NotificationsScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(false);
 
-  const toggleSwitch = () => setIsEnabled(prevState => !prevState);
+  const toggleSwitch = () => setIsEnabled(prev => !prev);
 
+  const {appStrings} = useSelector(state => state.language);
+  console.log('appsstrings', appStrings);
   return (
     <MainBackground style={styles.mainBackground} noPadding>
       <CustomHeader
-        title="Notifications"
+        title={appStrings.notification.title.text}
         backgroundColor="#ffffff"
         backPress={() => navigation.goBack()}
       />
@@ -23,7 +28,9 @@ const NotificationsScreen = ({navigation}) => {
       <View style={styles.container}>
         <CustomCard style={styles.card}>
           <View style={styles.settingRow}>
-            <Text style={styles.settingText}>Enable notifications</Text>
+            <Text style={styles.settingText}>
+              {appStrings.notification.enableNotifications.text}
+            </Text>
             <Switch
               value={isEnabled}
               onValueChange={toggleSwitch}
@@ -33,7 +40,9 @@ const NotificationsScreen = ({navigation}) => {
           </View>
           <View style={styles.separator} />
           <View style={styles.settingRow}>
-            <Text style={styles.settingText}>Pause notifications</Text>
+            <Text style={styles.settingText}>
+              {appStrings.notification.pauseNotifications.text}
+            </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('PauseNotificationScreen')}>
               <RightArrowIcon
@@ -44,7 +53,9 @@ const NotificationsScreen = ({navigation}) => {
           </View>
           <View style={styles.separator} />
           <View style={styles.settingRow}>
-            <Text style={styles.settingText}>Delete notifications</Text>
+            <Text style={styles.settingText}>
+              {appStrings.notification.deleteNotifications.text}
+            </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('DeleteNotificationScreen')}>
               <RightArrowIcon

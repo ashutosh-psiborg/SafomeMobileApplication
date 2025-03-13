@@ -1,0 +1,24 @@
+{
+  "notification": {
+    "title": {
+      "text": "Notifications",
+      "translate": true,
+      "transliterate": false
+    },
+    "enableNotifications": {
+      "text": "Enable notifications",
+      "translate": true,
+      "transliterate": false
+    },
+    "pauseNotifications": {
+      "text": "Pause notifications",
+      "translate": true,
+      "transliterate": false
+    },
+    "deleteNotifications": {
+      "text": "Delete notifications",
+      "translate": true,
+      "transliterate": false
+    }
+  }
+}

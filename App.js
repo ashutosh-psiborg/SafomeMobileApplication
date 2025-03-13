@@ -7,6 +7,7 @@ import {Provider, useDispatch} from 'react-redux';
 import store from './src/redux/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loadThemeFromStorage} from './src/redux/slices/themeSlice';
+import { loadLanguageStrings } from './src/redux/slices/languageSlice'; // adjust path
 
 // Component to load theme on startup
 const Setup = () => {
@@ -21,7 +22,9 @@ const Setup = () => {
     };
     getTheme();
   }, [dispatch]);
-
+  useEffect(() => {
+    dispatch(loadLanguageStrings()); // Load language + strings from AsyncStorage
+  }, []);
   return <AppNavigator />;
 };
 

@@ -46,6 +46,7 @@
     "react-native-wifi-reborn": "^4.13.4",
     "react-navigation": "^5.0.0",
     "react-redux": "^9.2.0",
+    "transliteration": "^2.3.5",
     "yup": "^1.6.1"
   },
   "devDependencies": {
