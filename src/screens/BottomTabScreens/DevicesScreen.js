@@ -19,11 +19,13 @@ import DeviceCallIcon from '../../assets/icons/DeviceCallIcon';
 import FitnessIcon from '../../assets/icons/FitnessIcon';
 import AppsIcon from '../../assets/icons/AppsIcon';
 import SystemIcon from '../../assets/icons/SystemIcon';
-import FeaturesIcon from '../../assets/icons/FeaturesIcon';
+import {useQuery} from '@tanstack/react-query';
 import RightArrowIcon from '../../assets/icons/RightArrowIcon';
-
+import fetcher from '../../utils/ApiService';
 import Loader from '../../components/Loader';
 const DevicesScreen = ({navigation}) => {
+  const {appStrings} = useSelector(state => state.language);
+
   const icons = [
     // {
     //   component: <DeviceCallIcon />,
@@ -32,17 +34,17 @@ const DevicesScreen = ({navigation}) => {
     // },
     {
       component: <FitnessIcon />,
-      label: 'Fitness & Health',
+      label: appStrings?.device?.fitnessHealth?.text,
       navigation: () => navigation.navigate('FitnessScreen'),
     },
     {
       component: <AppsIcon />,
-      label: 'Apps',
+      label: appStrings?.device?.apps?.text,
       navigation: () => navigation.navigate('AppScreen'),
     },
     {
       component: <SystemIcon />,
-      label: 'System',
+      label: appStrings?.device?.system?.text,
       navigation: () => navigation.navigate('SystemScreen'),
       line: 'no',
     },
@@ -57,75 +59,88 @@ const DevicesScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
-
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: ['deviceDetails'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: '/devices/deviceDetails/67d151d59db44ff700d9bbae',
+      }),
+  });
   return (
     <MainBackground style={styles.mainBackground}>
-      <View>
-        <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.container}>
-            <Spacing height={DimensionConstants.twentyFour} />
-
-            <CustomCard style={styles.deviceCard}>
-              <View style={styles.deviceHeader}>
-                <BlackWatchIcon />
-                <Spacing width={DimensionConstants.thirty} />
-                <View>
-                  <View style={styles.deviceRow}>
-                    <Text style={styles.deviceName}>Device</Text>
-                    <DownArrowIcon marginLeft={DimensionConstants.twelve} />
-                  </View>
-
-                  <View style={styles.deviceRow}>
-                    <Text style={styles.label}>Signal :</Text>
-                    <Text style={[styles.value, {color: theme.primary}]}>
-                      Medium
-                    </Text>
-                  </View>
-
-                  <View style={styles.deviceRow}>
-                    <Text style={styles.label}>Battery :</Text>
-                    <Text style={[styles.value, {color: theme.primary}]}>
-                      98%
-                    </Text>
-                  </View>
-
-                  <CustomButton
-                    text={'Sync'}
-                    color={'#F4D9DC'}
-                    height={DimensionConstants.thirtyFive}
-                    width={DimensionConstants.eighty}
-                    textColor={'#FE605D'}
-                  />
-                </View>
-              </View>
-              <CustomButton text={'Edit'} />
-            </CustomCard>
-
-            <Spacing height={DimensionConstants.eighteen} />
-
-            <CustomCard style={styles.featuresCard}>
-              {icons.map((item, index) => (
-                <View key={index}>
-                  <TouchableOpacity
-                    style={styles.featureRow}
-                    onPress={item.navigation}>
-                    <View style={styles.featureContent}>
-                      {item.component}
-                      <Text style={styles.featureText}>{item.label}</Text>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <View>
+          <LogoHeader
+            onPress={() => navigation.navigate('NotificationScreen')}
+          />
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={styles.container}>
+              <Spacing height={DimensionConstants.twentyFour} />
+              <CustomCard style={styles.deviceCard}>
+                <View style={styles.deviceHeader}>
+                  <BlackWatchIcon />
+                  <Spacing width={DimensionConstants.thirty} />
+                  <View>
+                    <View style={styles.deviceRow}>
+                      <Text style={styles.deviceName}>
+                        {data?.device?.deviceName}
+                      </Text>
+                      <DownArrowIcon marginLeft={DimensionConstants.twelve} />
                     </View>
-                    <TouchableOpacity onPress={item.navigation}>
-                      <RightArrowIcon color="black" />
-                    </TouchableOpacity>
-                  </TouchableOpacity>
-
-                  {item?.line !== 'no' && <View style={styles.separator} />}
+                    <View style={styles.deviceRow}>
+                      <Text style={styles.label}>
+                        {appStrings?.device?.signal?.text} :
+                      </Text>
+                      <Text style={[styles.value, {color: theme.primary}]}>
+                        Medium
+                      </Text>
+                    </View>
+                    <View style={styles.deviceRow}>
+                      <Text style={styles.label}>
+                        {appStrings?.device?.battery?.text} :
+                      </Text>
+                      <Text style={[styles.value, {color: theme.primary}]}>
+                        {data?.batteryPercentage}%
+                      </Text>
+                    </View>
+                    <CustomButton
+                      text={appStrings?.device?.sync?.text}
+                      color={'#F4D9DC'}
+                      height={DimensionConstants.thirtyFive}
+                      width={DimensionConstants.eighty}
+                      textColor={'#FE605D'}
+                    />
+                  </View>
                 </View>
-              ))}
-            </CustomCard>
-          </View>
-        </ScrollView>
-      </View>
+                <CustomButton text={appStrings?.device?.edit?.text} />
+              </CustomCard>
+              <Spacing height={DimensionConstants.eighteen} />
+              <CustomCard style={styles.featuresCard}>
+                {icons.map((item, index) => (
+                  <View key={index}>
+                    <TouchableOpacity
+                      style={styles.featureRow}
+                      onPress={item.navigation}>
+                      <View style={styles.featureContent}>
+                        {item.component}
+                        <Text style={styles.featureText}>{item.label}</Text>
+                      </View>
+                      <TouchableOpacity onPress={item.navigation}>
+                        <RightArrowIcon color="black" />
+                      </TouchableOpacity>
+                    </TouchableOpacity>
+
+                    {item?.line !== 'no' && <View style={styles.separator} />}
+                  </View>
+                ))}
+              </CustomCard>
+            </View>
+          </ScrollView>
+        </View>
+      )}
     </MainBackground>
   );
 };

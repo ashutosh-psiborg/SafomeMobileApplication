@@ -127,5 +127,47 @@
       "translate": true,
       "transliterate": false
     }
+  },
+  "device": {
+    "title": {
+      "text": "Device",
+      "translate": true,
+      "transliterate": false
+    },
+    "signal": {
+      "text": "Signal",
+      "translate": true,
+      "transliterate": false
+    },
+    "battery": {
+      "text": "Battery",
+      "translate": true,
+      "transliterate": false
+    },
+    "sync": {
+      "text": "Sync",
+      "translate": true,
+      "transliterate": false
+    },
+    "fitnessHealth": {
+      "text": "Fitness & Health",
+      "translate": true,
+      "transliterate": false
+    },
+    "apps": {
+      "text": "Apps",
+      "translate": true,
+      "transliterate": false
+    },
+    "system": {
+      "text": "System",
+      "translate": true,
+      "transliterate": false
+    },
+    "edit": {
+      "text": "Edit",
+      "translate": true,
+      "transliterate": false
+    }
   }
 }
