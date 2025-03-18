@@ -1,4 +1,4 @@
-import {View, Text, Alert} from 'react-native';
+import {Text, Alert} from 'react-native';
 setUserData;
 import React from 'react';
 import MainBackground from '../../../../components/MainBackground';
@@ -9,13 +9,12 @@ import Spacing from '../../../../components/Spacing';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import CustomButton from '../../../../components/CustomButton';
 import {VerifyMailOtpStyles} from '../VerifyMailOtpScreen/Styles/VerifyMailOtpStyles';
-import {useMutation} from '@tanstack/react-query';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
 import {validationSchema} from '../../../../utils/Validations';
 import {useForm} from 'react-hook-form';
 import {yupResolver} from '@hookform/resolvers/yup';
 import CommonForm from '../../../../utils/CommonForm';
-import GlobeIcon from '../../../../assets/icons/GlobeIcon';
 import PasswordIcon from '../../../../assets/icons/PasswordIcon';
 import {setUserData} from '../../../../redux/slices/userSlice';
 
@@ -27,7 +26,19 @@ const CreatePasswordScreen = ({navigation}) => {
   const dispatch = useDispatch();
 
   const styles = VerifyMailOtpStyles(theme);
-
+  const {
+    data: uidData,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['uid'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: '/auth/generateUserUId',
+      }),
+  });
   const {
     control,
     handleSubmit,
@@ -79,6 +90,7 @@ const CreatePasswordScreen = ({navigation}) => {
     const updatedUserData = {
       ...user,
       password: data?.password,
+      uid: uidData?.nextUId,
     };
 
     dispatch(setUserData(updatedUserData));

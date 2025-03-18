@@ -23,6 +23,9 @@ import {useQuery} from '@tanstack/react-query';
 import RightArrowIcon from '../../assets/icons/RightArrowIcon';
 import fetcher from '../../utils/ApiService';
 import Loader from '../../components/Loader';
+import {useFocusEffect} from '@react-navigation/native';
+import {useCallback} from 'react';
+
 const DevicesScreen = ({navigation}) => {
   const {appStrings} = useSelector(state => state.language);
 
@@ -59,6 +62,7 @@ const DevicesScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
+
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['deviceDetails'],
     queryFn: () =>
@@ -67,6 +71,14 @@ const DevicesScreen = ({navigation}) => {
         url: '/devices/deviceDetails/67d151d59db44ff700d9bbae',
       }),
   });
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, []),
+  );
+
+  console.log('*****', data);
+
   return (
     <MainBackground style={styles.mainBackground}>
       {isLoading ? (
@@ -103,7 +115,7 @@ const DevicesScreen = ({navigation}) => {
                         {appStrings?.device?.battery?.text} :
                       </Text>
                       <Text style={[styles.value, {color: theme.primary}]}>
-                        {data?.batteryPercentage}%
+                        {data?.device?.batteryPer}%
                       </Text>
                     </View>
                     <CustomButton
@@ -132,7 +144,6 @@ const DevicesScreen = ({navigation}) => {
                         <RightArrowIcon color="black" />
                       </TouchableOpacity>
                     </TouchableOpacity>
-
                     {item?.line !== 'no' && <View style={styles.separator} />}
                   </View>
                 ))}

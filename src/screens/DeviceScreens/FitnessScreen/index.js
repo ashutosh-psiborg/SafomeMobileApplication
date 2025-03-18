@@ -40,7 +40,7 @@ import {useForm} from 'react-hook-form';
 import CommonForm from '../../../utils/CommonForm';
 import CustomButton from '../../../components/CustomButton';
 import {useMutation} from '@tanstack/react-query';
-
+import CustomModal from '../../../components/CustomModal';
 const FitnessScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -244,7 +244,7 @@ const FitnessScreen = ({navigation}) => {
       component: <BlueFlagIcon />,
       label: 'Base goal',
       value: stepData?.totalStepsOverall,
-      maxValue: `/ ${stepData?.baseGoal * stepData?.dateDifference} steps`,
+      maxValue: `/ ${stepData?.baseGoal} steps`,
     },
   ];
   console.log(stepData);
@@ -416,61 +416,46 @@ const FitnessScreen = ({navigation}) => {
         </View>
       </ScrollView>
       <View>
-        <Modal
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}>
-          <View
-            style={{
-              flex: 1,
-            }}>
-            <View
-              style={{
-                backgroundColor: 'white',
-                borderTopLeftRadius: 12,
-                borderTopRightRadius: 12,
-                padding: DimensionConstants.twenty,
-                top: height / 2.8,
-                borderColor: '#C4C4C4',
-                borderWidth: 1,
-              }}>
-              <ScrollView
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{paddingBottom: 20}}>
-                <Text
-                  style={{fontSize: 18, fontWeight: '600', marginBottom: 16}}>
-                  Personalize Your Fitness Goals
-                </Text>
-                <Text>
-                  Enter your weight, step length, speed, and step goal to
-                  personalize your fitness tracking.
-                </Text>
-                <Spacing height={DimensionConstants.ten} />
-                <CommonForm control={control} fields={fields} errors={errors} />
-                <Spacing height={DimensionConstants.twentyFour} />
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                  }}>
-                  <CustomButton
-                    text={'Cancel'}
-                    width={'48%'}
-                    color={'white'}
-                    textColor={'#000'}
-                    borderColor={'#C4C4C4'}
-                    onPress={() => setModalVisible(false)}
-                  />
-                  <CustomButton
-                    text={'Add'}
-                    width={'48%'}
-                    onPress={handleSubmit(onSubmit)}
-                  />
-                </View>
-              </ScrollView>
-            </View>
+        <CustomModal
+          isVisible={modalVisible}
+          modalHeight={height / 1.7}
+          onClose={() => setModalVisible(false)}>
+          <View>
+            <ScrollView
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingBottom: 20}}>
+              <Text style={{fontSize: 18, fontWeight: '600', marginBottom: 16}}>
+                Personalize Your Fitness Goals
+              </Text>
+              <Text>
+                Enter your weight, step length, speed, and step goal to
+                personalize your fitness tracking.
+              </Text>
+              <Spacing height={DimensionConstants.ten} />
+              <CommonForm control={control} fields={fields} errors={errors} />
+              <Spacing height={DimensionConstants.twentyFour} />
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                }}>
+                <CustomButton
+                  text={'Cancel'}
+                  width={'48%'}
+                  color={'white'}
+                  textColor={'#000'}
+                  borderColor={'#C4C4C4'}
+                  onPress={() => setModalVisible(false)}
+                />
+                <CustomButton
+                  text={'Add'}
+                  width={'48%'}
+                  onPress={handleSubmit(onSubmit)}
+                />
+              </View>
+            </ScrollView>
           </View>
-        </Modal>
+        </CustomModal>
       </View>
     </MainBackground>
   );

@@ -40,30 +40,27 @@ api.interceptors.request.use(
   },
 );
 
-api.interceptors.response.use(
-  async response => {
-    if (
-      response.config.url.includes('/auth/login') ||
-      response.config.url.includes('/auth/loginVerifyOTP') ||
-      response.config.url.includes('/auth/googleLogin')
-    ) {
-      const token = response.data?.token;
-      if (token) {
-        try {
-          // Store the token and then immediately fetch it to verify
-          await AsyncStorage.setItem('authToken', token);
-          const checkToken = await AsyncStorage.getItem('authToken');
-          console.log('✅ Token stored successfully:', checkToken);
-        } catch (error) {
-          console.error('Error storing token:', error);
-        }
+api.interceptors.response.use(async response => {
+  if (
+    response.config.url.includes('/auth/login') ||
+    response.config.url.includes('/auth/loginVerifyOTP') ||
+    response.config.url.includes('/auth/googleLogin')
+  ) {
+    const token = response.data?.token;
+    if (token) {
+      try {
+        // Store the token and then immediately fetch it to verify
+        await AsyncStorage.setItem('authToken', token);
+        const checkToken = await AsyncStorage.getItem('authToken');
+        console.log('✅ Token stored successfully:', checkToken);
+      } catch (error) {
+        console.error('Error storing token:', error);
       }
     }
-
-    return response;
   }
-);
 
+  return response;
+});
 
 const fetcher = async ({method, url, data, params, noAuth = false}) => {
   const response = await api({
