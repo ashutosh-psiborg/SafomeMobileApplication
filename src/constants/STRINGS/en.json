@@ -181,8 +181,18 @@
       "translate": true,
       "transliterate": false
     },
+    "autoCallDescription": {
+      "text": "Automatically answer the call of the specified contact within 10 sec",
+      "translate": true,
+      "transliterate": false
+    },
     "sleepMode": {
       "text": "Sleep mode",
+      "translate": true,
+      "transliterate": false
+    },
+    "sleepModeDescription": {
+      "text": "The watch will save power & disconnect from all network between",
       "translate": true,
       "transliterate": false
     },

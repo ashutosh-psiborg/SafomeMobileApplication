@@ -4,22 +4,24 @@ import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import InfoCard from '../../../../components/InfoCard';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
+import {useSelector} from 'react-redux';
 
 const SleepModeScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
+  const {appStrings} = useSelector(state => state.language);
 
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
       <CustomHeader
-        title={'Sleep mode'}
+        title={appStrings?.system?.sleepMode?.text}
         backgroundColor={'#fff'}
         backPress={() => navigation.goBack()}
       />
       <View style={styles.container}>
         <InfoCard
-          title="Sleep mode"
-          description="The watch will save power & disconnect from all network between 22:00 - 06:00"
+          title={appStrings?.system?.sleepMode?.text}
+          description={`${appStrings?.system?.sleepModeDescription?.text} 22:00 - 06:00`}
           isEnabled={isEnabled}
           onToggle={toggleSwitch}
         />

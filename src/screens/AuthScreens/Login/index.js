@@ -1,4 +1,10 @@
-import {Text, Alert, TouchableOpacity, ScrollView} from 'react-native';
+import {
+  Text,
+  Alert,
+  TouchableOpacity,
+  ScrollView,
+  Platform,
+} from 'react-native';
 import React from 'react';
 import MainBackground from '../../../components/MainBackground';
 import {useTranslation} from 'react-i18next';
@@ -20,6 +26,7 @@ import {validationSchema} from '../../../utils/Validations';
 import CommonForm from '../../../utils/CommonForm';
 import {GoogleSignin} from '@react-native-google-signin/google-signin';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {appleAuth} from '@invertase/react-native-apple-authentication';
 
 const LoginScreen = ({navigation}) => {
   GoogleSignin.configure({
@@ -63,7 +70,16 @@ const LoginScreen = ({navigation}) => {
   } = useForm({
     resolver: yupResolver(validationSchema.pick(['email'])),
   });
+  async function onAppleButtonPress() {
+    // performs login request
+    const appleAuthRequestResponse = await appleAuth.performRequest({
+      requestedOperation: appleAuth.Operation.LOGIN,
+      // Note: it appears putting FULL_NAME first is important, see issue #293
+      requestedScopes: [appleAuth.Scope.FULL_NAME, appleAuth.Scope.EMAIL],
+    });
 
+    console.log('apple data =====', appleAuthRequestResponse);
+  }
   const fields = [
     {
       name: 'email',
@@ -177,15 +193,17 @@ const LoginScreen = ({navigation}) => {
           icon={<GoogleIcon />}
           onPress={() => signIn()}
         />
+        {Platform.OS === 'ios' ? (
+          <CustomButton
+            textColor={theme.blackText}
+            borderColor={theme.buttonBorder}
+            color={theme.background}
+            text={t('Continue with Apple')}
+            icon={<AppleIcon />}
+            onPress={() => onAppleButtonPress()}
+          />
+        ) : null}
 
-        {/* <CustomButton
-          textColor={theme.blackText}
-          borderColor={theme.buttonBorder}
-          color={theme.background}
-          text={t('Continue with Apple')}
-          icon={<AppleIcon />}
-          onPress={() => navigation.navigate('MainApp')}
-        /> */}
         <Spacing height={DimensionConstants.twentyFour} />
         <Text style={styles.terms}>
           {t('By clicking login you agree to recognates')}{' '}

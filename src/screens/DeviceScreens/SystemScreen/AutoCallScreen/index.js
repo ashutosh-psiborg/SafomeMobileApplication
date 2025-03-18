@@ -4,22 +4,23 @@ import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import InfoCard from '../../../../components/InfoCard';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
-
+import {useSelector} from 'react-redux';
 const AutoCallScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
+  const {appStrings} = useSelector(state => state.language);
 
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
       <CustomHeader
-        title={'Auto answer call'}
+        title={appStrings?.system?.autoCallAnswer?.text}
         backgroundColor={'#fff'}
         backPress={() => navigation.goBack()}
       />
       <View style={styles.container}>
         <InfoCard
-          title="Auto call answer"
-          description="Automatically answer the call of the specified contact within 10 sec"
+          title={appStrings?.system?.autoCallAnswer?.text}
+          description={appStrings?.system?.autoCallDescription?.text}
           isEnabled={isEnabled}
           onToggle={toggleSwitch}
         />
