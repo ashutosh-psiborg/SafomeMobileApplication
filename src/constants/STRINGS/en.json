@@ -169,5 +169,42 @@
       "translate": true,
       "transliterate": false
     }
+  },
+  "system": {
+    "title": {
+      "text": "System",
+      "translate": true,
+      "transliterate": false
+    },
+    "autoCallAnswer": {
+      "text": "Auto call answer",
+      "translate": true,
+      "transliterate": false
+    },
+    "sleepMode": {
+      "text": "Sleep mode",
+      "translate": true,
+      "transliterate": false
+    },
+    "watchWifi": {
+      "text": "Watch Wi-Fi settings",
+      "translate": true,
+      "transliterate": false
+    },
+    "dnd": {
+      "text": "DND",
+      "translate": true,
+      "transliterate": false
+    },
+    "remoteRestart": {
+      "text": "Remote Restart/Shutdown",
+      "translate": true,
+      "transliterate": false
+    },
+    "resetDevice": {
+      "text": "Reset device",
+      "translate": true,
+      "transliterate": false
+    }
   }
 }

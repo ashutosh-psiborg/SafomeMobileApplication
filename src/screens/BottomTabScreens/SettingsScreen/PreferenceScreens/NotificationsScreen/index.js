@@ -19,7 +19,7 @@ const NotificationsScreen = ({navigation}) => {
   return (
     <MainBackground style={styles.mainBackground} noPadding>
       <CustomHeader
-        title={appStrings.notification.title.text}
+        title={appStrings?.notification?.title?.text}
         backgroundColor="#ffffff"
         backPress={() => navigation.goBack()}
       />
@@ -28,7 +28,7 @@ const NotificationsScreen = ({navigation}) => {
         <CustomCard style={styles.card}>
           <View style={styles.settingRow}>
             <Text style={styles.settingText}>
-              {appStrings.notification.enableNotifications.text}
+              {appStrings?.notification?.enableNotifications?.text}
             </Text>
             <Switch
               value={isEnabled}
@@ -40,7 +40,7 @@ const NotificationsScreen = ({navigation}) => {
           <View style={styles.separator} />
           <View style={styles.settingRow}>
             <Text style={styles.settingText}>
-              {appStrings.notification.pauseNotifications.text}
+              {appStrings?.notification?.pauseNotifications?.text}
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('PauseNotificationScreen')}>
@@ -53,7 +53,7 @@ const NotificationsScreen = ({navigation}) => {
           <View style={styles.separator} />
           <View style={styles.settingRow}>
             <Text style={styles.settingText}>
-              {appStrings.notification.deleteNotifications.text}
+              {appStrings?.notification?.deleteNotifications?.text}
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('DeleteNotificationScreen')}>

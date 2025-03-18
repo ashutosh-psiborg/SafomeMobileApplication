@@ -17,16 +17,21 @@ import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
 import SystemLocation from '../../../assets/icons/SystemLocation';
 import SystemCallIcon from '../../../assets/icons/SystemCallIcon';
 import Spacing from '../../../components/Spacing';
-const SystemScreen = ({navigation}) => {
+import {useSelector} from 'react-redux';
+
+
+const SystemScreen = ({ navigation }) => {
+  const {appStrings} = useSelector(state => state.language);
+
   const icons = [
     {
       component: <SystemCallIcon />,
-      label: 'Auto call answer',
+      label: appStrings?.system?.autoCallAnswer?.text,
       navigation: () => navigation.navigate('AutoCallScreen'),
     },
     {
       component: <SleepIcon />,
-      label: 'Sleep mode',
+      label:  appStrings?.system?.sleepMode?.text,
       navigation: () => navigation.navigate('SleepModeScreen'),
     },
     // {
@@ -41,12 +46,12 @@ const SystemScreen = ({navigation}) => {
     // },
     {
       component: <WifiIcon />,
-      label: 'Watch Wi-Fi settings',
+      label:  appStrings?.system?.watchWifi?.text,
       navigation: () => navigation.navigate('WifiSettingsScreen'),
     },
     {
       component: <DNDIcon />,
-      label: 'DND',
+      label:  appStrings?.system?.dnd?.text,
       navigation: () => navigation.navigate('DNDScreen'),
     },
     // {
@@ -56,7 +61,7 @@ const SystemScreen = ({navigation}) => {
     // },
     {
       component: <RemoteIcon />,
-      label: 'Remote Restart/Shutdown',
+      label:  appStrings?.system?.remoteRestart?.text,
       navigation: () => navigation.navigate('RemoteRestartScreen'),
       // line: 'no',
     },
@@ -72,7 +77,7 @@ const SystemScreen = ({navigation}) => {
     // },
     {
       component: <ResetIcon />,
-      label: 'Reset device',
+      label:  appStrings?.system?.resetDevice?.text,
       navigation: () => navigation.navigate('ResetDeviceScreen'),
       line: 'no',
     },
@@ -80,7 +85,7 @@ const SystemScreen = ({navigation}) => {
   return (
     <MainBackground noPadding style={styles.mainBackground}>
       <CustomHeader
-        title={'System'}
+        title={appStrings?.system?.title.text}
         backgroundColor={'#FFFFFF'}
         backPress={() => navigation.goBack()}
       />
