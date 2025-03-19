@@ -21,11 +21,12 @@ const StatisticsCards = ({data, loading}) => {
     );
   }
 
-  const heartRateHistory = data?.heartRateHistory || [];
-
-  // Group by date
+  const heartRateHistory = data?.data?.heartRateHistory || [];
+  const bpData = data?.data?.bphrt;
+  const oxygenData = data?.data?.oxygen;
+console.log('bp',bpData,"oxygenData",oxygenData)
+  // Group heart rate by date
   const groupedByDate = {};
-
   heartRateHistory.forEach(item => {
     const [day, month, yearWithTime] = item.date.split('-');
     const [year, time] = yearWithTime.split(' ');
@@ -76,11 +77,10 @@ const StatisticsCards = ({data, loading}) => {
             <HeartIcon size={20} />
             <Text style={styles.cardTitle}>Heart Rate</Text>
           </View>
-
           <View style={{alignItems: 'center'}}>
             <LineChart
               areaChart
-              initialSpacing={40}
+              initialSpacing={20}
               data={chartData}
               spacing={100}
               textColor1="black"
@@ -98,7 +98,7 @@ const StatisticsCards = ({data, loading}) => {
           </View>
 
           <Text style={styles.cardContent}>
-            {latestReading?.heartRate || '--'}
+            {latestReading?.heartRate || ''}
             <Text style={styles.bpmText}> BPM</Text>
           </Text>
           <Text style={styles.bpmText}>{latestReading?.date || ''}</Text>
@@ -113,7 +113,7 @@ const StatisticsCards = ({data, loading}) => {
               <Text style={styles.cardTitle}>Blood Pressure</Text>
             </View>
             <Text style={styles.cardContent}>
-              {data?.bphrt?.SystolicBP}/{data?.bphrt?.DiastolicBP} mm Hg
+              {bpData?.SystolicBP}/{bpData?.DiastolicBP} mm Hg
             </Text>
           </View>
         </CustomCard>
@@ -125,7 +125,7 @@ const StatisticsCards = ({data, loading}) => {
               <Text style={styles.cardTitle}>Blood Oxygen</Text>
             </View>
             <Text style={styles.cardContent}>
-              {data?.oxygen?.SPO2Rating || 98}%
+              {oxygenData?.SPO2Rating || 98}%
             </Text>
           </View>
         </CustomCard>
@@ -133,6 +133,7 @@ const StatisticsCards = ({data, loading}) => {
     </View>
   );
 };
+
 
 export default StatisticsCards;
 

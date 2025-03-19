@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import MainBackground from '../../components/MainBackground';
 import LogoHeader from '../../components/LogoHeader';
 import BlackWatchIcon from '../../assets/icons/BlackWatchIcon';
@@ -25,10 +25,27 @@ import fetcher from '../../utils/ApiService';
 import Loader from '../../components/Loader';
 import {useFocusEffect} from '@react-navigation/native';
 import {useCallback} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DevicesScreen = ({navigation}) => {
+  const [deviceId, setDeviceId] = useState('');
   const {appStrings} = useSelector(state => state.language);
+  useEffect(() => {
+    const getStoredDeviceId = async () => {
+      try {
+        const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+        const storedMongoId = await AsyncStorage.getItem(
+          'selectedDeviceMongoId',
+        );
+        setDeviceId(storedMongoId);
+        console.log('Stored Mongo _id:', storedMongoId);
+      } catch (error) {
+        console.error('Failed to retrieve stored device data:', error);
+      }
+    };
 
+    getStoredDeviceId();
+  }, []);
   const icons = [
     // {
     //   component: <DeviceCallIcon />,
@@ -68,7 +85,7 @@ const DevicesScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: '/devices/deviceDetails/67d151d59db44ff700d9bbae',
+        url: `/devices/deviceDetails/${deviceId}`,
       }),
   });
   useFocusEffect(
@@ -77,78 +94,96 @@ const DevicesScreen = ({navigation}) => {
     }, []),
   );
 
-  console.log('*****', data);
+  const {
+    data: deviceData,
+    isdeviceDataLoading,
+    deviceDataerror,
+    deviceDatarefetch,
+  } = useQuery({
+    queryKey: ['deviceData'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: '/devices/getDevices',
+      }),
+  });
 
+  console.log('+++++++', data.data, error);
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, []),
+  );
   return (
     <MainBackground style={styles.mainBackground}>
       {isLoading ? (
         <Loader />
       ) : (
-        <View>
+        <View style={{flex: 1}}>
           <LogoHeader
             onPress={() => navigation.navigate('NotificationScreen')}
           />
           <ScrollView showsVerticalScrollIndicator={false}>
-            <View style={styles.container}>
-              <Spacing height={DimensionConstants.twentyFour} />
-              <CustomCard style={styles.deviceCard}>
-                <View style={styles.deviceHeader}>
-                  <BlackWatchIcon />
-                  <Spacing width={DimensionConstants.thirty} />
-                  <View>
-                    <View style={styles.deviceRow}>
-                      <Text style={styles.deviceName}>
-                        {data?.device?.deviceName}
-                      </Text>
-                      <DownArrowIcon marginLeft={DimensionConstants.twelve} />
-                    </View>
-                    <View style={styles.deviceRow}>
+            {/* <View style={styles.container}> */}
+            <Spacing height={DimensionConstants.twentyFour} />
+            <CustomCard style={styles.deviceCard}>
+              <View style={styles.deviceHeader}>
+                <BlackWatchIcon />
+                <Spacing width={DimensionConstants.thirty} />
+                <View>
+                  <View style={styles.deviceRow}>
+                    <Text style={styles.deviceName}>
+                      {data?.data?.deviceName}
+                    </Text>
+                    <DownArrowIcon marginLeft={DimensionConstants.twelve} />
+                  </View>
+                  {/* <View style={styles.deviceRow}>
                       <Text style={styles.label}>
                         {appStrings?.device?.signal?.text} :
                       </Text>
                       <Text style={[styles.value, {color: theme.primary}]}>
                         Medium
                       </Text>
-                    </View>
-                    <View style={styles.deviceRow}>
-                      <Text style={styles.label}>
-                        {appStrings?.device?.battery?.text} :
-                      </Text>
-                      <Text style={[styles.value, {color: theme.primary}]}>
-                        {data?.device?.batteryPer}%
-                      </Text>
-                    </View>
-                    <CustomButton
-                      text={appStrings?.device?.sync?.text}
-                      color={'#F4D9DC'}
-                      height={DimensionConstants.thirtyFive}
-                      width={DimensionConstants.eighty}
-                      textColor={'#FE605D'}
-                    />
+                    </View> */}
+                  <View style={styles.deviceRow}>
+                    <Text style={styles.label}>
+                      {appStrings?.device?.battery?.text} :
+                    </Text>
+                    <Text style={[styles.value, {color: theme.primary}]}>
+                      {data?.data?.batteryPer}%
+                    </Text>
                   </View>
+                  <CustomButton
+                    text={appStrings?.device?.sync?.text}
+                    color={'#F4D9DC'}
+                    height={DimensionConstants.thirtyFive}
+                    width={DimensionConstants.eighty}
+                    textColor={'#FE605D'}
+                  />
                 </View>
-                <CustomButton text={appStrings?.device?.edit?.text} />
-              </CustomCard>
-              <Spacing height={DimensionConstants.eighteen} />
-              <CustomCard style={styles.featuresCard}>
-                {icons.map((item, index) => (
-                  <View key={index}>
-                    <TouchableOpacity
-                      style={styles.featureRow}
-                      onPress={item.navigation}>
-                      <View style={styles.featureContent}>
-                        {item.component}
-                        <Text style={styles.featureText}>{item.label}</Text>
-                      </View>
-                      <TouchableOpacity onPress={item.navigation}>
-                        <RightArrowIcon color="black" />
-                      </TouchableOpacity>
+              </View>
+              <CustomButton text={appStrings?.device?.edit?.text} />
+            </CustomCard>
+            <Spacing height={DimensionConstants.eighteen} />
+            <CustomCard style={styles.featuresCard}>
+              {icons.map((item, index) => (
+                <View key={index}>
+                  <TouchableOpacity
+                    style={styles.featureRow}
+                    onPress={item.navigation}>
+                    <View style={styles.featureContent}>
+                      {item.component}
+                      <Text style={styles.featureText}>{item.label}</Text>
+                    </View>
+                    <TouchableOpacity onPress={item.navigation}>
+                      <RightArrowIcon color="black" />
                     </TouchableOpacity>
-                    {item?.line !== 'no' && <View style={styles.separator} />}
-                  </View>
-                ))}
-              </CustomCard>
-            </View>
+                  </TouchableOpacity>
+                  {item?.line !== 'no' && <View style={styles.separator} />}
+                </View>
+              ))}
+            </CustomCard>
+            {/* </View> */}
           </ScrollView>
         </View>
       )}

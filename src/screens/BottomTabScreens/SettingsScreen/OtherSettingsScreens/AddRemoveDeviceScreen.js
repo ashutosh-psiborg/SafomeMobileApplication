@@ -47,11 +47,11 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     const getStoredDeviceId = async () => {
       try {
         const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
-        if (storedDeviceId) {
-          setSelectedDeviceId(storedDeviceId);
-        }
+        const storedMongoId = await AsyncStorage.getItem('selectedDeviceMongoId');
+        if (storedDeviceId) setSelectedDeviceId(storedDeviceId);
+        console.log('Stored Mongo _id:', storedMongoId);
       } catch (error) {
-        console.error('Failed to retrieve device ID:', error);
+        console.error('Failed to retrieve stored device data:', error);
       }
     };
 
@@ -147,15 +147,18 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     );
   };
 
-  const handleSelectDevice = async deviceId => {
+  const handleSelectDevice = async (deviceId, mongoId) => {
     setSelectedDeviceId(deviceId);
-    console.log('dee', deviceId);
+    console.log('Selected Device ID:', deviceId);
+    console.log('Selected Mongo _id:', mongoId);
     try {
       await AsyncStorage.setItem('selectedDeviceId', deviceId);
+      await AsyncStorage.setItem('selectedDeviceMongoId', mongoId);
     } catch (error) {
-      console.error('Failed to save device ID:', error);
+      console.error('Failed to save device ID or Mongo ID:', error);
     }
   };
+  
 
   return (
     <MainBackground noPadding style={{backgroundColor: theme.otpBox}}>
@@ -186,14 +189,14 @@ const AddRemoveDeviceScreen = ({navigation}) => {
               {' '}
               Select Device
             </Text>
-            {data?.devices
+            {data?.data?.results
               ?.slice()
               .reverse()
               .map(item => (
                 <TouchableOpacity
                   key={item?.deviceId}
                   activeOpacity={0.7}
-                  onPress={() => handleSelectDevice(item?.deviceId)}>
+                  onPress={() => handleSelectDevice(item?.deviceId, item?._id)}>
                   <CustomCard
                     key={item?.deviceId}
                     style={[

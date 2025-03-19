@@ -196,8 +196,8 @@ const SettingsScreen = ({navigation}) => {
           <View style={styles.profileContainer}>
             <Image source={ImageConstants.avatar} style={styles.profileImage} />
             <Spacing height={DimensionConstants.sixteen} />
-            <Text style={styles.profileName}>{data?.user?.fullName}</Text>
-            <Text style={styles.profileEmail}>{data?.user?.email}</Text>
+            <Text style={styles.profileName}>{data?.data?.user?.fullName}</Text>
+            <Text style={styles.profileEmail}>{data?.data?.user?.email}</Text>
           </View>
 
           <Spacing height={DimensionConstants.twentyFour} />

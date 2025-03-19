@@ -52,7 +52,7 @@ const HomeScreen = ({navigation}) => {
     if (selected?.label === 'Custom') {
       return {
         startDate: moment(selected.startDate).format('DD-MM-YYYY'),
-        endDate: moment(selected.endDate).format('DD-MM-YYYY'),
+        endDate: today,
       };
     }
 
@@ -92,7 +92,7 @@ const HomeScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/fitness-health/${
+        url: `deviceDataResponse/healthData/${
           deviceId || 6907390711
         }?startDate=${startDate}&endDate=${endDate}`,
       }),
@@ -112,7 +112,7 @@ const HomeScreen = ({navigation}) => {
       return response;
     },
     onSuccess: data => {
-      const latestLocation = data?.locations?.[0];
+      const latestLocation = data?.data?.[0];
       if (latestLocation?.latitude && latestLocation?.longitude) {
         const lat = parseFloat(latestLocation?.latitude);
         const long = parseFloat(latestLocation?.longitude);
@@ -127,11 +127,11 @@ const HomeScreen = ({navigation}) => {
     },
   });
 
-  console.log('longitude', locationData?.locations[0]?.longitude);
-  console.log('latitude', locationData?.locations[0]?.latitude);
+  console.log('longitude', locationData?.data[0]?.longitude);
+  console.log('latitude', locationData?.data[0]?.latitude);
 
   useEffect(() => {
-    const latestLocation = locationData?.locations?.[0];
+    const latestLocation = locationData?.data?.[0];
     if (latestLocation?.latitude && latestLocation?.longitude) {
       const lat = parseFloat(latestLocation?.latitude);
       const long = parseFloat(latestLocation?.longitude);
@@ -159,9 +159,9 @@ const HomeScreen = ({navigation}) => {
   }
 
   if (
-    !locationData?.locations ||
-    !Array.isArray(locationData?.locations) ||
-    locationData?.locations?.length === 0
+    !locationData?.data ||
+    !Array.isArray(locationData?.data) ||
+    locationData?.data?.length === 0
   ) {
     return (
       <MainBackground style={{backgroundColor: theme.otpBox}}>
@@ -187,8 +187,7 @@ const HomeScreen = ({navigation}) => {
               style={styles.placeText}
               numberOfLines={1}
               ellipsizeMode="tail">
-              {locationData?.locations?.[0]?.placeName ||
-                'Location not available'}
+              {locationData?.data?.[0]?.placeName || 'Location not available'}
             </Text>
           </View>
           <View style={styles.refreshContainer}>
@@ -218,8 +217,7 @@ const HomeScreen = ({navigation}) => {
                 coordinate={location}
                 title="Your Location"
                 description={
-                  locationData?.locations?.[0]?.placeName ||
-                  'Location not available'
+                  locationData?.data?.[0]?.placeName || 'Location not available'
                 }
               />
             </MapView>
@@ -230,7 +228,7 @@ const HomeScreen = ({navigation}) => {
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader
           title={'Recent Location'}
-          showViewAll={locationData?.locations?.length > 3}
+          showViewAll={locationData?.data?.length > 3}
           onPress={() => setShowAllLocations(prev => !prev)}
           viewAllLabel={showAllLocations ? 'Collapse' : 'View All'}
         />
@@ -238,8 +236,8 @@ const HomeScreen = ({navigation}) => {
 
         <CustomCard>
           {(showAllLocations
-            ? locationData?.locations
-            : locationData?.locations?.slice(0, 3)
+            ? locationData?.data
+            : locationData?.data?.slice(0, 3)
           ).map((item, index, arr) => (
             <View
               key={index}

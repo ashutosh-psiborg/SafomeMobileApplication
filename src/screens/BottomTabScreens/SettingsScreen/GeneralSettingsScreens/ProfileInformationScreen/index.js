@@ -55,13 +55,13 @@ const ProfileInformationScreen = ({navigation}) => {
   useEffect(() => {
     if (data) {
       reset({
-        fullName: data?.user?.fullName || '',
-        phoneNumber: data?.user?.phoneNumber || '',
-        email: data?.user?.email || '',
-        country: data?.user?.countryCode?.split(' (')[0] || '',
-        dateOfBirth: data?.user?.dateOfBirth || '',
-        address: data?.user?.address || '',
-        gender: data?.user?.gender || '',
+        fullName: data?.data?.user?.fullName || '',
+        phoneNumber: data?.data?.user?.phoneNumber || '',
+        email: data?.data?.user?.email || '',
+        country: data?.data?.user?.countryCode?.split(' (')[0] || '',
+        dateOfBirth: data?.data?.user?.dateOfBirth || '',
+        address: data?.data?.user?.address || '',
+        gender: data?.data?.user?.gender || '',
       });
 
       if (data?.user?.profileImage) {

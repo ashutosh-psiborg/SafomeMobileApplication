@@ -151,7 +151,7 @@ const FitnessScreen = ({navigation}) => {
     if (typeof selection === 'object' && selection.label === 'Custom') {
       return {
         startDate: moment(selection.startDate).format('DD-MM-YYYY'),
-        endDate: moment(selection.endDate).format('DD-MM-YYYY'),
+        endDate: today,
       };
     }
 
@@ -187,7 +187,7 @@ const FitnessScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/fitness-health/6907390711?startDate=${startDate}&endDate=${endDate}`,
+        url: `deviceDataResponse/healthData/6907390711?startDate=${startDate}&endDate=${endDate}`,
       }),
   });
 
@@ -203,14 +203,8 @@ const FitnessScreen = ({navigation}) => {
         url: `deviceDataResponse/getStepData/6907390711?startDate=${startDate}&endDate=${endDate}`,
       }),
   });
-
-  const steps =
-    (typeof selected === 'string' && selected === 'Today') ||
-    (typeof selected === 'object' && selected.label === 'Custom')
-      ? stepData?.data?.[0]?.totalSteps || 0
-      : selected === 'Week'
-      ? stepData?.data?.weeklySteps || 0
-      : stepData?.data?.monthlySteps || 0;
+  console.log('+++++++++++', stepData?.data?.totalStepsOverall);
+  const steps = stepData?.data?.totalStepsOverall;
 
   useEffect(() => {
     if (!stepLoading && stepData) {
@@ -236,15 +230,15 @@ const FitnessScreen = ({navigation}) => {
       id: 1,
       component: <CalorieBurnIcon />,
       label: 'Calories',
-      value: stepData?.totalCaloriesBurned,
+      value: stepData?.data?.totalCaloriesBurned,
       maxValue: '',
     },
     {
       id: 2,
       component: <BlueFlagIcon />,
       label: 'Base goal',
-      value: stepData?.totalStepsOverall,
-      maxValue: `/ ${stepData?.baseGoal} steps`,
+      value: stepData?.data?.totalStepsOverall,
+      maxValue: `/ ${stepData?.data?.baseGoal} steps`,
     },
   ];
   console.log(stepData);
@@ -274,10 +268,10 @@ const FitnessScreen = ({navigation}) => {
                 <EditIcon />
               </TouchableOpacity>
             </View>
-            {isStepReady && stepData?.data?.length > 2 ? (
+            {isStepReady && stepData?.data?.data.length > 1 ? (
               <View style={{paddingVertical: 20}}>
                 <BarChart
-                  data={stepData.data.map(item => ({
+                  data={stepData.data.data.map(item => ({
                     value: item.totalSteps,
                     label: `${item.date.split('-')[0]}/${
                       item.date.split('-')[1]

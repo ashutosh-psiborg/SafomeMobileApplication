@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Alert,
   ScrollView,
+  Platform,
 } from 'react-native';
 import React, {useState, useRef} from 'react';
 import MainBackground from '../../../../components/MainBackground';
@@ -157,13 +158,15 @@ const LoginWithMobileScreen = ({navigation}) => {
               text={t('Continue with Google')}
               icon={<GoogleIcon />}
             />
-            {/* <CustomButton
-              textColor={theme.blackText}
-              borderColor={theme.buttonBorder}
-              color={theme.background}
-              text={t('Continue with Apple')}
-              icon={<AppleIcon />}
-            /> */}
+            {Platform.OS === 'ios' ? (
+              <CustomButton
+                textColor={theme.blackText}
+                borderColor={theme.buttonBorder}
+                color={theme.background}
+                text={t('Continue with Apple')}
+                icon={<AppleIcon />}
+              />
+            ) : null}
             <Spacing height={DimensionConstants.twentyFour} />
             <Text style={Styles.terms}>
               By clicking login you agree to recognates{' '}

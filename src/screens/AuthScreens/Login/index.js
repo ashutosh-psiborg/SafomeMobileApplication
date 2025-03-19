@@ -108,8 +108,8 @@ const LoginScreen = ({navigation}) => {
     onSuccess: async response => {
       console.log('✅ Login Success Response:', response);
       try {
-        await AsyncStorage.setItem('authToken', response.token);
-        console.log('Token stored successfully:', response.token);
+        await AsyncStorage.setItem('authToken', response.data.token);
+        console.log('Token stored successfully:', response.data?.token);
         Alert.alert('Success', 'Account login successful!');
         navigation.navigate('AddDeviceScreen');
       } catch (error) {
