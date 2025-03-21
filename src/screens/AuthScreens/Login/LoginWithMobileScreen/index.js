@@ -25,6 +25,7 @@ import CustomHeader from '../../../../components/CustomHeader';
 import CustomModal from '../../../../components/CustomModal';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const LoginWithMobileScreen = ({navigation}) => {
   const {t, i18n} = useTranslation();
@@ -66,8 +67,10 @@ const LoginWithMobileScreen = ({navigation}) => {
         noAuth: true,
       });
     },
-    onSuccess: data => {
+    onSuccess: async data => {
       console.log('Phone verification successful:', data);
+      await AsyncStorage.setItem('authToken', data?.data?.token);
+      console.log('Token stored successfully:', data?.data?.token);
       Alert.alert('Success', 'Phone verified successfully!');
       navigation.replace('AddDeviceScreen');
     },

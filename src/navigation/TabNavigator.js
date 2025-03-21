@@ -18,6 +18,7 @@ import BlueLocationIcon from '../assets/icons/BlueLocationIcon';
 import BlueSaviourIcon from '../assets/icons/BlueSaviourIcon';
 import BlueSettingsIcon from '../assets/icons/BlueSettingsIcon';
 import {DimensionConstants} from '../constants/DimensionConstants';
+import FitnessScreen from '../screens/DeviceScreens/FitnessScreen/index';
 
 export default function TabNavigator() {
   const Tab = createBottomTabNavigator();
@@ -55,11 +56,11 @@ export default function TabNavigator() {
         }}
       />
       <Tab.Screen
-        name="Devices"
-        component={DevicesScreen}
+        name="Health"
+        component={FitnessScreen}
         options={{
           tabBarIcon: ({focused}) =>
-            renderIcon(focused, DevicesIcon, BlueDevicesIcon, 'Devices'),
+            renderIcon(focused, DevicesIcon, BlueDevicesIcon, 'Health'),
         }}
       />
       <Tab.Screen

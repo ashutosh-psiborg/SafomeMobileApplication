@@ -36,14 +36,15 @@ const AddDeviceScreen = ({navigation}) => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: {errors},
   } = useForm({
-    resolver: yupResolver(validationSchema.pick(['deviceName', 'deviceId', 'imei'])),
+    resolver: yupResolver(
+      validationSchema.pick(['deviceName', 'deviceId', 'imei']),
+    ),
     defaultValues: {
-      UID: data?.data?.uid || '',  // Set UID dynamically when available
+      UID: data?.data?.uid || '', // Set UID dynamically when available
     },
   });
-  
 
   const fields = [
     {
@@ -60,14 +61,15 @@ const AddDeviceScreen = ({navigation}) => {
       name: 'imei',
       placeholder: t('IMEI'),
       maxLength: 15,
+      keyboardType: 'phone-pad',
     },
     {
       name: 'deviceId',
       placeholder: t('Device ID'),
       maxLength: 10,
+      keyboardType: 'phone-pad',
     },
   ];
-  
 
   const mutation = useMutation({
     mutationFn: async data => {

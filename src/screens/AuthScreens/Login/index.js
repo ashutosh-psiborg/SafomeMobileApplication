@@ -16,7 +16,7 @@ import GoogleIcon from '../../../assets/icons/GoogleIcon';
 import AppleIcon from '../../../assets/icons/AppleIcon';
 import Spacing from '../../../components/Spacing';
 import {loginStyles} from './Styles/LoginStyles';
-import {useMutation} from '@tanstack/react-query';
+import {useMutation, useQuery} from '@tanstack/react-query';
 import fetcher from '../../../utils/ApiService';
 import {useSelector} from 'react-redux';
 import CustomHeader from '../../../components/CustomHeader';
@@ -36,6 +36,20 @@ const LoginScreen = ({navigation}) => {
       '1025510399527-d5i3ogun0sjubs1qrhqtrvmupk2vqg1b.apps.googleusercontent.com',
     scopes: ['https://www.googleapis.com/auth/drive.readonly'],
   });
+  const {
+    data: uidData,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['uid'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: '/auth/generateUserUId',
+      }),
+  });
+  console.log('uidData', uidData);
   const signIn = async () => {
     try {
       await GoogleSignin.hasPlayServices();
@@ -46,6 +60,7 @@ const LoginScreen = ({navigation}) => {
           fullName: response.data.user.name,
           email: response.data.user.email,
           avatarUrl: response.data.user.photo,
+          uid: uidData?.nextUId,
         };
 
         googleMutation.mutate(googlePayload);
@@ -108,8 +123,8 @@ const LoginScreen = ({navigation}) => {
     onSuccess: async response => {
       console.log('✅ Login Success Response:', response);
       try {
-        await AsyncStorage.setItem('authToken', response.data.token);
-        console.log('Token stored successfully:', response.data?.token);
+        await AsyncStorage.setItem('authToken', response?.data?.token);
+        console.log('Token stored successfully:', response?.data?.token);
         Alert.alert('Success', 'Account login successful!');
         navigation.navigate('AddDeviceScreen');
       } catch (error) {
@@ -134,8 +149,8 @@ const LoginScreen = ({navigation}) => {
     onSuccess: async response => {
       console.log('✅ Login Success Response:', response);
       try {
-        await AsyncStorage.setItem('authToken', response.token);
-        console.log('Token stored successfully:', response.token);
+        await AsyncStorage.setItem('authToken', response?.data?.token);
+        console.log('Token stored successfully:', response?.data?.token);
         Alert.alert('Success', 'google login successful!');
         navigation.navigate('AddDeviceScreen');
       } catch (error) {

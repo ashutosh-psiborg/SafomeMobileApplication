@@ -41,9 +41,9 @@ const DNDScreen = ({navigation}) => {
 
   const timeSections = [
     data?.timeSection1,
-    data?.timeSection2,
-    data?.timeSection3,
-    data?.timeSection4,
+    // data?.timeSection2,
+    // data?.timeSection3,
+    // data?.timeSection4,
   ].map(parseTimeSection);
 
   return (

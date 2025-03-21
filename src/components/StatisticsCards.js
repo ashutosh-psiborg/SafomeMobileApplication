@@ -7,8 +7,9 @@ import {DimensionConstants} from '../constants/DimensionConstants';
 import HeartIcon from '../assets/icons/HeartIcon';
 import BloodOxygenIcon from '../assets/icons/BloodOxygenIcon';
 import BloodPressureIcon from '../assets/icons/BloodPressureIcon';
+import StepsIcon from '../assets/icons/StepsIcon';
 
-const StatisticsCards = ({data, loading}) => {
+const StatisticsCards = ({data, loading , stepData}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -24,7 +25,7 @@ const StatisticsCards = ({data, loading}) => {
   const heartRateHistory = data?.data?.heartRateHistory || [];
   const bpData = data?.data?.bphrt;
   const oxygenData = data?.data?.oxygen;
-console.log('bp',bpData,"oxygenData",oxygenData)
+  console.log('bp', bpData, 'oxygenData', oxygenData);
   // Group heart rate by date
   const groupedByDate = {};
   heartRateHistory.forEach(item => {
@@ -71,14 +72,15 @@ console.log('bp',bpData,"oxygenData",oxygenData)
 
   return (
     <View style={styles.container}>
-      <CustomCard style={styles.fullWidthCard}>
-        <View>
-          <View style={styles.rowContainer}>
-            <HeartIcon size={20} />
-            <Text style={styles.cardTitle}>Heart Rate</Text>
-          </View>
-          <View style={{alignItems: 'center'}}>
-            <LineChart
+      <View style={styles.cardRowContainer}>
+        <CustomCard style={styles.fullWidthCard}>
+          <View>
+            <View style={styles.rowContainer}>
+              <HeartIcon size={20} />
+              <Text style={styles.cardTitle}>Heart Rate</Text>
+            </View>
+            <View style={{alignItems: 'center'}}>
+              {/* <LineChart
               areaChart
               initialSpacing={20}
               data={chartData}
@@ -94,17 +96,34 @@ console.log('bp',bpData,"oxygenData",oxygenData)
               color="#0279E1"
               curved
               startFillColor="#3f9ef1"
-            />
+            /> */}
+            </View>
+
+            <Text style={styles.cardContent}>
+              {latestReading?.heartRate || ''}
+              <Text style={styles.bpmText}> BPM</Text>
+            </Text>
+            {/* <Text style={styles.bpmText}>{latestReading?.date || ''}</Text> */}
           </View>
+        </CustomCard>
+        <CustomCard style={styles.fullWidthCard}>
+          <View>
+            <View style={styles.rowContainer}>
+              <StepsIcon/>
+              <Text style={styles.cardTitle}>Steps</Text>
+            </View>
+            <View style={{alignItems: 'center'}}>
+          
+            </View>
 
-          <Text style={styles.cardContent}>
-            {latestReading?.heartRate || ''}
-            <Text style={styles.bpmText}> BPM</Text>
-          </Text>
-          <Text style={styles.bpmText}>{latestReading?.date || ''}</Text>
-        </View>
-      </CustomCard>
-
+            <Text style={styles.cardContent}>
+              {stepData?.data?.totalStepsOverall}
+              <Text style={styles.bpmText}> Steps</Text>
+            </Text>
+            {/* <Text style={styles.bpmText}>{latestReading?.date || ''}</Text> */}
+          </View>
+        </CustomCard>
+      </View>
       <View style={styles.cardRowContainer}>
         <CustomCard style={{width: '48%'}}>
           <View>
@@ -134,7 +153,6 @@ console.log('bp',bpData,"oxygenData",oxygenData)
   );
 };
 
-
 export default StatisticsCards;
 
 const styles = StyleSheet.create({
@@ -145,7 +163,7 @@ const styles = StyleSheet.create({
     padding: DimensionConstants.three,
   },
   fullWidthCard: {
-    width: '100%',
+    width: '48%',
   },
   cardRowContainer: {
     flexDirection: 'row',

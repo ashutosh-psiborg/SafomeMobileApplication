@@ -10,9 +10,7 @@ import Spacing from '../../../components/Spacing';
 import AddressIcon from '../../../assets/icons/AddressIcon';
 import RefreshIcon from '../../../assets/icons/RefreshIcon';
 import {HomeScreenStyles} from './Styles/HomeScreenStyles';
-import FilterContainer from '../../../components/FilterContainer';
 import StatisticsCards from '../../../components/StatisticsCards';
-import ContactCards from '../../../components/ContactCards';
 import HomeMidHeader from '../../../components/HomeMidHeader';
 import LogoHeader from '../../../components/LogoHeader';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
@@ -23,7 +21,6 @@ import CustomCard from '../../../components/CustomCard';
 import TimeLineIcon from '../../../assets/icons/TimeLineIcon';
 
 const HomeScreen = ({navigation}) => {
-  const [expanded, setExpanded] = useState(false);
   const [selected, setSelected] = useState('Week');
   const [showAllLocations, setShowAllLocations] = useState(false);
 
@@ -46,36 +43,8 @@ const HomeScreen = ({navigation}) => {
       console.error('Error retrieving device ID:', error);
     }
   };
-  const getDateRange = () => {
-    const today = moment().format('DD-MM-YYYY');
-
-    if (selected?.label === 'Custom') {
-      return {
-        startDate: moment(selected.startDate).format('DD-MM-YYYY'),
-        endDate: today,
-      };
-    }
-
-    switch (selected) {
-      case 'Today':
-        return {startDate: today, endDate: today};
-      case 'Week':
-        return {
-          startDate: moment().subtract(7, 'days').format('DD-MM-YYYY'),
-          endDate: today,
-        };
-      case 'Month':
-        return {
-          startDate: moment().subtract(30, 'days').format('DD-MM-YYYY'),
-          endDate: today,
-        };
-      default:
-        return {startDate: today, endDate: today};
-    }
-  };
+ 
   console.log(deviceId);
-  const {startDate, endDate} = getDateRange();
-  console.log(startDate, endDate);
   useFocusEffect(
     useCallback(() => {
       getSelectedDevice();
@@ -92,12 +61,24 @@ const HomeScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/healthData/${
-          deviceId || 6907390711
-        }?startDate=${startDate}&endDate=${endDate}`,
+        url: `deviceDataResponse/healthData/${deviceId || 6907390711}`,
       }),
   });
   console.log('====', fitnessData);
+  const {
+    data: stepData,
+    isLoading: stepLoading,
+    refetch: refetchStepData,
+  } = useQuery({
+    queryKey: ['steps'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `deviceDataResponse/getStepData/6907390711`,
+      }),
+  });
+  console.log('+++++++++++', stepData?.data?.totalStepsOverall);
+
   const {
     data: locationData,
     isLoading: isLocationLoading,
@@ -276,31 +257,11 @@ const HomeScreen = ({navigation}) => {
 
         <Spacing height={DimensionConstants.twentyFour} />
         <HomeMidHeader title="Statistics" showViewAll={false} />
-        <Spacing height={20} />
-        <FilterContainer
-          options={options}
-          selected={selected}
-          onSelect={setSelected}
-          theme={theme}
-        />
 
-        <StatisticsCards data={fitnessData} loading={isFitnessLoading} />
-        {/* <Spacing height={DimensionConstants.twentyFour} /> */}
-        {/* <HomeMidHeader title="Recent Notifications" onPress={() => setExpanded(!expanded)} />
-        <CardStack expanded={expanded} /> */}
-        <Spacing height={DimensionConstants.twentyFour} />
-        <HomeMidHeader
-          title="My Contacts"
-          onPress={() => navigation.navigate('MainApp', {screen: 'Saviours'})}
-        />
-        <Spacing height={DimensionConstants.ten} />
-        <ContactCards
-          familyCardPress={() =>
-            navigation.navigate('FamilyScreen', {type: 'family'})
-          }
-          friendCardPress={() =>
-            navigation.navigate('FamilyScreen', {type: 'friends'})
-          }
+        <StatisticsCards
+          data={fitnessData}
+          loading={isFitnessLoading}
+          stepData={stepData}
         />
       </ScrollView>
     </MainBackground>

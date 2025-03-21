@@ -5,14 +5,14 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import MainBackground from '../../components/MainBackground';
 import LogoHeader from '../../components/LogoHeader';
 import BlackWatchIcon from '../../assets/icons/BlackWatchIcon';
 import CustomCard from '../../components/CustomCard';
 import CustomButton from '../../components/CustomButton';
 import Spacing from '../../components/Spacing';
-import {DimensionConstants} from '../../constants/DimensionConstants';
+import {DimensionConstants, height} from '../../constants/DimensionConstants';
 import DownArrowIcon from '../../assets/icons/DownArrowIcon';
 import {useSelector} from 'react-redux';
 import DeviceCallIcon from '../../assets/icons/DeviceCallIcon';
@@ -20,20 +20,50 @@ import FitnessIcon from '../../assets/icons/FitnessIcon';
 import AppsIcon from '../../assets/icons/AppsIcon';
 import SystemIcon from '../../assets/icons/SystemIcon';
 import {useQuery} from '@tanstack/react-query';
-import RightArrowIcon from '../../assets/icons/RightArrowIcon';
 import fetcher from '../../utils/ApiService';
 import Loader from '../../components/Loader';
 import {useFocusEffect} from '@react-navigation/native';
-import {useCallback} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomModal from '../../components/CustomModal';
+import CommonForm from '../../utils/CommonForm';
+import {useForm} from 'react-hook-form';
+import RightArrowIcon from '../../assets/icons/RightArrowIcon';
 
 const DevicesScreen = ({navigation}) => {
   const [deviceId, setDeviceId] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: ['deviceDetails'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `/devices/deviceDetails/${deviceId || '67db981e5b0168be809f4edd'}`,
+      }),
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [deviceId]),
+  );
+
+  const {
+    control,
+    handleSubmit,
+    formState: {errors},
+    reset,
+  } = useForm({
+    defaultValues: {
+      deviceName: '',
+    },
+  });
+
   const {appStrings} = useSelector(state => state.language);
+
   useEffect(() => {
     const getStoredDeviceId = async () => {
       try {
-        const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
         const storedMongoId = await AsyncStorage.getItem(
           'selectedDeviceMongoId',
         );
@@ -46,12 +76,29 @@ const DevicesScreen = ({navigation}) => {
 
     getStoredDeviceId();
   }, []);
+
+  // Set device name in form when data loads
+  useEffect(() => {
+    if (data?.data?.deviceName) {
+      reset({deviceName: data.data.deviceName});
+    }
+  }, [data, reset]);
+
+  const handleUpdateDevice = async formData => {
+    try {
+      await fetcher({
+        method: 'PATCH',
+        url: `/devices/updateDevice/${deviceId || '67db981e5b0168be809f4edd'}`,
+        data: {deviceName: formData.deviceName},
+      });
+      setModalVisible(false);
+      refetch();
+    } catch (error) {
+      console.error('Error updating device name:', error);
+    }
+  };
+
   const icons = [
-    // {
-    //   component: <DeviceCallIcon />,
-    //   navigation: () => navigation.navigate('CallsScreen'),
-    //   label: 'Calls',
-    // },
     {
       component: <FitnessIcon />,
       label: appStrings?.device?.fitnessHealth?.text,
@@ -68,52 +115,19 @@ const DevicesScreen = ({navigation}) => {
       navigation: () => navigation.navigate('SystemScreen'),
       line: 'no',
     },
-    // {
-    //   component: <FeaturesIcon />,
-    //   navigation: () => navigation.navigate('FeaturesScreens'),
-    //   label: 'Features',
-    //   line: 'no',
-    // },
+  ];
+
+  const fields = [
+    {
+      name: 'deviceName',
+      placeholder: 'Device Name',
+    },
   ];
 
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
-
-  const {data, isLoading, error, refetch} = useQuery({
-    queryKey: ['deviceDetails'],
-    queryFn: () =>
-      fetcher({
-        method: 'GET',
-        url: `/devices/deviceDetails/${deviceId}`,
-      }),
-  });
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, []),
-  );
-
-  const {
-    data: deviceData,
-    isdeviceDataLoading,
-    deviceDataerror,
-    deviceDatarefetch,
-  } = useQuery({
-    queryKey: ['deviceData'],
-    queryFn: () =>
-      fetcher({
-        method: 'GET',
-        url: '/devices/getDevices',
-      }),
-  });
-
-  console.log('+++++++', data.data, error);
-  useFocusEffect(
-    useCallback(() => {
-      refetch();
-    }, []),
-  );
+  console.log('battery', data?.data?.batteryPer);
   return (
     <MainBackground style={styles.mainBackground}>
       {isLoading ? (
@@ -124,7 +138,6 @@ const DevicesScreen = ({navigation}) => {
             onPress={() => navigation.navigate('NotificationScreen')}
           />
           <ScrollView showsVerticalScrollIndicator={false}>
-            {/* <View style={styles.container}> */}
             <Spacing height={DimensionConstants.twentyFour} />
             <CustomCard style={styles.deviceCard}>
               <View style={styles.deviceHeader}>
@@ -133,24 +146,16 @@ const DevicesScreen = ({navigation}) => {
                 <View>
                   <View style={styles.deviceRow}>
                     <Text style={styles.deviceName}>
-                      {data?.data?.deviceName}
+                      {data?.data?.deviceName || 'Device'}
                     </Text>
                     <DownArrowIcon marginLeft={DimensionConstants.twelve} />
                   </View>
-                  {/* <View style={styles.deviceRow}>
-                      <Text style={styles.label}>
-                        {appStrings?.device?.signal?.text} :
-                      </Text>
-                      <Text style={[styles.value, {color: theme.primary}]}>
-                        Medium
-                      </Text>
-                    </View> */}
                   <View style={styles.deviceRow}>
                     <Text style={styles.label}>
                       {appStrings?.device?.battery?.text} :
                     </Text>
                     <Text style={[styles.value, {color: theme.primary}]}>
-                      {data?.data?.batteryPer}%
+                      {data?.data?.batteryPer || 85}%
                     </Text>
                   </View>
                   <CustomButton
@@ -159,10 +164,16 @@ const DevicesScreen = ({navigation}) => {
                     height={DimensionConstants.thirtyFive}
                     width={DimensionConstants.eighty}
                     textColor={'#FE605D'}
+                    onPress={() => {
+                      refetch();
+                    }}
                   />
                 </View>
               </View>
-              <CustomButton text={appStrings?.device?.edit?.text} />
+              <CustomButton
+                text={appStrings?.device?.edit?.text}
+                onPress={() => setModalVisible(true)}
+              />
             </CustomCard>
             <Spacing height={DimensionConstants.eighteen} />
             <CustomCard style={styles.featuresCard}>
@@ -183,10 +194,43 @@ const DevicesScreen = ({navigation}) => {
                 </View>
               ))}
             </CustomCard>
-            {/* </View> */}
           </ScrollView>
         </View>
       )}
+
+      <CustomModal
+        isVisible={modalVisible}
+        modalHeight={height / 3.5}
+        onClose={() => setModalVisible(false)}>
+        <View
+          style={{
+            justifyContent: 'space-between',
+            flex: 1,
+            paddingBottom: DimensionConstants.fifteen,
+          }}>
+          <Text
+            style={{fontSize: DimensionConstants.fourteen, fontWeight: '500'}}>
+            Change the name of your device
+          </Text>
+          <Spacing height={DimensionConstants.ten} />
+          <CommonForm control={control} fields={fields} errors={errors} />
+          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+            <CustomButton
+              text="Cancel"
+              width="48%"
+              color="#fff"
+              textColor="rgba(0, 0, 0, 0.6)"
+              borderColor="rgba(0, 0, 0, 0.3)"
+              onPress={() => setModalVisible(false)}
+            />
+            <CustomButton
+              text="Save"
+              width="48%"
+              onPress={handleSubmit(handleUpdateDevice)}
+            />
+          </View>
+        </View>
+      </CustomModal>
     </MainBackground>
   );
 };

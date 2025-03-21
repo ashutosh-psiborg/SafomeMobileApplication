@@ -41,14 +41,34 @@ import CommonForm from '../../../utils/CommonForm';
 import CustomButton from '../../../components/CustomButton';
 import {useMutation} from '@tanstack/react-query';
 import CustomModal from '../../../components/CustomModal';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const FitnessScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
   const [modalVisible, setModalVisible] = useState(false);
+  const [deviceId, setDeviceId] = useState('');
 
   const [isStepReady, setIsStepReady] = useState(false);
   const [selected, setSelected] = useState('Today');
+
+  useEffect(() => {
+    const getStoredDeviceId = async () => {
+      try {
+        const storedMongoId = await AsyncStorage.getItem(
+          'selectedDeviceMongoId',
+        );
+        setDeviceId(storedMongoId);
+        console.log('Stored Mongo _id:', storedMongoId);
+      } catch (error) {
+        console.error('Failed to retrieve stored device data:', error);
+      }
+    };
+
+    getStoredDeviceId();
+  }, []);
+  // console.log('deviceId::::::::::', deviceId);
   const {
     data: profileData,
     isLoading: profileDataLoading,
@@ -56,9 +76,13 @@ const FitnessScreen = ({navigation}) => {
     refetch: profileRefetch,
   } = useQuery({
     queryKey: ['userProfile'],
-    queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `/devices/deviceDetails/${deviceId || '67db981e5b0168be809f4edd'}`,
+      }),
   });
-
+  // console.log('/==', profileData.data.weight, profileError);
   const {
     control,
     handleSubmit,
@@ -73,25 +97,39 @@ const FitnessScreen = ({navigation}) => {
     },
   });
   useEffect(() => {
-    if (profileData?.user) {
-      setValue('weight', profileData.user.weight?.toString() || '');
-      setValue('stepLength', profileData.user.stepLength?.toString() || '');
-      setValue('speed', profileData.user.speed?.toString() || '');
-      setValue('baseGoal', profileData.user.baseGoal?.toString() || '');
+    if (profileData?.data) {
+      setValue('weight', profileData?.data?.weight || 0);
+      setValue('stepLength', profileData?.data.stepLength || 0);
+      setValue('speed', profileData?.data?.speed || 0);
+      setValue('baseGoal', profileData?.data?.baseGoal || 0);
     }
   }, [profileData, setValue]);
 
-  const userWeight = profileData?.user?.weight;
-  console.log('profile', profileData?.user?.weight);
+  // const userWeight = profileData?.user?.weight;
+  // console.log('profile', profileData?.user?.weight);
 
-  console.log('Weight:', userWeight);
+  // console.log('Weight:', userWeight);
   const maxSteps = 8000;
+  const onSubmit = data => {
+    console.log('before payload:', data);
 
+    const payload = {
+      baseGoal: Number(data?.baseGoal),
+      weight: Number(data?.weight),
+      stepLength: Number(data?.stepLength),
+      speed: Number(data?.speed),
+    };
+
+    console.log('Submitting payload:', payload);
+    updateUserMutation.mutate(payload);
+    refetchStepData();
+    setModalVisible(false);
+  };
   const updateUserMutation = useMutation({
     mutationFn: updatedData =>
       fetcher({
-        method: 'PUT',
-        url: 'auth/updateUser',
+        method: 'PATCH',
+        url: `/devices/updateDevice/${deviceId}`,
         data: updatedData,
       }),
     onSuccess: response => {
@@ -101,17 +139,9 @@ const FitnessScreen = ({navigation}) => {
       setModalVisible(false);
     },
     onError: error => {
-      console.log('Update failed', error);
+      console.log('Update failed', error.message);
     },
   });
-
-  const onSubmit = data => {
-    console.log('Submitting payload:', data);
-    updateUserMutation.mutate(data);
-    refetchStepData();
-
-    setModalVisible(false);
-  };
 
   const options = ['Today', 'Week', 'Month', 'Custom'];
   const fields = [
@@ -138,10 +168,10 @@ const FitnessScreen = ({navigation}) => {
       name: 'speed',
       placeholder: 'Select speed',
       options: [
-        {label: 'Slow Walk (< 3.2 km/h)', value: '2'},
-        {label: 'Moderate Walk (3.2 - 5.5 km/h)', value: '3.5'},
-        {label: 'Fast Walk (5.5 - 8.0 km/h)', value: '5'},
-        {label: 'Running (> 8.0 km/h)', value: '8'},
+        {label: 'Slow Walk (< 3.2 km/h)', value: 2},
+        {label: 'Moderate Walk (3.2 - 5.5 km/h)', value: 3.5},
+        {label: 'Fast Walk (5.5 - 8.0 km/h)', value: 5},
+        {label: 'Running (> 8.0 km/h)', value: 8},
       ],
     },
   ];
