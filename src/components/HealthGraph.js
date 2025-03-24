@@ -15,6 +15,7 @@ const HealthGraph = ({data}) => {
   const dropdownData = [
     {label: 'Heart Rate', value: 'heartRate'},
     {label: 'Blood Pressure', value: 'bloodPressure'},
+    {label: 'Blood Oxygen', value: 'spo2'},
   ];
 
   const heartRateData = useMemo(() => {
@@ -54,86 +55,141 @@ const HealthGraph = ({data}) => {
     );
   }, [data]);
 
-  const renderGraph = () => {
-    if (selectedGraph === 'heartRate') {
-      return heartRateData.length > 0 ? (
-        <>
-          <LineChart
-            data={heartRateData}
-            width={screenWidth / 1.5}
-            spacing={60}
-            thickness={2}
-            color="#FF310C"
-            hideDataPoints={false}
-            curved
-            dataPointsColor="#C70039"
-            yAxisColor="#ccc"
-            xAxisColor="#ccc"
-            noOfSections={6}
-            maxValue={200}
-            areaChart
-            focusEnabled
-            showDataPointLabelOnFocus
-            showTextOnFocus={false}
-            startFillColor="#FF310C"
-            endFillColor="rgba(255,107,107,0)"
-            isAnimated
-            onFocus={item => setFocusedValue(`Heart Rate: ${item?.value} BPM`)}
-          />
-          {focusedValue && <Text style={styles.focusText}>{focusedValue}</Text>}
-        </>
-      ) : (
-        <Text style={styles.noData}>No heart rate data available.</Text>
-      );
-    } else if (selectedGraph === 'bloodPressure') {
-      return systolicData.length > 0 && diastolicData.length > 0 ? (
-        <>
-          <LineChart
-            data={systolicData}
-            data2={diastolicData}
-            width={screenWidth / 1.5}
-            spacing={60}
-            thickness={2}
-            color="#FF310C"
-            color2="#0279E1"
-            hideDataPoints={false}
-            curved
-            dataPointsColor1="red"
-            dataPointsColor2="blue"
-            yAxisColor="#ccc"
-            xAxisColor="#ccc"
-            noOfSections={6}
-            maxValue={300}
-            isAnimated
-            focusEnabled
-            showDataPointLabelOnFocus
-            showTextOnFocus={false}
-            onFocus={(item, index) => {
-              const systolic = systolicData[index]?.value;
-              const diastolic = diastolicData[index]?.value;
+  const spo2Data = useMemo(() => {
+    return (
+      data?.data?.oxSPO2
+        ?.filter(item => parseInt(item?.SPO2Rating) > 0)
+        ?.map(item => ({
+          value: parseInt(item?.SPO2Rating),
+          label: moment(item?.date, 'DD-MM-YYYY HH:mm:ss').format('DD MMM'),
+          labelTextStyle: {color: '#999', fontSize: 10},
+        }))
+        ?.reverse() || []
+    );
+  }, [data]);
 
-              if (item.value === systolic && diastolic !== undefined) {
-                setFocusedValue(
-                  `Systolic: ${systolic} mmHg\nDiastolic: ${diastolic} mmHg`,
-                );
-              } else if (item.value === diastolic && systolic !== undefined) {
-                setFocusedValue(
-                  `Systolic: ${systolic} mmHg\nDiastolic: ${diastolic} mmHg`,
-                );
-              } else {
-                setFocusedValue(`Value: ${item.value}`);
+  const renderGraph = () => {
+    switch (selectedGraph) {
+      case 'heartRate':
+        return heartRateData.length > 0 ? (
+          <>
+            <LineChart
+              data={heartRateData}
+              width={screenWidth / 1.5}
+              spacing={60}
+              thickness={2}
+              color="#FF310C"
+              hideDataPoints={false}
+              curved
+              dataPointsColor="#C70039"
+              yAxisColor="#ccc"
+              xAxisColor="#ccc"
+              noOfSections={6}
+              maxValue={200}
+              areaChart
+              focusEnabled
+              showDataPointLabelOnFocus
+              showTextOnFocus={false}
+              startFillColor="#FF310C"
+              endFillColor="rgba(255,107,107,0)"
+              isAnimated
+              onFocus={item =>
+                setFocusedValue(`Heart Rate: ${item?.value} BPM`)
               }
-            }}
-          />
-          {focusedValue && <Text style={styles.focusText}>{focusedValue}</Text>}
-        </>
-      ) : (
-        <Text style={styles.noData}>No blood pressure data available.</Text>
-      );
+            />
+            {focusedValue && (
+              <Text style={styles.focusText}>{focusedValue}</Text>
+            )}
+          </>
+        ) : (
+          <Text style={styles.noData}>No heart rate data available.</Text>
+        );
+
+      case 'bloodPressure':
+        return systolicData.length > 0 && diastolicData.length > 0 ? (
+          <>
+            <LineChart
+              data={systolicData}
+              data2={diastolicData}
+              width={screenWidth / 1.5}
+              spacing={60}
+              thickness={2}
+              color="#FF310C"
+              color2="#0279E1"
+              hideDataPoints={false}
+              curved
+              dataPointsColor1="red"
+              dataPointsColor2="blue"
+              yAxisColor="#ccc"
+              xAxisColor="#ccc"
+              noOfSections={6}
+              maxValue={300}
+              isAnimated
+              focusEnabled
+              showDataPointLabelOnFocus
+              showTextOnFocus={false}
+              onFocus={(item, index) => {
+                const systolic = systolicData[index]?.value;
+                const diastolic = diastolicData[index]?.value;
+
+                if (item.value === systolic && diastolic !== undefined) {
+                  setFocusedValue(
+                    `Systolic: ${systolic} mmHg\nDiastolic: ${diastolic} mmHg`,
+                  );
+                } else if (item.value === diastolic && systolic !== undefined) {
+                  setFocusedValue(
+                    `Systolic: ${systolic} mmHg\nDiastolic: ${diastolic} mmHg`,
+                  );
+                } else {
+                  setFocusedValue(`Value: ${item.value}`);
+                }
+              }}
+            />
+            {focusedValue && (
+              <Text style={styles.focusText}>{focusedValue}</Text>
+            )}
+          </>
+        ) : (
+          <Text style={styles.noData}>No blood pressure data available.</Text>
+        );
+
+      case 'spo2':
+        return spo2Data.length > 0 ? (
+          <>
+            <LineChart
+              data={spo2Data}
+              width={screenWidth / 1.5}
+              spacing={60}
+              thickness={2}
+              color="#17C964"
+              hideDataPoints={false}
+              curved
+              dataPointsColor="#17C964"
+              yAxisColor="#ccc"
+              xAxisColor="#ccc"
+              noOfSections={4}
+              maxValue={200}
+              areaChart
+              focusEnabled
+              showDataPointLabelOnFocus
+              showTextOnFocus={false}
+              startFillColor="#90EE90"
+              endFillColor="rgba(23,201,100,0)"
+              isAnimated
+              onFocus={item => setFocusedValue(`SPO2: ${item?.value}%`)}
+            />
+            {focusedValue && (
+              <Text style={styles.focusText}>{focusedValue}</Text>
+            )}
+          </>
+        ) : (
+          <Text style={styles.noData}>No SPO2 data available.</Text>
+        );
+
+      default:
+        return null;
     }
-    return null;
   };
-  // Inside HealthGraph Component...
 
   const renderLegend = () => {
     if (selectedGraph === 'bloodPressure') {
@@ -159,7 +215,9 @@ const HealthGraph = ({data}) => {
         <Text style={styles.title}>
           {selectedGraph === 'heartRate'
             ? 'Heart Rate History'
-            : 'Blood Pressure History'}
+            : selectedGraph === 'bloodPressure'
+            ? 'Blood Pressure History'
+            : 'Blood Oxygen (SPO2) History'}
         </Text>
 
         <Dropdown
@@ -177,8 +235,8 @@ const HealthGraph = ({data}) => {
           selectedTextStyle={styles.selectedText}
           itemTextStyle={styles.itemText}
         />
-        {renderLegend()}
 
+        {renderLegend()}
         {renderGraph()}
       </View>
     </CustomCard>
@@ -213,6 +271,7 @@ const styles = StyleSheet.create({
   noData: {
     color: '#888',
     fontStyle: 'italic',
+    textAlign: 'center',
   },
   focusText: {
     marginTop: DimensionConstants.ten,
@@ -234,11 +293,11 @@ const styles = StyleSheet.create({
   legendBox: {
     width: DimensionConstants.twelve,
     height: DimensionConstants.twelve,
-    borderRadius: DimensionConstants.two,
-    marginRight: DimensionConstants.six,
+    borderRadius: 4,
+    marginRight: 6,
   },
   legendLabel: {
-    fontSize: DimensionConstants.twelve,
+    fontSize: DimensionConstants.fourteen,
     color: '#333',
   },
 });
