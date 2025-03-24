@@ -261,7 +261,8 @@ const HomeScreen = ({navigation}) => {
         <StatisticsCards
           data={fitnessData}
           loading={isFitnessLoading}
-          stepData={stepData}
+          stepData={ stepData }
+          navigation={navigation}
         />
       </ScrollView>
     </MainBackground>

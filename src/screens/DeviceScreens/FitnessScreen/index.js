@@ -42,6 +42,7 @@ import CustomButton from '../../../components/CustomButton';
 import {useMutation} from '@tanstack/react-query';
 import CustomModal from '../../../components/CustomModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import HealthGraph from '../../../components/HealthGraph';
 
 const FitnessScreen = ({navigation}) => {
   const theme = useSelector(
@@ -310,11 +311,12 @@ const FitnessScreen = ({navigation}) => {
                   }))}
                   barWidth={24}
                   barBorderRadius={6}
-                  yAxisThickness={0}
+                  yAxisThickness={1} // Show Y-axis
+                  yAxisColor="#333" // Optional: Set axis color
+                  yAxisTextStyle={{color: '#333', fontSize: 10}} // Optional: Label style
                   xAxisLabelTextStyle={{color: '#333', fontSize: 10}}
-                  stepValue={500}
                   maxValue={2000}
-                  noOfSections={4}
+                  noOfSections={5}
                   isAnimated
                 />
               </View>
@@ -436,7 +438,10 @@ const FitnessScreen = ({navigation}) => {
           </CustomCard>
           <Spacing height={DimensionConstants.twentyFour} />
           <HomeMidHeader title={'Statistics'} showViewAll={false} />
-          <StatisticsCards data={data} />
+          <Spacing height={DimensionConstants.ten} />
+
+          {/* <StatisticsCards data={data} /> */}
+          <HealthGraph data={data} />
         </View>
       </ScrollView>
       <View>
