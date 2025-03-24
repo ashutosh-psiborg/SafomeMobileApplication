@@ -17,55 +17,80 @@ const HealthGraph = ({data}) => {
     {label: 'Blood Pressure', value: 'bloodPressure'},
     {label: 'Blood Oxygen', value: 'spo2'},
   ];
+  const isSingleDay = (dataList, dateKey) => {
+    const uniqueDates = new Set(
+      dataList?.map(item =>
+        moment(item[dateKey], 'DD-MM-YYYY HH:mm:ss').format('DD-MM-YYYY'),
+      ),
+    );
+    return uniqueDates.size === 1;
+  };
 
   const heartRateData = useMemo(() => {
-    return (
-      data?.data?.heartRateHistory
-        ?.filter(item => parseInt(item.heartRate) > 1)
-        ?.map(item => ({
-          value: parseInt(item.heartRate),
-          label: moment(item.date, 'DD-MM-YYYY HH:mm:ss').format('DD MMM'),
-          labelTextStyle: {color: '#999', fontSize: 10},
-        }))
-        ?.reverse() || []
-    );
+    const list =
+      data?.data?.heartRateHistory?.filter(
+        item => parseInt(item.heartRate) > 1,
+      ) || [];
+
+    const useTimeLabel = isSingleDay(list, 'date');
+
+    return list
+      .map(item => ({
+        value: parseInt(item.heartRate),
+        label: moment(item.date, 'DD-MM-YYYY HH:mm:ss').format(
+          useTimeLabel ? 'HH:mm' : 'DD MMM',
+        ),
+        labelTextStyle: {color: '#999', fontSize: 10},
+      }))
+      .reverse();
   }, [data]);
 
   const systolicData = useMemo(() => {
-    return (
-      data?.data?.BP?.filter(item => parseInt(item?.systolicBP) > 1)
-        ?.map(item => ({
-          value: parseInt(item?.systolicBP),
-          label: moment(item?.date, 'DD-MM-YYYY HH:mm:ss').format('DD MMM'),
-          labelTextStyle: {color: '#999', fontSize: 10},
-        }))
-        ?.reverse() || []
-    );
+    const list =
+      data?.data?.BP?.filter(item => parseInt(item?.systolicBP) > 1) || [];
+    const useTimeLabel = isSingleDay(list, 'date');
+
+    return list
+      .map(item => ({
+        value: parseInt(item?.systolicBP),
+        label: moment(item?.date, 'DD-MM-YYYY HH:mm:ss').format(
+          useTimeLabel ? 'HH:mm' : 'DD MMM',
+        ),
+        labelTextStyle: {color: '#999', fontSize: 10},
+      }))
+      .reverse();
   }, [data]);
 
   const diastolicData = useMemo(() => {
-    return (
-      data?.data?.BP?.filter(item => parseInt(item?.diastolicBP) > 1)
-        ?.map(item => ({
-          value: parseInt(item?.diastolicBP),
-          label: moment(item?.date, 'DD-MM-YYYY HH:mm:ss').format('DD MMM'),
-          labelTextStyle: {color: '#999', fontSize: 10},
-        }))
-        ?.reverse() || []
-    );
+    const list =
+      data?.data?.BP?.filter(item => parseInt(item?.diastolicBP) > 1) || [];
+    const useTimeLabel = isSingleDay(list, 'date');
+
+    return list
+      .map(item => ({
+        value: parseInt(item?.diastolicBP),
+        label: moment(item?.date, 'DD-MM-YYYY HH:mm:ss').format(
+          useTimeLabel ? 'HH:mm' : 'DD MMM',
+        ),
+        labelTextStyle: {color: '#999', fontSize: 10},
+      }))
+      .reverse();
   }, [data]);
 
   const spo2Data = useMemo(() => {
-    return (
-      data?.data?.oxSPO2
-        ?.filter(item => parseInt(item?.SPO2Rating) > 0)
-        ?.map(item => ({
-          value: parseInt(item?.SPO2Rating),
-          label: moment(item?.date, 'DD-MM-YYYY HH:mm:ss').format('DD MMM'),
-          labelTextStyle: {color: '#999', fontSize: 10},
-        }))
-        ?.reverse() || []
-    );
+    const list =
+      data?.data?.oxSPO2?.filter(item => parseInt(item?.SPO2Rating) > 0) || [];
+    const useTimeLabel = isSingleDay(list, 'date');
+
+    return list
+      .map(item => ({
+        value: parseInt(item?.SPO2Rating),
+        label: moment(item?.date, 'DD-MM-YYYY HH:mm:ss').format(
+          useTimeLabel ? 'HH:mm' : 'DD MMM',
+        ),
+        labelTextStyle: {color: '#999', fontSize: 10},
+      }))
+      .reverse();
   }, [data]);
 
   const renderGraph = () => {
