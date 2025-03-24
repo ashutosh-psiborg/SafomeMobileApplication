@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useRef, useState, useEffect, useCallback} from 'react';
 import {
   View,
   Text,
@@ -12,52 +12,115 @@ import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 import HomeMidHeader from '../../components/HomeMidHeader';
 import SearchContainer from '../../components/SearchContainer';
 import Spacing from '../../components/Spacing';
-import {DimensionConstants, height} from '../../constants/DimensionConstants';
-import {ImageConstants} from '../../constants/ImageConstants';
+import {DimensionConstants} from '../../constants/DimensionConstants';
 import CustomCard from '../../components/CustomCard';
-import BlueGPSIcon from '../../assets/icons/BlueGPSIcon';
-import ContactCards from '../../components/ContactCards';
+import TimeLineIcon from '../../assets/icons/TimeLineIcon';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import MainBackground from '../../components/MainBackground';
+import {useSelector} from 'react-redux';
+import {useFocusEffect} from '@react-navigation/native';
+import {useQuery} from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import fetcher from '../../utils/ApiService';
+import Loader from '../../components/Loader';
+import moment from 'moment';
 
 const LocationScreen = ({navigation}) => {
-  const snapPoints = ['25%', '80%'];
+  const snapPoints = ['25%', '40%'];
   const bottomSheetRef = useRef(null);
-  const data = [
-    {id: 1, image: ImageConstants.avatar, distance: '750 m'},
-    {id: 2, image: ImageConstants.avatar2, distance: '1.2 km'},
-    {id: 3, image: ImageConstants.avatar3, distance: '1.2 km'},
-    {id: 4, image: ImageConstants.avatar2, distance: '1.2 km'},
-    {id: 5, image: ImageConstants.avatar3, distance: '1.2 km'},
-  ];
+  const [deviceId, setDeviceId] = useState('');
+  const [location, setLocation] = useState(null);
+  const locationRef = useRef(null);
+  const [mapKey, setMapKey] = useState(0);
+  const theme = useSelector(
+    state => state.theme.themes[state.theme.currentTheme],
+  );
 
-  const contactData = [
-    {heading: 'Ajay Singh', subHeading: '1.5 km away'},
-    {heading: 'Ramesh Kumar', subHeading: '2.0 km away'},
-    {heading: 'Ramesh Kumar', subHeading: '2.0 km away'},
-  ];
+  const getSelectedDevice = async () => {
+    try {
+      const deviceId = await AsyncStorage.getItem('selectedDeviceId');
+      setDeviceId(deviceId);
+    } catch (error) {
+      console.error('Error retrieving device ID:', error);
+    }
+  };
+  useFocusEffect(
+    useCallback(() => {
+      getSelectedDevice();
+      refetchLocation();
+    }, []),
+  );
+
+  const {
+    data: locationData,
+    isLoading: isLocationLoading,
+    refetch: refetchLocation,
+  } = useQuery({
+    queryKey: ['location'],
+    queryFn: async () => {
+      const response = await fetcher({
+        method: 'GET',
+        url: `deviceDataResponse/locations/${deviceId || 6907390711}`,
+      });
+      return response;
+    },
+    onSuccess: data => {
+      const latestLocation = data?.data?.[0];
+      if (latestLocation?.latitude && latestLocation?.longitude) {
+        const lat = parseFloat(latestLocation?.latitude);
+        const long = parseFloat(latestLocation?.longitude);
+        if (!isNaN(lat) && !isNaN(long)) {
+          const newLocation = {latitude: lat, longitude: long};
+          locationRef.current = newLocation;
+          setLocation(newLocation);
+          setMapKey(prevKey => prevKey + 1); // Force map re-render
+        }
+      }
+    },
+  });
+
+  useEffect(() => {
+    const latestLocation = locationData?.data?.[0];
+    if (latestLocation?.latitude && latestLocation?.longitude) {
+      const lat = parseFloat(latestLocation?.latitude);
+      const long = parseFloat(latestLocation?.longitude);
+      if (!isNaN(lat) && !isNaN(long)) {
+        const newLocation = {latitude: lat, longitude: long};
+        locationRef.current = newLocation;
+        setLocation(newLocation);
+        setMapKey(prevKey => prevKey + 1);
+      }
+    }
+  }, [locationData]);
 
   return (
     <MainBackground noPadding>
       <GestureHandlerRootView>
         <View style={styles.container}>
-          <MapView
-            style={styles.map}
-            initialRegion={{
-              latitude: 28.50704765,
-              longitude: 77.40246858,
-              latitudeDelta: 0.002,
-              longitudeDelta: 0.002,
-            }}>
-            <Marker
-              coordinate={{latitude: 28.50703231, longitude: 77.40216977}}
-              title="Your Location"
-            />
-          </MapView>
-
-          <View style={styles.searchContainerWrapper}>
-            <SearchContainer />
-          </View>
+          {isLocationLoading ? (
+            <Loader />
+          ) : (
+            <MapView
+              key={mapKey}
+              style={styles.map}
+              initialRegion={{
+                latitude: location?.latitude || 28.50704765,
+                longitude: location?.longitude || 77.40246858,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+              }}>
+              {location && (
+                <Marker
+                  coordinate={location}
+                  title="Your Location"
+                  description={
+                    locationData?.data?.[0]?.placeName ||
+                    'Location not available'
+                  }
+                />
+              )}
+            </MapView>
+          )}
 
           <BottomSheet
             ref={bottomSheetRef}
@@ -71,59 +134,42 @@ const LocationScreen = ({navigation}) => {
             handleIndicatorStyle={styles.handle}>
             <BottomSheetView>
               <ScrollView contentContainerStyle={styles.sheetContent}>
-                <Text style={styles.title}>Nearby</Text>
-                <Spacing height={DimensionConstants.sixteen} />
-                <View style={styles.rowContainer}>
-                  {data.map(item => (
-                    <View key={item.id} style={{alignItems: 'center'}}>
-                      <Image source={item.image} style={styles.image} />
-                      <Text style={styles.distanceText}>{item.distance}</Text>
-                    </View>
-                  ))}
-                </View>
-
-                <Spacing height={DimensionConstants.twentyFour} />
-                <HomeMidHeader
-                  title="My Contacts"
-                  onPress={() =>
-                    navigation.navigate('MainApp', {screen: 'Saviours'})
-                  }
-                />
-                <Spacing height={DimensionConstants.sixteen} />
-                {contactData.map((item, index) => (
-                  <CustomCard key={index} style={styles.contactCard}>
-                    <View style={styles.contactInfo}>
-                      <Image
-                        source={ImageConstants.girlImage}
-                        style={styles.contactImage}
-                      />
-                      <View style={styles.textContainer}>
-                        <Text style={styles.heading}>{item?.heading}</Text>
-                        <Text style={styles.subHeading}>
-                          {item?.subHeading}
+                <HomeMidHeader title="Recent Location" showViewAll={false} />
+                <Spacing height={DimensionConstants.ten} />
+                <CustomCard>
+                  {locationData?.data?.map((item, index, arr) => (
+                    <View
+                      key={index}
+                      style={{flexDirection: 'row', alignItems: 'flex-start'}}>
+                      <View style={{width: 20, alignItems: 'center'}}>
+                        <TimeLineIcon />
+                        {index !== arr.length - 1 && (
+                          <View
+                            style={{
+                              width: 1,
+                              flex: 1,
+                              backgroundColor: 'transparent',
+                              borderLeftWidth: 1,
+                              borderLeftColor: '#FF310C',
+                              borderStyle: 'dashed',
+                              marginTop: 2,
+                            }}
+                          />
+                        )}
+                      </View>
+                      <View style={{marginLeft: 10, paddingBottom: 20}}>
+                        <Text style={{fontWeight: 'bold'}}>
+                          {moment(item?.createdAt).format('D MMMM YYYY')}
                         </Text>
+
+                        <Text style={{color: '#666'}}>
+                          {moment(item?.createdAt).format('hh:mm A')}
+                        </Text>
+                        <Text style={{marginTop: 4}}>{item?.placeName}</Text>
                       </View>
                     </View>
-                    <BlueGPSIcon />
-                  </CustomCard>
-                ))}
-
-                <Spacing height={DimensionConstants.twentyFour} />
-                <HomeMidHeader
-                  title="My Communities"
-                  onPress={() =>
-                    navigation.navigate('MainApp', {screen: 'Saviours'})
-                  }
-                />
-                <Spacing height={DimensionConstants.sixteen} />
-                <ContactCards
-                  familyCardPress={() =>
-                    navigation.navigate('FamilyScreen', {type: 'family'})
-                  }
-                  friendCardPress={() =>
-                    navigation.navigate('FamilyScreen', {type: 'friends'})
-                  }
-                />
+                  ))}
+                </CustomCard>
               </ScrollView>
             </BottomSheetView>
           </BottomSheet>
@@ -147,7 +193,6 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   bottomSheet: {
-    // flex: 1,
     backgroundColor: '#F2F7FC',
     borderTopLeftRadius: DimensionConstants.twenty,
     borderTopRightRadius: DimensionConstants.twenty,
@@ -161,32 +206,7 @@ const styles = StyleSheet.create({
   },
   sheetContent: {
     padding: DimensionConstants.twenty,
-    // flex: 1,
-    // backgroundColor :'red'
   },
-  title: {fontSize: DimensionConstants.fourteen, fontWeight: '600'},
-  image: {height: DimensionConstants.fifty, width: DimensionConstants.fifty},
-  distanceText: {
-    fontSize: DimensionConstants.twelve,
-    color: '#8B8B8B',
-    fontWeight: '500',
-  },
-  rowContainer: {flexDirection: 'row', justifyContent: 'space-between'},
-  contactCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: DimensionConstants.ten,
-  },
-  contactInfo: {flexDirection: 'row', alignItems: 'center'},
-  contactImage: {
-    height: DimensionConstants.fifty,
-    width: DimensionConstants.fifty,
-    borderRadius: DimensionConstants.twentyFive,
-  },
-  textContainer: {marginLeft: DimensionConstants.ten},
-  heading: {fontSize: DimensionConstants.fourteen, fontWeight: '600'},
-  subHeading: {fontSize: DimensionConstants.twelve, color: '#8B8B8B'},
 });
 
 export default LocationScreen;
