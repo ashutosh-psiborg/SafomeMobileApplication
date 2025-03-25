@@ -90,18 +90,18 @@ const FeaturesScreens = ({navigation}) => {
         <CustomCard style={styles.featuresCard}>
           {icons.map((item, index) => (
             <View key={index}>
-              <View style={styles.featureRow}>
+              <TouchableOpacity
+                onPress={item.navigation}
+                style={styles.featureRow}>
                 <View style={styles.featureContent}>
                   {item.component}
                   <Text style={styles.featureText}>{item.label}</Text>
                 </View>
-                <TouchableOpacity onPress={item.navigation}>
-                  <RightArrowIcon
-                    color="black"
-                    marginRight={DimensionConstants.twenty}
-                  />
-                </TouchableOpacity>
-              </View>
+                <RightArrowIcon
+                  color="black"
+                  marginRight={DimensionConstants.twenty}
+                />
+              </TouchableOpacity>
               {item?.line !== 'no' && <View style={styles.separator} />}
             </View>
           ))}

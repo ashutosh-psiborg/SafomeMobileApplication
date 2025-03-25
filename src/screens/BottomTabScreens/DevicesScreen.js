@@ -28,7 +28,7 @@ import CustomModal from '../../components/CustomModal';
 import CommonForm from '../../utils/CommonForm';
 import {useForm} from 'react-hook-form';
 import RightArrowIcon from '../../assets/icons/RightArrowIcon';
-
+import FeaturesIcon from '../../assets/icons/FeaturesIcon';
 const DevicesScreen = ({navigation}) => {
   const [deviceId, setDeviceId] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -100,11 +100,6 @@ const DevicesScreen = ({navigation}) => {
 
   const icons = [
     {
-      component: <FitnessIcon />,
-      label: appStrings?.device?.fitnessHealth?.text,
-      navigation: () => navigation.navigate('FitnessScreen'),
-    },
-    {
       component: <AppsIcon />,
       label: appStrings?.device?.apps?.text,
       navigation: () => navigation.navigate('AppScreen'),
@@ -113,6 +108,11 @@ const DevicesScreen = ({navigation}) => {
       component: <SystemIcon />,
       label: appStrings?.device?.system?.text,
       navigation: () => navigation.navigate('SystemScreen'),
+    },
+    {
+      component: <FeaturesIcon />,
+      label: 'Features',
+      navigation: () => navigation.navigate('FeaturesScreens'),
       line: 'no',
     },
   ];

@@ -3,7 +3,6 @@ import {
   View,
   Text,
   StyleSheet,
-  Image,
   Platform,
   ScrollView,
   TouchableOpacity,
@@ -11,7 +10,6 @@ import {
 import MapView, {Marker, Polyline} from 'react-native-maps';
 import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 import HomeMidHeader from '../../components/HomeMidHeader';
-import SearchContainer from '../../components/SearchContainer';
 import Spacing from '../../components/Spacing';
 import {DimensionConstants} from '../../constants/DimensionConstants';
 import CustomCard from '../../components/CustomCard';
