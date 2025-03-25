@@ -6,8 +6,9 @@ import {
   Image,
   Platform,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
-import MapView, {Marker} from 'react-native-maps';
+import MapView, {Marker, Polyline} from 'react-native-maps';
 import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
 import HomeMidHeader from '../../components/HomeMidHeader';
 import SearchContainer from '../../components/SearchContainer';
@@ -60,7 +61,9 @@ const LocationScreen = ({navigation}) => {
     queryFn: async () => {
       const response = await fetcher({
         method: 'GET',
-        url: `deviceDataResponse/locations/${deviceId || 6907390711}`,
+        url: `deviceDataResponse/locations/${
+          deviceId || 6907390711
+        }?page=1&limit=300&startDate=24-03-2025&endDate=25-03-2025`,
       });
       return response;
     },
@@ -73,14 +76,14 @@ const LocationScreen = ({navigation}) => {
           const newLocation = {latitude: lat, longitude: long};
           locationRef.current = newLocation;
           setLocation(newLocation);
-          setMapKey(prevKey => prevKey + 1); // Force map re-render
+          setMapKey(prevKey => prevKey + 1);
         }
       }
     },
   });
 
   useEffect(() => {
-    const latestLocation = locationData?.data?.[0];
+    const latestLocation = locationData?.data?.results?.[0];
     if (latestLocation?.latitude && latestLocation?.longitude) {
       const lat = parseFloat(latestLocation?.latitude);
       const long = parseFloat(latestLocation?.longitude);
@@ -92,7 +95,21 @@ const LocationScreen = ({navigation}) => {
       }
     }
   }, [locationData]);
+  const mapRef = useRef(null); // Reference for MapView
 
+  const focusOnLocation = (latitude, longitude) => {
+    if (mapRef.current && latitude && longitude) {
+      mapRef.current.animateToRegion(
+        {
+          latitude,
+          longitude,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        },
+        1000, // Animation duration
+      );
+    }
+  };
   return (
     <MainBackground noPadding>
       <GestureHandlerRootView>
@@ -101,6 +118,7 @@ const LocationScreen = ({navigation}) => {
             <Loader />
           ) : (
             <MapView
+              ref={mapRef} // Assign the ref
               key={mapKey}
               style={styles.map}
               initialRegion={{
@@ -109,14 +127,33 @@ const LocationScreen = ({navigation}) => {
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }}>
-              {location && (
-                <Marker
-                  coordinate={location}
-                  title="Your Location"
-                  description={
-                    locationData?.data?.[0]?.placeName ||
-                    'Location not available'
-                  }
+              {locationData?.data?.results?.map((item, index) => {
+                const lat = parseFloat(item.latitude);
+                const long = parseFloat(item.longitude);
+                return !isNaN(lat) && !isNaN(long) ? (
+                  <Marker
+                    key={item._id || index}
+                    coordinate={{latitude: lat, longitude: long}}
+                    title={`Location ${index + 1}`}
+                    description={item.placeName || 'Location not available'}
+                  />
+                ) : null;
+              })}
+
+              {locationData?.data?.results?.length > 1 && (
+                <Polyline
+                  coordinates={locationData.data.results
+                    ?.map(item => ({
+                      latitude: parseFloat(item.latitude),
+                      longitude: parseFloat(item.longitude),
+                    }))
+                    .filter(
+                      coord =>
+                        !isNaN(coord.latitude) && !isNaN(coord.longitude),
+                    )}
+                  strokeColor="#FF0000"
+                  strokeWidth={3}
+                  lineDashPattern={[5, 5]}
                 />
               )}
             </MapView>
@@ -137,9 +174,15 @@ const LocationScreen = ({navigation}) => {
                 <HomeMidHeader title="Recent Location" showViewAll={false} />
                 <Spacing height={DimensionConstants.ten} />
                 <CustomCard>
-                  {locationData?.data?.map((item, index, arr) => (
-                    <View
+                  {locationData?.data?.results?.map((item, index, arr) => (
+                    <TouchableOpacity
                       key={index}
+                      onPress={() =>
+                        focusOnLocation(
+                          parseFloat(item.latitude),
+                          parseFloat(item.longitude),
+                        )
+                      }
                       style={{flexDirection: 'row', alignItems: 'flex-start'}}>
                       <View style={{width: 20, alignItems: 'center'}}>
                         <TimeLineIcon />
@@ -161,13 +204,12 @@ const LocationScreen = ({navigation}) => {
                         <Text style={{fontWeight: 'bold'}}>
                           {moment(item?.createdAt).format('D MMMM YYYY')}
                         </Text>
-
                         <Text style={{color: '#666'}}>
                           {moment(item?.createdAt).format('hh:mm A')}
                         </Text>
                         <Text style={{marginTop: 4}}>{item?.placeName}</Text>
                       </View>
-                    </View>
+                    </TouchableOpacity>
                   ))}
                 </CustomCard>
               </ScrollView>

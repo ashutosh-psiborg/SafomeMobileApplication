@@ -123,7 +123,7 @@ const HomeScreen = ({navigation}) => {
   });
 
   useEffect(() => {
-    const latestLocation = locationData?.data?.[0];
+    const latestLocation = locationData?.data?.results?.[0];
     if (latestLocation?.latitude && latestLocation?.longitude) {
       const lat = parseFloat(latestLocation?.latitude);
       const long = parseFloat(latestLocation?.longitude);
@@ -159,7 +159,7 @@ const HomeScreen = ({navigation}) => {
 
   useEffect(() => {
     if (location && locationData?.data) {
-      const insideFence = locationData.data.find(item =>
+      const insideFence = locationData.data.results.find(item =>
         isWithinGeofence(
           location.latitude,
           location.longitude,
@@ -191,9 +191,9 @@ const HomeScreen = ({navigation}) => {
   }
 
   if (
-    !locationData?.data ||
-    !Array.isArray(locationData?.data) ||
-    locationData?.data?.length === 0
+    !locationData?.data.results ||
+    !Array.isArray(locationData?.data.results) ||
+    locationData?.data?.results?.length === 0
   ) {
     return (
       <MainBackground style={{backgroundColor: theme.otpBox}}>
@@ -219,7 +219,7 @@ const HomeScreen = ({navigation}) => {
               style={styles.placeText}
               numberOfLines={1}
               ellipsizeMode="tail">
-              {locationData?.data?.[0]?.placeName || 'Location not available'}
+              {locationData?.data?.results?.[0]?.placeName || 'Location not available'}
             </Text>
           </View>
           <View style={styles.refreshContainer}>
@@ -259,7 +259,7 @@ const HomeScreen = ({navigation}) => {
               }}
               clusterColor="#FFB6B6"
               animationEnabled>
-              {locationData?.data?.map((item, index) => {
+              {locationData?.data?.results?.map((item, index) => {
                 const lat = parseFloat(item.latitude);
                 const long = parseFloat(item.longitude);
                 if (!isNaN(lat) && !isNaN(long)) {
@@ -322,8 +322,8 @@ const HomeScreen = ({navigation}) => {
 
         <CustomCard>
           {(showAllLocations
-            ? locationData?.data
-            : locationData?.data?.slice(0, 3)
+            ? locationData?.data.results
+            : locationData?.data?.results?.slice(0, 3)
           ).map((item, index, arr) => (
             <View
               key={index}
