@@ -54,7 +54,7 @@ const FeaturesScreens = ({navigation}) => {
     {
       component: <FindDeviceIcon />,
       label: 'Find device',
-      // navigation: () => navigation.navigate('WifiSettingsScreen'),
+      navigation: () => navigation.navigate('FindDevice'),
     },
     {
       component: <SmsIcon />,

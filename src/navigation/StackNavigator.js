@@ -46,6 +46,7 @@ import FeaturesScreens from '../screens/DeviceScreens/FeaturesScreens/index';
 import NotificationScreen from '../screens/NotificationScreen/index';
 import CallsScreen from '../screens/DeviceScreens/CallsScreen/index';
 import SetDndScreen from '../screens/DeviceScreens/SystemScreen/DNDScreen/SetDndScreen';
+import FindDevice from '../screens/DeviceScreens/FeaturesScreens/More/FindDevice';
 
 const Stack = createNativeStackNavigator();
 
@@ -298,10 +299,15 @@ const StackNavigator = () => {
         name="CallsScreen"
         component={CallsScreen}
       />
-       <Stack.Screen
+      <Stack.Screen
         options={{headerShown: false}}
         name="SetDndScreen"
         component={SetDndScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="FindDevice"
+        component={FindDevice}
       />
     </Stack.Navigator>
   );
