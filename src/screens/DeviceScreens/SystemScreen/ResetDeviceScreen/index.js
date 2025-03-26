@@ -19,7 +19,7 @@ const ResetDeviceScreen = ({navigation}) => {
       return fetcher({
         method: 'POST',
         url: 'deviceDataResponse/sendEvent/6907390711',
-        data: {data: '[RESET]'},
+        data: {data: '[FACTORY]'},
       });
     },
     onSuccess: data => {
