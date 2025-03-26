@@ -6,8 +6,25 @@ import CustomHeader from '../../../../../components/CustomHeader';
 import MainBackground from '../../../../../components/MainBackground';
 import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import CustomButton from '../../../../../components/CustomButton';
-
+import {useMutation, useQuery} from '@tanstack/react-query';
+import fetcher from '../../../../../utils/ApiService';
 export default function FindDevice({navigation}) {
+  const findMutation = useMutation({
+    mutationFn: async requestData => {
+      return fetcher({
+        method: 'POST',
+        url: 'deviceDataResponse/sendEvent/6907390711',
+        data: {data: '[FIND]'},
+      });
+    },
+    onSuccess: () => {
+      console.log('Device found');
+    },
+    onError: error => {
+      console.error('request failed', error);
+    },
+  });
+
   return (
     <MainBackground noPadding style={styles.mainBackground}>
       <CustomHeader
@@ -37,7 +54,7 @@ export default function FindDevice({navigation}) {
               {padding: DimensionConstants.fifteen},
             ]}>{`• Press "Find device" to activate sound on device \n• Device will play a sound`}</Text>
         </View>
-        <CustomButton text="Play Sound" />
+        <CustomButton text="Play Sound" onPress={() => findMutation.mutate()} />
       </View>
     </MainBackground>
   );
