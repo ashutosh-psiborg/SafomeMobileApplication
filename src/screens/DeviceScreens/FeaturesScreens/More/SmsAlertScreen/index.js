@@ -8,7 +8,7 @@ import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import Spacing from '../../../../../components/Spacing';
 import fetcher from '../../../../../utils/ApiService';
 
-const FallBackAlert = () => {
+const SmsAlertScreen = () => {
   const [switches, setSwitches] = useState({
     fallAlert: false,
     emergencyCall: false,
@@ -19,18 +19,31 @@ const FallBackAlert = () => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: 'deviceDataResponse/getEvent/FALLDOWN/6907390711',
+        url: '/deviceDataResponse/getEvent/SOSSMS/6907390711',
+      }),
+  });
+  const {
+    data: lowBattery,
+    isLoading: lowBatteryloading,
+    error: lowBatteryError,
+    refetch: lowBatteryRefetch,
+  } = useQuery({
+    queryKey: ['lowBatteryStatus'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: '/deviceDataResponse/getEvent/LOWBAT/6907390711',
       }),
   });
 
   useEffect(() => {
-    if (data?.data?.response) {
+    if (data?.data?.response || lowBattery?.data?.response) {
       setSwitches({
-        fallAlert: data.data.response.alarm === '1',
-        emergencyCall: data.data.response.call === '1',
+        fallAlert: lowBattery?.data?.response?.lowBatteryAlarmSms === '1',
+        emergencyCall: data?.data?.response?.sosSms === '1',
       });
     }
-  }, [data]);
+  }, [data, lowBattery]);
 
   const mutation = useMutation({
     mutationFn: async requestData => {
@@ -43,6 +56,7 @@ const FallBackAlert = () => {
     onSuccess: () => {
       Alert.alert('Success', 'Settings updated successfully');
       refetch();
+      lowBatteryRefetch();
     },
     onError: error => {
       console.error('Error updating settings', error);
@@ -54,8 +68,8 @@ const FallBackAlert = () => {
     setSwitches(prev => ({...prev, [key]: newState}));
 
     const commandMap = {
-      fallAlert: newState ? '[FALLDOWN,1,0]' : '[FALLDOWN,0,0]',
-      emergencyCall: newState ? '[FALLDOWN,1,1]' : '[FALLDOWN,1,0]',
+      fallAlert: newState ? '[LOWBAT,1]' : '[LOWBAT,0]',
+      emergencyCall: newState ? '[SOSSMS,1]' : '[SOSSMS,0]',
     };
 
     mutation.mutate(commandMap[key]);
@@ -64,21 +78,19 @@ const FallBackAlert = () => {
   const info = [
     {
       key: 'fallAlert',
-      title: 'Fall Alert',
-      description:
-        'Notifies the app when a fall is detected for immediate assistance.',
+      title: 'Low battery Alert',
+      description: `Notifies the user when the device's battery level is critically low`,
     },
     {
       key: 'emergencyCall',
-      title: 'Emergency Fall Call',
-      description:
-        'Automatically calls a registered contact in case of a detected fall.',
+      title: 'SOS Alert',
+      description: 'Sends an emergency message when the SOS button is pressed.',
     },
   ];
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
       <CustomHeader
-        title={'Fall Alert'}
+        title={'SMS Alert'}
         backgroundColor={'#FFFFFF'}
         backPress={() => navigation.goBack()}
       />
@@ -99,4 +111,4 @@ const FallBackAlert = () => {
   );
 };
 
-export default FallBackAlert;
+export default SmsAlertScreen;

@@ -65,12 +65,12 @@ const FeaturesScreens = ({navigation}) => {
     {
       component: <SmsIcon />,
       label: 'SMS alerts',
-      // navigation: () => navigation.navigate('DNDScreen'),
+      navigation: () => navigation.navigate('SmsAlertScreen'),
     },
     {
       component: <ProfileNotificationIcon />,
       label: 'Reminders',
-      // navigation: () => navigation.navigate('ScheduleRestartScreen'),
+      navigation: () => navigation.navigate('RemindersScreen'),
     },
     {
       component: <SimIcon />,

@@ -49,6 +49,8 @@ import SetDndScreen from '../screens/DeviceScreens/SystemScreen/DNDScreen/SetDnd
 import FindDevice from '../screens/DeviceScreens/FeaturesScreens/More/FindDevice';
 import RejectCallScreen from '../screens/DeviceScreens/FeaturesScreens/More/RejectCallScreen/index';
 import FallBackAlert from '../screens/DeviceScreens/FeaturesScreens/More/FallBackAlert/index';
+import RemindersScreen from '../screens/DeviceScreens/FeaturesScreens/More/RemindersScreen/index';
+import SmsAlertScreen from '../screens/DeviceScreens/FeaturesScreens/More/SmsAlertScreen/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -320,6 +322,16 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="FallBackAlert"
         component={FallBackAlert}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="RemindersScreen"
+        component={RemindersScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="SmsAlertScreen"
+        component={SmsAlertScreen}
       />
     </Stack.Navigator>
   );
