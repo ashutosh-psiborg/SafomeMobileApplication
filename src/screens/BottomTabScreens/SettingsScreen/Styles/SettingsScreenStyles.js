@@ -1,4 +1,4 @@
-import { DimensionConstants } from '../../../../constants/DimensionConstants';
+import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import {StyleSheet} from 'react-native';
 
 export const SettingsScreenStyles = theme =>
@@ -9,23 +9,71 @@ export const SettingsScreenStyles = theme =>
     container: {
       padding: DimensionConstants.sixteen,
     },
-    profileContainer: {
+    searchContainer: {
+      flexDirection: 'row',
       alignItems: 'center',
+      padding: DimensionConstants.eight,
+      backgroundColor: 'rgba(0, 0, 0, 0.1)',
+      borderRadius: DimensionConstants.twelve,
+    },
+    searchIcon: {
+      marginRight: DimensionConstants.eight,
+    },
+    searchInput: {
+      flex: 1,
+      fontSize: DimensionConstants.fourteen,
+      color: theme.text,
+      height: DimensionConstants.forty,
+    },
+    clearIcon: {
+      padding: DimensionConstants.four,
+    },
+    profileContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: DimensionConstants.sixteen,
+      backgroundColor: theme.cardBackground || '#fff',
+      borderRadius: DimensionConstants.twelve,
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 4,
+      elevation: 3,
+    },
+    profileImageContainer: {
+      marginRight: DimensionConstants.nineteen,
+      borderRadius: '100%',
+      overflow: 'hidden',
+      borderWidth: 2,
+      borderColor: theme.primary || '#eee',
     },
     profileImage: {
-      height: DimensionConstants.oneHundred,
-      width: DimensionConstants.oneHundred,
+      height: DimensionConstants.sixty,
+      width: DimensionConstants.sixty,
+    },
+    profileInfo: {
+      flex: 1,
+      justifyContent: 'center',
     },
     profileName: {
-      lineHeight: DimensionConstants.twentyTwo,
       fontSize: DimensionConstants.twenty,
-      fontWeight: '600',
+      fontWeight: '700',
+      color: theme.text || '#000',
+      lineHeight: DimensionConstants.twentyFour,
+      marginBottom: DimensionConstants.four,
     },
     profileEmail: {
       fontSize: DimensionConstants.fourteen,
-      fontWeight: '500',
-      color: 'rgba(0, 0, 0, 0.6)',
-      lineHeight: DimensionConstants.twentyTwo,
+      fontWeight: '400',
+      color: theme.darkGrey || 'rgba(0, 0, 0, 0.6)',
+      lineHeight: DimensionConstants.eighteen,
+    },
+    editButton: {
+      padding: DimensionConstants.eight,
+      marginLeft: DimensionConstants.ten,
     },
     subscriptionContainer: {
       position: 'relative',

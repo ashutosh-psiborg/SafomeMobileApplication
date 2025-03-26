@@ -76,7 +76,7 @@ export default function TabNavigator() {
         component={DevicesScreen}
         options={{
           tabBarIcon: ({focused}) =>
-            renderIcon(focused, SavioursIcon, BlueSaviourIcon, 'Saviours'),
+            renderIcon(focused, SavioursIcon, BlueSaviourIcon, 'Device'),
         }}
       />
       <Tab.Screen

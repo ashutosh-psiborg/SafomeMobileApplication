@@ -1,21 +1,35 @@
-import React, {useState, useEffect} from 'react';
+import React, {useMemo} from 'react';
 import {View, TextInput, StyleSheet} from 'react-native';
 import CustomCard from './CustomCard';
 import SearchIcon from '../assets/icons/SearchIcon';
 import {DimensionConstants} from '../constants/DimensionConstants';
 
-const SearchContainer = ({placeholder = 'Search here...', onSearch}) => {
-  const [searchText, setSearchText] = useState('');
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func(...args), delay);
+  };
+};
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
+const SearchContainer = ({
+  placeholder = 'Search here...',
+  onSearch,
+  searchText,
+  setSearchText,
+}) => {
+  const debouncedSearch = useMemo(() => {
+    return debounce(text => {
       if (onSearch) {
-        onSearch(searchText);
+        onSearch(text);
       }
-    }, 300); // Debounce for 300ms
+    }, 300);
+  }, [onSearch]);
 
-    return () => clearTimeout(timer);
-  }, [searchText, onSearch]);
+  const handleTextChange = text => {
+    setSearchText(text);
+    debouncedSearch(text);
+  };
 
   return (
     <CustomCard style={styles.searchCard}>
@@ -26,7 +40,7 @@ const SearchContainer = ({placeholder = 'Search here...', onSearch}) => {
           placeholder={placeholder}
           placeholderTextColor="#888"
           value={searchText}
-          onChangeText={setSearchText}
+          onChangeText={handleTextChange}
         />
       </View>
     </CustomCard>

@@ -1,5 +1,12 @@
-import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+} from 'react-native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import React, {useCallback, useState, useEffect} from 'react';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
@@ -31,11 +38,14 @@ import CustomModal from '../../../components/CustomModal';
 import RadioButtonCard from '../../../components/RadioButtonCard';
 import {setTheme} from '../../../redux/slices/themeSlice';
 import {SettingsScreenStyles} from './Styles/SettingsScreenStyles';
+import SearchContainer from '../../../components/SearchContainer';
 
-const SettingsScreen = ({navigation}) => {
+const SettingsScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selected, setSelected] = useState(0);
   const [tempSelected, setTempSelected] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
+  const navigation = useNavigation();
 
   const dispatch = useDispatch();
   const {appStrings} = useSelector(state => state.language);
@@ -47,6 +57,39 @@ const SettingsScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
+  // ***************handleSearch********************
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        setSearchQuery('');
+        setFilteredSections(sections);
+      };
+    }, []),
+  );
+  const handleSearch = query => {
+    console.log('========', query);
+
+    if (query) {
+      const filtered = sections
+        .map(section => ({
+          ...section,
+          data: section.data.filter(item =>
+            item.title.toLowerCase().includes(query.toLowerCase()),
+          ),
+        }))
+        .filter(section => section.data.length > 0);
+      setFilteredSections(filtered);
+    } else {
+      setFilteredSections(sections);
+    }
+  };
+
+  const clearSearch = () => {
+    setSearchQuery('');
+    setFilteredSections(sections);
+  };
+  // ******************************************
+
   const styles = SettingsScreenStyles(theme);
   useEffect(() => {
     if (theme === 'light') {
@@ -183,64 +226,66 @@ const SettingsScreen = ({navigation}) => {
       ],
     },
   ];
+  const [filteredSections, setFilteredSections] = useState(sections);
 
   return (
     <MainBackground noPadding style={styles.mainBackground}>
       <CustomHeader
-        title="Profile"
+        title="Settings"
         backgroundColor="#ffffff"
         backPress={() => navigation.goBack()}
       />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
-          <View style={styles.profileContainer}>
-            <Image source={ImageConstants.avatar} style={styles.profileImage} />
-            <Spacing height={DimensionConstants.sixteen} />
-            <Text style={styles.profileName}>{data?.data?.user?.fullName}</Text>
-            <Text style={styles.profileEmail}>{data?.data?.user?.email}</Text>
-          </View>
-
-          <Spacing height={DimensionConstants.twentyFour} />
-
-          <View style={styles.subscriptionContainer}>
-            <Image
-              source={ImageConstants.texturedPaper}
-              style={styles.subscriptionImage}
-            />
-            <View style={styles.subscriptionOverlay}>
-              <Text style={styles.subscriptionTitle}>PREMIUM</Text>
-              <Spacing height={DimensionConstants.ten} />
-              <Text style={styles.subscriptionText}>
-                Subscription ends in 7 days
-              </Text>
-              <CustomButton
-                text={appStrings?.settings?.upgradePlan?.text}
-                width="150%"
-                onPress={() => navigation.navigate('SubscriptionScreen')}
+          <SearchContainer
+            placeholder={
+              appStrings?.settings?.search?.text || 'Search settings...'
+            }
+            onSearch={handleSearch}
+            searchText={searchQuery}
+            setSearchText={setSearchQuery}
+          />
+          <Spacing height={DimensionConstants.ten} />
+          <CustomCard style={styles.profileContainer}>
+            <View style={styles.profileImageContainer}>
+              <Image
+                source={ImageConstants.avatar}
+                style={styles.profileImage}
+                resizeMode="cover"
               />
-              <Spacing height={DimensionConstants.twenty} />
-              <TouchableOpacity
-                onPress={() => navigation.navigate('SubscriptionScreen')}>
-                <Text style={[styles.subscriptionLink, {color: theme.primary}]}>
-                  {appStrings?.settings?.viewAvailableSubscriptions?.text}
-                </Text>
-              </TouchableOpacity>
             </View>
-          </View>
-          {sections.map((section, index) => (
+            <View style={styles.profileInfo}>
+              <Text
+                style={styles.profileName}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {data?.data?.user?.fullName || 'User Name'}
+              </Text>
+              <Text
+                style={styles.profileEmail}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {data?.data?.user?.email || 'email@example.com'}
+              </Text>
+            </View>
+          </CustomCard>
+          {filteredSections?.map((section, index) => (
             <SettingSection
               key={index}
               title={section.title}
               data={section.data}
               theme={theme}
               styles={styles}
+              isLine={searchQuery && filteredSections.length <= 1}
             />
           ))}
           <Spacing height={DimensionConstants.ten} />
-          <CustomButton
-            text={appStrings?.settings?.signOut?.text}
-            onPress={signOut}
-          />
+          {!searchQuery && (
+            <CustomButton
+              text={appStrings?.settings?.signOut?.text}
+              onPress={signOut}
+            />
+          )}
           <Spacing height={DimensionConstants.sixteen} />
           <Text
             style={{
@@ -289,9 +334,9 @@ const SettingsScreen = ({navigation}) => {
   );
 };
 
-const SettingSection = ({title, data, theme, styles}) => (
+const SettingSection = ({title, data, theme, styles, isLine}) => (
   <View>
-    <Spacing height={DimensionConstants.thirtyTwo} />
+    <Spacing height={DimensionConstants.twenty} />
 
     <Text style={[styles.sectionTitle, {color: theme.darkGrey}]}>{title}</Text>
     <Spacing height={DimensionConstants.ten} />
@@ -310,7 +355,7 @@ const SettingSection = ({title, data, theme, styles}) => (
               />
             </TouchableOpacity>
           </TouchableOpacity>
-          {item?.line !== false && <View style={styles.separator} />}
+          {!isLine && item?.line !== false && <View style={styles.separator} />}
         </View>
       ))}
     </CustomCard>
