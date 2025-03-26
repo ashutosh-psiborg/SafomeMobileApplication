@@ -48,6 +48,7 @@ import CallsScreen from '../screens/DeviceScreens/CallsScreen/index';
 import SetDndScreen from '../screens/DeviceScreens/SystemScreen/DNDScreen/SetDndScreen';
 import FindDevice from '../screens/DeviceScreens/FeaturesScreens/More/FindDevice';
 import RejectCallScreen from '../screens/DeviceScreens/FeaturesScreens/More/RejectCallScreen/index';
+import FallBackAlert from '../screens/DeviceScreens/FeaturesScreens/More/FallBackAlert/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -310,10 +311,15 @@ const StackNavigator = () => {
         name="FindDevice"
         component={FindDevice}
       />
-         <Stack.Screen
+      <Stack.Screen
         options={{headerShown: false}}
         name="RejectCallScreen"
         component={RejectCallScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="FallBackAlert"
+        component={FallBackAlert}
       />
     </Stack.Navigator>
   );

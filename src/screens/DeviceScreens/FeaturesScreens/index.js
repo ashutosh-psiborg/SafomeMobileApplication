@@ -29,12 +29,18 @@ import SimIcon from '../../../assets/icons/SimIcon';
 import RejectUnknownIcon from '../../../assets/icons/RejectUnknownIcon';
 import FindDeviceIcon from '../../../assets/icons/FindDeviceIcon';
 import ProfileNotificationIcon from '../../../assets/icons/ProfileNotificationIcon';
+import FallIcon from '../../../assets/icons/FallIcon';
 const FeaturesScreens = ({navigation}) => {
   const icons = [
     {
       component: <BumpFriendsIcon />,
       label: 'Bump friends',
       // navigation: () => navigation.navigate('AutoCallScreen'),
+    },
+    {
+      component: <FallIcon />,
+      label: 'Fall Alert',
+      navigation: () => navigation.navigate('FallBackAlert'),
     },
     {
       component: <AddRemoteIcon />,
