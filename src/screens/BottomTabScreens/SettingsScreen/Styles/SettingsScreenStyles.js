@@ -126,10 +126,10 @@ export const SettingsScreenStyles = theme =>
       fontWeight: '500',
     },
     separator: {
-      backgroundColor: 'rgba(0, 0, 0, 0.05)',
+      // backgroundColor: 'rgba(0, 0, 0, 0.05)',
       height: DimensionConstants.one,
-      width: '90%',
-      alignSelf: 'flex-end',
+      // width: '120%',
+      // alignSelf: 'flex-end',
       marginVertical: DimensionConstants.eight,
     },
   });

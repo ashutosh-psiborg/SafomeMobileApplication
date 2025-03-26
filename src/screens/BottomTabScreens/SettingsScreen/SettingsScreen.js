@@ -336,7 +336,7 @@ const SettingsScreen = () => {
 
 const SettingSection = ({title, data, theme, styles, isLine}) => (
   <View>
-    <Spacing height={DimensionConstants.twenty} />
+    <Spacing height={DimensionConstants.ten} />
 
     <Text style={[styles.sectionTitle, {color: theme.darkGrey}]}>{title}</Text>
     <Spacing height={DimensionConstants.ten} />
