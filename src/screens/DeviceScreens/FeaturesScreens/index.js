@@ -74,7 +74,7 @@ const FeaturesScreens = ({navigation}) => {
     {
       component: <RejectUnknownIcon />,
       label: 'Reject unknown calls',
-      // navigation: () => navigation.navigate('TimeZoneScreen'),
+      navigation: () => navigation.navigate('RejectCallScreen'),
       line: 'no',
     },
   ];

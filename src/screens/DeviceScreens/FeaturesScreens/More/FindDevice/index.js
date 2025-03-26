@@ -71,11 +71,11 @@ const styles = StyleSheet.create({
     gap: DimensionConstants.nineteen,
   },
   FindDeviceCardTxt: {
-    fontSize: DimensionConstants.fourteen,
+    fontSize: DimensionConstants.twelve,
     fontWeight: '500',
   },
   FindDeviceCardTxt1: {
-    fontSize: DimensionConstants.fourteen,
+    fontSize: DimensionConstants.twelve,
     fontWeight: '500',
     color: '#889CA3',
   },
