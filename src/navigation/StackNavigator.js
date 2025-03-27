@@ -51,6 +51,7 @@ import RejectCallScreen from '../screens/DeviceScreens/FeaturesScreens/More/Reje
 import FallBackAlert from '../screens/DeviceScreens/FeaturesScreens/More/FallBackAlert/index';
 import RemindersScreen from '../screens/DeviceScreens/FeaturesScreens/More/RemindersScreen/index';
 import SmsAlertScreen from '../screens/DeviceScreens/FeaturesScreens/More/SmsAlertScreen/index';
+import AddSosContact from '../screens/DeviceScreens/FeaturesScreens/More/AddSosContact/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -332,6 +333,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="SmsAlertScreen"
         component={SmsAlertScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="AddSosContact"
+        component={AddSosContact}
       />
     </Stack.Navigator>
   );

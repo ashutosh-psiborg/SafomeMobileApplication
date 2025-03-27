@@ -8,7 +8,7 @@ import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import Spacing from '../../../../../components/Spacing';
 import fetcher from '../../../../../utils/ApiService';
 
-const FallBackAlert = () => {
+const FallBackAlert = ({navigation}) => {
   const [switches, setSwitches] = useState({
     fallAlert: false,
     emergencyCall: false,

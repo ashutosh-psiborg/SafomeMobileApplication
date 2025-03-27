@@ -34,8 +34,8 @@ const FeaturesScreens = ({navigation}) => {
   const icons = [
     {
       component: <BumpFriendsIcon />,
-      label: 'Bump friends',
-      // navigation: () => navigation.navigate('AutoCallScreen'),
+      label: 'Add SOS Contacts',
+      navigation: () => navigation.navigate('AddSosContact'),
     },
     {
       component: <FallIcon />,
