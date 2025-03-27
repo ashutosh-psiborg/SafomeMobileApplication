@@ -19,8 +19,7 @@ import SystemCallIcon from '../../../assets/icons/SystemCallIcon';
 import Spacing from '../../../components/Spacing';
 import {useSelector} from 'react-redux';
 
-
-const SystemScreen = ({ navigation }) => {
+const SystemScreen = ({navigation}) => {
   const {appStrings} = useSelector(state => state.language);
 
   const icons = [
@@ -31,7 +30,7 @@ const SystemScreen = ({ navigation }) => {
     },
     {
       component: <SleepIcon />,
-      label:  appStrings?.system?.sleepMode?.text,
+      label: appStrings?.system?.sleepMode?.text,
       navigation: () => navigation.navigate('SleepModeScreen'),
     },
     {
@@ -39,19 +38,19 @@ const SystemScreen = ({ navigation }) => {
       label: 'Tracking frequency',
       navigation: () => navigation.navigate('TrackingFrequencyScreen'),
     },
-    // {
-    //   component: <DisableIcon />,
-    //   label: 'Disable Functions',
-    //   navigation: () => navigation.navigate('DisableFunctionScreen'),
-    // },
+    {
+      component: <DisableIcon />,
+      label: 'Device Alert Mode',
+      navigation: () => navigation.navigate('DisableFunctionScreen'),
+    },
     {
       component: <WifiIcon />,
-      label:  appStrings?.system?.watchWifi?.text,
+      label: appStrings?.system?.watchWifi?.text,
       navigation: () => navigation.navigate('WifiSettingsScreen'),
     },
     {
       component: <DNDIcon />,
-      label:  appStrings?.system?.dnd?.text,
+      label: appStrings?.system?.dnd?.text,
       navigation: () => navigation.navigate('DNDScreen'),
     },
     // {
@@ -61,7 +60,7 @@ const SystemScreen = ({ navigation }) => {
     // },
     {
       component: <RemoteIcon />,
-      label:  appStrings?.system?.remoteRestart?.text,
+      label: appStrings?.system?.remoteRestart?.text,
       navigation: () => navigation.navigate('RemoteRestartScreen'),
       // line: 'no',
     },
@@ -77,7 +76,7 @@ const SystemScreen = ({ navigation }) => {
     // },
     {
       component: <ResetIcon />,
-      label:  appStrings?.system?.resetDevice?.text,
+      label: appStrings?.system?.resetDevice?.text,
       navigation: () => navigation.navigate('ResetDeviceScreen'),
       line: 'no',
     },

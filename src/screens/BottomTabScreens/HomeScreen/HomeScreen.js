@@ -121,7 +121,7 @@ const HomeScreen = ({navigation}) => {
       }
     },
   });
-
+console.log("locationData====",locationData?.data);
   useEffect(() => {
     const latestLocation = locationData?.data?.results?.[0];
     if (latestLocation?.latitude && latestLocation?.longitude) {
@@ -136,7 +136,6 @@ const HomeScreen = ({navigation}) => {
     }
   }, [locationData]);
 
-  // 🔐 Geofence detection
   const isWithinGeofence = (lat1, lon1, lat2, lon2, radius = 100) => {
     const toRad = value => (value * Math.PI) / 180;
     const R = 6371000;

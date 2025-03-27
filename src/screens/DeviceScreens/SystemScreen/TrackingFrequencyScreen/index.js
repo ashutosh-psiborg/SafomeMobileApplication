@@ -23,13 +23,11 @@ const trackingOptions = [
 const TrackingFrequencyScreen = ({navigation}) => {
   const [selected, setSelected] = useState(0);
 
-  // Fetch current upload interval
   const {data, refetch} = useQuery({
     queryKey: ['trackingFrequency'],
     queryFn: () => fetcher({method: 'GET', url: GET_EVENT_URL}),
   });
 
-  // Set default selection when data is fetched
   useEffect(() => {
     if (data?.data?.response?.uploadTimeInterval) {
       const interval = Number(data.data.response.uploadTimeInterval);
