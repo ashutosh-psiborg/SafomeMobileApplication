@@ -34,11 +34,11 @@ const SystemScreen = ({ navigation }) => {
       label:  appStrings?.system?.sleepMode?.text,
       navigation: () => navigation.navigate('SleepModeScreen'),
     },
-    // {
-    //   component: <TrackingIcon />,
-    //   label: 'Tracking frequency',
-    //   navigation: () => navigation.navigate('TrackingFrequencyScreen'),
-    // },
+    {
+      component: <TrackingIcon />,
+      label: 'Tracking frequency',
+      navigation: () => navigation.navigate('TrackingFrequencyScreen'),
+    },
     // {
     //   component: <DisableIcon />,
     //   label: 'Disable Functions',
