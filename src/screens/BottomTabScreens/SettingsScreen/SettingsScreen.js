@@ -194,6 +194,7 @@ const SettingsScreen = () => {
         {
           title: appStrings?.settings?.security?.text,
           icon: <SecurityIcon />,
+          navigation: () => navigation.navigate('SecurityScreen'),
         },
         {
           title: appStrings?.settings?.addRemoveDevice?.text,
@@ -209,6 +210,7 @@ const SettingsScreen = () => {
         {
           title: appStrings?.settings?.faq?.text,
           icon: <FAQIcon />,
+          navigation: () => navigation.navigate('FAQScreen'),
         },
         {
           title: appStrings?.settings?.aboutUs?.text,
