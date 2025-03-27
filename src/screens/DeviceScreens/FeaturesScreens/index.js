@@ -38,6 +38,11 @@ const FeaturesScreens = ({navigation}) => {
       navigation: () => navigation.navigate('AddSosContact'),
     },
     {
+      component: <BumpFriendsIcon />,
+      label: 'Add Contacts',
+      navigation: () => navigation.navigate('AddContact'),
+    },
+    {
       component: <FallIcon />,
       label: 'Fall Alert',
       navigation: () => navigation.navigate('FallBackAlert'),

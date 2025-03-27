@@ -52,6 +52,7 @@ import FallBackAlert from '../screens/DeviceScreens/FeaturesScreens/More/FallBac
 import RemindersScreen from '../screens/DeviceScreens/FeaturesScreens/More/RemindersScreen/index';
 import SmsAlertScreen from '../screens/DeviceScreens/FeaturesScreens/More/SmsAlertScreen/index';
 import AddSosContact from '../screens/DeviceScreens/FeaturesScreens/More/AddSosContact/index';
+import AddContact from '../screens/DeviceScreens/FeaturesScreens/More/AddContact/index';
 
 const Stack = createNativeStackNavigator();
 
@@ -338,6 +339,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="AddSosContact"
         component={AddSosContact}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="AddContact"
+        component={AddContact}
       />
     </Stack.Navigator>
   );
