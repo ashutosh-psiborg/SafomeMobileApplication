@@ -68,7 +68,7 @@ const DevicesScreen = ({navigation}) => {
           'selectedDeviceMongoId',
         );
         setDeviceId(storedMongoId);
-        console.log('Stored Mongo _id:', storedMongoId);
+        console.log('Stored Mongo _id:=======', storedMongoId);
       } catch (error) {
         console.error('Failed to retrieve stored device data:', error);
       }
@@ -88,7 +88,7 @@ const DevicesScreen = ({navigation}) => {
     try {
       await fetcher({
         method: 'PATCH',
-        url: `/devices/updateDevice/${deviceId || '67db981e5b0168be809f4edd'}`,
+        url: `/devices/updateDevice/${deviceId}`,
         data: {deviceName: formData.deviceName},
       });
       setModalVisible(false);
@@ -99,11 +99,11 @@ const DevicesScreen = ({navigation}) => {
   };
 
   const icons = [
-    {
-      component: <AppsIcon />,
-      label: appStrings?.device?.apps?.text,
-      navigation: () => navigation.navigate('AppScreen'),
-    },
+    // {
+    //   component: <AppsIcon />,
+    //   label: appStrings?.device?.apps?.text,
+    //   navigation: () => navigation.navigate('AppScreen'),
+    // },
     {
       component: <SystemIcon />,
       label: appStrings?.device?.system?.text,
@@ -170,10 +170,10 @@ const DevicesScreen = ({navigation}) => {
                   />
                 </View>
               </View>
-              <CustomButton
+              {/* <CustomButton
                 text={appStrings?.device?.edit?.text}
                 onPress={() => setModalVisible(true)}
-              />
+              /> */}
             </CustomCard>
             <Spacing height={DimensionConstants.eighteen} />
             <CustomCard style={styles.featuresCard}>
@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   deviceCard: {
-    padding: DimensionConstants.fifteen,
+    paddingHorizontal: DimensionConstants.fifteen,
   },
   deviceHeader: {
     flexDirection: 'row',

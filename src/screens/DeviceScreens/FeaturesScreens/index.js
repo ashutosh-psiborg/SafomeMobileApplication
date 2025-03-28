@@ -30,6 +30,8 @@ import RejectUnknownIcon from '../../../assets/icons/RejectUnknownIcon';
 import FindDeviceIcon from '../../../assets/icons/FindDeviceIcon';
 import ProfileNotificationIcon from '../../../assets/icons/ProfileNotificationIcon';
 import FallIcon from '../../../assets/icons/FallIcon';
+import CallIcon from '../../../assets/icons/CallIcon';
+import DeviceCallIcon from '../../../assets/icons/DeviceCallIcon';
 const FeaturesScreens = ({navigation}) => {
   const icons = [
     {
@@ -77,11 +79,11 @@ const FeaturesScreens = ({navigation}) => {
       label: 'Reminders',
       navigation: () => navigation.navigate('RemindersScreen'),
     },
-    // {
-    //   component: <SimIcon />,
-    //   label: 'SIM SMS',
-    //   // navigation: () => navigation.navigate('RemoteRestartScreen'),
-    // },
+    {
+      component: <DeviceCallIcon />,
+      label: 'Call & Monitoring',
+      navigation: () => navigation.navigate('SoundGuardian'),
+    },
     {
       component: <RejectUnknownIcon />,
       label: 'Reject unknown calls',

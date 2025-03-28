@@ -29,7 +29,7 @@ const AddSosContact = ({navigation}) => {
     queryKey: ['contacts'],
     queryFn: () => fetcher({method: 'GET', url: GET_EVENT_URL}),
   });
-  console.log('-------', sos?.data?.response);
+  console.log('-------*****88', sos?.data?.response);
   const contactOptions =
     data?.data?.map(contact => ({
       label: `${contact.response.name} (${contact.response.contactNumber})`,

@@ -18,7 +18,7 @@ import SystemLocation from '../../../assets/icons/SystemLocation';
 import SystemCallIcon from '../../../assets/icons/SystemCallIcon';
 import Spacing from '../../../components/Spacing';
 import {useSelector} from 'react-redux';
-
+import AlarmIcon from '../../../assets/icons/AlarmIcon';
 const SystemScreen = ({navigation}) => {
   const {appStrings} = useSelector(state => state.language);
 
@@ -28,10 +28,15 @@ const SystemScreen = ({navigation}) => {
       label: appStrings?.system?.autoCallAnswer?.text,
       navigation: () => navigation.navigate('AutoCallScreen'),
     },
+    // {
+    //   component: <SleepIcon />,
+    //   label: appStrings?.system?.sleepMode?.text,
+    //   navigation: () => navigation.navigate('SleepModeScreen'),
+    // },
     {
-      component: <SleepIcon />,
-      label: appStrings?.system?.sleepMode?.text,
-      navigation: () => navigation.navigate('SleepModeScreen'),
+      component: <AlarmIcon />,
+      label: 'Alarm',
+      navigation: () => navigation.navigate('AlarmScreen'),
     },
     {
       component: <TrackingIcon />,

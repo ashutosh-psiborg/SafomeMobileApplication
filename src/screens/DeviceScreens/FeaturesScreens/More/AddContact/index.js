@@ -1,23 +1,31 @@
-import { View, Text, Alert, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Alert,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+  FlatList,
+} from 'react-native';
 import React from 'react';
-import { useForm } from 'react-hook-form';
+import {useForm} from 'react-hook-form';
 import MainBackground from '../../../../../components/MainBackground';
 import CustomCard from '../../../../../components/CustomCard';
 import CustomHeader from '../../../../../components/CustomHeader';
 import SystemCallIcon from '../../../../../assets/icons/SystemCallIcon';
 import CommonForm from '../../../../../utils/CommonForm';
-import { DimensionConstants } from '../../../../../constants/DimensionConstants';
+import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import CustomButton from '../../../../../components/CustomButton';
 import Spacing from '../../../../../components/Spacing';
 import fetcher from '../../../../../utils/ApiService';
-import { useMutation, useQuery } from '@tanstack/react-query';
-import { ImageConstants } from '../../../../../constants/ImageConstants';
+import {useMutation, useQuery} from '@tanstack/react-query';
+import {ImageConstants} from '../../../../../constants/ImageConstants';
 import DeleteIcon from '../../../../../assets/icons/DeleteIcon';
 
 const SEND_EVENT_URL = `/deviceDataResponse/sendEvent/6907390711`;
 
-const AddContact = ({ navigation }) => {
-  const { data, refetch } = useQuery({
+const AddContact = ({navigation}) => {
+  const {data, refetch, isLoading} = useQuery({
     queryKey: ['sosContacts'],
     queryFn: () =>
       fetcher({
@@ -29,7 +37,7 @@ const AddContact = ({ navigation }) => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    formState: {errors},
     reset,
   } = useForm({
     defaultValues: {
@@ -38,7 +46,6 @@ const AddContact = ({ navigation }) => {
     },
   });
 
-  // Convert string to hex
   const stringToHex = str =>
     str
       .split('')
@@ -49,7 +56,6 @@ const AddContact = ({ navigation }) => {
     if (!existingIndexes || existingIndexes.length === 0) return 1;
 
     const sortedIndexes = existingIndexes.sort((a, b) => a - b);
-
     for (let i = 1; i <= sortedIndexes.length; i++) {
       if (!sortedIndexes.includes(i)) {
         return i;
@@ -60,7 +66,7 @@ const AddContact = ({ navigation }) => {
 
   const addContactMutation = useMutation({
     mutationFn: async formData => {
-      const { phoneNumberOne, phoneNumberTwo } = formData;
+      const {phoneNumberOne, phoneNumberTwo} = formData;
 
       if (!phoneNumberOne || !phoneNumberTwo) {
         Alert.alert('Error', 'Both fields are required.');
@@ -76,7 +82,7 @@ const AddContact = ({ navigation }) => {
       return fetcher({
         method: 'POST',
         url: SEND_EVENT_URL,
-        data: { data: formattedData },
+        data: {data: formattedData},
       });
     },
     onSuccess: () => {
@@ -97,7 +103,7 @@ const AddContact = ({ navigation }) => {
       return fetcher({
         method: 'POST',
         url: SEND_EVENT_URL,
-        data: { data: formattedData },
+        data: {data: formattedData},
       });
     },
     onSuccess: () => {
@@ -115,9 +121,9 @@ const AddContact = ({ navigation }) => {
       'Delete Contact',
       'Are you sure you want to delete this contact?',
       [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', onPress: () => deleteContactMutation.mutate(index) },
-      ]
+        {text: 'Cancel', style: 'cancel'},
+        {text: 'Delete', onPress: () => deleteContactMutation.mutate(index)},
+      ],
     );
   };
 
@@ -138,40 +144,41 @@ const AddContact = ({ navigation }) => {
   ];
 
   return (
-    <MainBackground noPadding style={{ backgroundColor: '#F2F7FC' }}>
+    <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
       <CustomHeader
         title={'Add Contacts'}
         backgroundColor={'#FFFFFF'}
         backPress={() => navigation.goBack()}
       />
-      <View
-        style={{
-          padding: DimensionConstants.sixteen,
-          flex: 1,
-          justifyContent: 'space-between',
-        }}>
-        <View>
-          <CustomCard>
-            <Spacing height={DimensionConstants.ten} />
-            <CommonForm control={control} fields={fields} errors={errors} />
-            <CustomButton
-              text={'Add'}
-              onPress={handleSubmit(addContactMutation.mutate)}
-            />
-          </CustomCard>
 
-          <Text
-            style={{
-              marginVertical: DimensionConstants.ten,
-              fontSize: DimensionConstants.fourteen,
-              fontWeight: '500',
-            }}>
-            Contacts
-          </Text>
+      <View style={{padding: DimensionConstants.sixteen, flex: 1}}>
+        <CustomCard>
+          <Spacing height={DimensionConstants.ten} />
+          <CommonForm control={control} fields={fields} errors={errors} />
+          <CustomButton
+            text={'Add'}
+            onPress={handleSubmit(addContactMutation.mutate)}
+          />
+        </CustomCard>
 
-          {data?.data?.length > 0 ? (
-            data.data.map((contact, index) => (
-              <View key={index}>
+        <Text
+          style={{
+            marginVertical: DimensionConstants.ten,
+            fontSize: DimensionConstants.fourteen,
+            fontWeight: '500',
+          }}>
+          Contacts
+        </Text>
+
+        {isLoading ? (
+          <ActivityIndicator size="large" color="#007bff" />
+        ) : (
+          <FlatList
+            showsVerticalScrollIndicator={false}
+            data={data?.data || []}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({item}) => (
+              <View>
                 <CustomCard>
                   <View
                     style={{
@@ -179,7 +186,7 @@ const AddContact = ({ navigation }) => {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                     }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    <View style={{flexDirection: 'row', alignItems: 'center'}}>
                       <Image
                         source={ImageConstants.avatar}
                         style={{
@@ -187,24 +194,23 @@ const AddContact = ({ navigation }) => {
                           height: DimensionConstants.fifty,
                         }}
                       />
-                      <View style={{ marginLeft: DimensionConstants.ten }}>
-                        <Text>{contact.response?.name || 'None'}</Text>
-                        <Text>{contact.response?.contactNumber || 'None'}</Text>
+                      <View style={{marginLeft: DimensionConstants.ten}}>
+                        <Text>{item.response?.name || 'None'}</Text>
+                        <Text>{item.response?.contactNumber || 'None'}</Text>
                       </View>
                     </View>
                     <TouchableOpacity
-                      onPress={() => handleDeleteContact(contact.response?.index)}>
+                      onPress={() => handleDeleteContact(item.response?.index)}>
                       <DeleteIcon />
                     </TouchableOpacity>
                   </View>
                 </CustomCard>
                 <Spacing height={DimensionConstants.ten} />
               </View>
-            ))
-          ) : (
-            <Text>No saved contacts.</Text>
-          )}
-        </View>
+            )}
+            ListEmptyComponent={<Text>No saved contacts.</Text>}
+          />
+        )}
       </View>
     </MainBackground>
   );
