@@ -19,8 +19,22 @@ const SEND_EVENT_URL = `deviceDataResponse/sendEvent/${DEVICE_ID}`;
 const AddSosContact = ({navigation}) => {
   const {data, refetch} = useQuery({
     queryKey: ['sosContacts'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `deviceDataResponse/getContactNumber/PHBX/${DEVICE_ID}`,
+      }),
+  });
+  const {data: sos, refetch: sosRefetch} = useQuery({
+    queryKey: ['contacts'],
     queryFn: () => fetcher({method: 'GET', url: GET_EVENT_URL}),
   });
+  console.log('-------', sos?.data?.response);
+  const contactOptions =
+    data?.data?.map(contact => ({
+      label: `${contact.response.name} (${contact.response.contactNumber})`,
+      value: contact.response.contactNumber,
+    })) || [];
 
   const {
     control,
@@ -36,14 +50,14 @@ const AddSosContact = ({navigation}) => {
   });
 
   useEffect(() => {
-    if (data?.data?.response) {
-      const sosData = data.data.response;
-      const defaultValues = {
+    if (sos?.data?.response) {
+      const sosData = sos.data.response;
+      console.log('ggggg====', sosData);
+      reset({
         phoneNumberOne: sosData.sosNumber1 || '',
         phoneNumberTwo: sosData.sosNumber2 || '',
         phoneNumberThree: sosData.sosNumber3 || '',
-      };
-      reset(defaultValues); // Set default values in the input fields
+      });
     }
   }, [data, reset]);
 
@@ -60,6 +74,7 @@ const AddSosContact = ({navigation}) => {
         {text: 'OK'},
       ]);
       refetch();
+      sosRefetch();
     },
     onError: error => {
       console.error('Error updating SOS contacts:', error);
@@ -80,22 +95,22 @@ const AddSosContact = ({navigation}) => {
     {
       name: 'phoneNumberOne',
       placeholder: 'SOS Contact Number 1',
-      keyboardType: 'phone-pad',
-      maxLength: 10,
+      type: 'dropdown',
+      options: contactOptions,
       icon: <SystemCallIcon />,
     },
     {
       name: 'phoneNumberTwo',
       placeholder: 'SOS Contact Number 2',
-      keyboardType: 'phone-pad',
-      maxLength: 10,
+      type: 'dropdown',
+      options: contactOptions,
       icon: <SystemCallIcon />,
     },
     {
       name: 'phoneNumberThree',
       placeholder: 'SOS Contact Number 3',
-      keyboardType: 'phone-pad',
-      maxLength: 10,
+      type: 'dropdown',
+      options: contactOptions,
       icon: <SystemCallIcon />,
     },
   ];

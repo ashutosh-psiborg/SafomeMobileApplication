@@ -1,22 +1,23 @@
-import {View, Text, Alert, Image} from 'react-native';
+import { View, Text, Alert, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
-import {useForm} from 'react-hook-form';
+import { useForm } from 'react-hook-form';
 import MainBackground from '../../../../../components/MainBackground';
 import CustomCard from '../../../../../components/CustomCard';
 import CustomHeader from '../../../../../components/CustomHeader';
 import SystemCallIcon from '../../../../../assets/icons/SystemCallIcon';
 import CommonForm from '../../../../../utils/CommonForm';
-import {DimensionConstants} from '../../../../../constants/DimensionConstants';
+import { DimensionConstants } from '../../../../../constants/DimensionConstants';
 import CustomButton from '../../../../../components/CustomButton';
 import Spacing from '../../../../../components/Spacing';
 import fetcher from '../../../../../utils/ApiService';
-import {useMutation, useQuery} from '@tanstack/react-query';
-import {ImageConstants} from '../../../../../constants/ImageConstants';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { ImageConstants } from '../../../../../constants/ImageConstants';
+import DeleteIcon from '../../../../../assets/icons/DeleteIcon';
 
 const SEND_EVENT_URL = `/deviceDataResponse/sendEvent/6907390711`;
 
-const AddContact = ({navigation}) => {
-  const {data, refetch} = useQuery({
+const AddContact = ({ navigation }) => {
+  const { data, refetch } = useQuery({
     queryKey: ['sosContacts'],
     queryFn: () =>
       fetcher({
@@ -28,7 +29,7 @@ const AddContact = ({navigation}) => {
   const {
     control,
     handleSubmit,
-    formState: {errors},
+    formState: { errors },
     reset,
   } = useForm({
     defaultValues: {
@@ -37,65 +38,88 @@ const AddContact = ({navigation}) => {
     },
   });
 
-  // Function to convert a string to hex
-  const stringToHex = str => {
-    return str
+  // Convert string to hex
+  const stringToHex = str =>
+    str
       .split('')
       .map(char => char.charCodeAt(0).toString(16).padStart(4, '0'))
       .join('');
-  };
 
   const getNextIndex = existingIndexes => {
     if (!existingIndexes || existingIndexes.length === 0) return 1;
 
-    // Sort indexes in ascending order
     const sortedIndexes = existingIndexes.sort((a, b) => a - b);
 
-    // Find the first missing index
     for (let i = 1; i <= sortedIndexes.length; i++) {
       if (!sortedIndexes.includes(i)) {
-        return i; // Return the missing index
+        return i;
       }
     }
-    return sortedIndexes.length + 1; // If no missing index, return next in sequence
+    return sortedIndexes.length + 1;
   };
 
-  const mutation = useMutation({
+  const addContactMutation = useMutation({
     mutationFn: async formData => {
-      const {phoneNumberOne, phoneNumberTwo} = formData;
+      const { phoneNumberOne, phoneNumberTwo } = formData;
 
       if (!phoneNumberOne || !phoneNumberTwo) {
         Alert.alert('Error', 'Both fields are required.');
         return;
       }
 
-      // Get all indexes from existing contacts
       const existingIndexes =
         data?.data?.map(contact => parseInt(contact.response?.index, 10)) || [];
-
-      // Find the next available index
       const nextIndex = getNextIndex(existingIndexes);
-
-      // Convert Name to Hex
       const hexName = stringToHex(phoneNumberTwo);
       const formattedData = `[PHBX,${nextIndex},${hexName},${phoneNumberOne}]`;
 
       return fetcher({
         method: 'POST',
         url: SEND_EVENT_URL,
-        data: {data: formattedData},
+        data: { data: formattedData },
       });
     },
     onSuccess: () => {
       Alert.alert('Success', 'Contact added successfully');
       reset();
-      refetch(); // Refresh contact list after saving
+      refetch();
     },
     onError: error => {
       console.error('Error adding contact:', error);
       Alert.alert('Error', 'Failed to add contact.');
     },
   });
+
+  const deleteContactMutation = useMutation({
+    mutationFn: async index => {
+      const formattedData = `[DPHBX,${index}]`;
+
+      return fetcher({
+        method: 'POST',
+        url: SEND_EVENT_URL,
+        data: { data: formattedData },
+      });
+    },
+    onSuccess: () => {
+      Alert.alert('Success', 'Contact deleted successfully');
+      refetch();
+    },
+    onError: error => {
+      console.error('Error deleting contact:', error);
+      Alert.alert('Error', 'Failed to delete contact.');
+    },
+  });
+
+  const handleDeleteContact = index => {
+    Alert.alert(
+      'Delete Contact',
+      'Are you sure you want to delete this contact?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', onPress: () => deleteContactMutation.mutate(index) },
+      ]
+    );
+  };
 
   const fields = [
     {
@@ -114,7 +138,7 @@ const AddContact = ({navigation}) => {
   ];
 
   return (
-    <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
+    <MainBackground noPadding style={{ backgroundColor: '#F2F7FC' }}>
       <CustomHeader
         title={'Add Contacts'}
         backgroundColor={'#FFFFFF'}
@@ -132,7 +156,7 @@ const AddContact = ({navigation}) => {
             <CommonForm control={control} fields={fields} errors={errors} />
             <CustomButton
               text={'Add'}
-              onPress={handleSubmit(mutation.mutate)}
+              onPress={handleSubmit(addContactMutation.mutate)}
             />
           </CustomCard>
 
@@ -147,20 +171,31 @@ const AddContact = ({navigation}) => {
 
           {data?.data?.length > 0 ? (
             data.data.map((contact, index) => (
-              <View>
-                <CustomCard key={index}>
-                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                    <Image
-                      source={ImageConstants.avatar}
-                      style={{
-                        width: DimensionConstants.fifty,
-                        height: DimensionConstants.fifty,
-                      }}
-                    />
-                    <View style={{marginLeft: DimensionConstants.ten}}>
-                      <Text>{contact.response?.name || 'None'}</Text>
-                      <Text>{contact.response?.contactNumber || 'None'}</Text>
+              <View key={index}>
+                <CustomCard>
+                  <View
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                    }}>
+                    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                      <Image
+                        source={ImageConstants.avatar}
+                        style={{
+                          width: DimensionConstants.fifty,
+                          height: DimensionConstants.fifty,
+                        }}
+                      />
+                      <View style={{ marginLeft: DimensionConstants.ten }}>
+                        <Text>{contact.response?.name || 'None'}</Text>
+                        <Text>{contact.response?.contactNumber || 'None'}</Text>
+                      </View>
                     </View>
+                    <TouchableOpacity
+                      onPress={() => handleDeleteContact(contact.response?.index)}>
+                      <DeleteIcon />
+                    </TouchableOpacity>
                   </View>
                 </CustomCard>
                 <Spacing height={DimensionConstants.ten} />

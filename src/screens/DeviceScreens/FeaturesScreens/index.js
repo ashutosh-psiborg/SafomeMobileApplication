@@ -33,7 +33,7 @@ import FallIcon from '../../../assets/icons/FallIcon';
 const FeaturesScreens = ({navigation}) => {
   const icons = [
     {
-      component: <BumpFriendsIcon />,
+      component: <AddRemoteIcon />,
       label: 'Add SOS Contacts',
       navigation: () => navigation.navigate('AddSosContact'),
     },
@@ -47,21 +47,21 @@ const FeaturesScreens = ({navigation}) => {
       label: 'Fall Alert',
       navigation: () => navigation.navigate('FallBackAlert'),
     },
-    {
-      component: <AddRemoteIcon />,
-      label: 'Watch faces',
-      // navigation: () => navigation.navigate('SleepModeScreen'),
-    },
-    {
-      component: <CameraIcon />,
-      label: 'Remote photos',
-      // navigation: () => navigation.navigate('TrackingFrequencyScreen'),
-    },
-    {
-      component: <AppsIcon />,
-      label: 'App store',
-      // navigation: () => navigation.navigate('DisableFunctionScreen'),
-    },
+    // {
+    //   component: <AddRemoteIcon />,
+    //   label: 'Watch faces',
+    //   // navigation: () => navigation.navigate('SleepModeScreen'),
+    // },
+    // {
+    //   component: <CameraIcon />,
+    //   label: 'Remote photos',
+    //   // navigation: () => navigation.navigate('TrackingFrequencyScreen'),
+    // },
+    // {
+    //   component: <AppsIcon />,
+    //   label: 'App store',
+    //   // navigation: () => navigation.navigate('DisableFunctionScreen'),
+    // },
     {
       component: <FindDeviceIcon />,
       label: 'Find device',
@@ -77,11 +77,11 @@ const FeaturesScreens = ({navigation}) => {
       label: 'Reminders',
       navigation: () => navigation.navigate('RemindersScreen'),
     },
-    {
-      component: <SimIcon />,
-      label: 'SIM SMS',
-      // navigation: () => navigation.navigate('RemoteRestartScreen'),
-    },
+    // {
+    //   component: <SimIcon />,
+    //   label: 'SIM SMS',
+    //   // navigation: () => navigation.navigate('RemoteRestartScreen'),
+    // },
     {
       component: <RejectUnknownIcon />,
       label: 'Reject unknown calls',
