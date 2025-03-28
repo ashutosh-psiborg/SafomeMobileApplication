@@ -29,8 +29,6 @@ export const SettingsScreenStyles = theme =>
       padding: DimensionConstants.four,
     },
     profileContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
       padding: DimensionConstants.sixteen,
       backgroundColor: theme.cardBackground || '#fff',
       borderRadius: DimensionConstants.twelve,

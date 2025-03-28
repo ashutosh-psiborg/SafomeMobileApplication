@@ -74,13 +74,13 @@ const FAQScreen = () => {
         appStrings?.settings?.faq?.a1 ||
         'To reset your password, go to the Security settings and use the "Change Password" section by entering your current password and new password.',
     },
-    {
-      question:
-        appStrings?.settings?.faq?.q2 || 'What is Two-Factor Authentication?',
-      answer:
-        appStrings?.settings?.faq?.a2 ||
-        'Two-Factor Authentication (2FA) adds an extra layer of security by requiring a second form of verification beyond your password.',
-    },
+    // {
+    //   question:
+    //     appStrings?.settings?.faq?.q2 || 'What is Two-Factor Authentication?',
+    //   answer:
+    //     appStrings?.settings?.faq?.a2 ||
+    //     'Two-Factor Authentication (2FA) adds an extra layer of security by requiring a second form of verification beyond your password.',
+    // },
     {
       question: appStrings?.settings?.faq?.q3 || 'How do I contact support?',
       answer:

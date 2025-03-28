@@ -39,6 +39,7 @@ import RadioButtonCard from '../../../components/RadioButtonCard';
 import {setTheme} from '../../../redux/slices/themeSlice';
 import {SettingsScreenStyles} from './Styles/SettingsScreenStyles';
 import SearchContainer from '../../../components/SearchContainer';
+import {Linking} from 'react-native';
 
 const SettingsScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
@@ -149,20 +150,17 @@ const SettingsScreen = () => {
           icon: <ProfileIcon />,
           navigation: () => navigation.navigate('ProfileInformationScreen'),
         },
-        {
-          title: appStrings?.settings?.language?.text,
-          icon: <LanguageIcon />,
-          navigation: () => navigation.navigate('LanguageScreen'),
-        },
+        // {
+        //   title: appStrings?.settings?.language?.text,
+        //   icon: <LanguageIcon />,
+        //   navigation: () => navigation.navigate('LanguageScreen'),
+        // },
         {
           title: appStrings?.settings?.subscription?.text,
           icon: <SubscriptionIcon />,
           navigation: () => navigation.navigate('SubscriptionScreen'),
         },
-        {
-          title: appStrings?.settings?.geofencing?.text,
-          icon: <GeoLocationIcon />,
-        },
+
         {
           title: appStrings?.settings?.aboutDevice?.text,
           icon: <AboutDeviceIcon />,
@@ -214,15 +212,15 @@ const SettingsScreen = () => {
         },
         {
           title: appStrings?.settings?.aboutUs?.text,
+          // add link redirect here
+          navigation: () => Linking.openURL('https://safome.co/about-us/'),
           icon: <AboutIcon />,
-        },
-        {
-          title: appStrings?.settings?.rateApp?.text,
-          icon: <RateAppIcon />,
         },
         {
           title: appStrings?.settings?.privacyPolicy?.text,
           icon: <PrivacyIcon />,
+          navigation: () =>
+            Linking.openURL('https://safome.co/privacy-policy/'),
           line: false,
         },
       ],
@@ -249,27 +247,31 @@ const SettingsScreen = () => {
           />
           <Spacing height={DimensionConstants.ten} />
           <CustomCard style={styles.profileContainer}>
-            <View style={styles.profileImageContainer}>
-              <Image
-                source={ImageConstants.avatar}
-                style={styles.profileImage}
-                resizeMode="cover"
-              />
-            </View>
-            <View style={styles.profileInfo}>
-              <Text
-                style={styles.profileName}
-                numberOfLines={1}
-                ellipsizeMode="tail">
-                {data?.data?.user?.fullName || 'User Name'}
-              </Text>
-              <Text
-                style={styles.profileEmail}
-                numberOfLines={1}
-                ellipsizeMode="tail">
-                {data?.data?.user?.email || 'email@example.com'}
-              </Text>
-            </View>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ProfileInformationScreen')}
+              style={{flexDirection: 'row', alignItems: 'center'}}>
+              <View style={styles.profileImageContainer}>
+                <Image
+                  source={ImageConstants.avatar}
+                  style={styles.profileImage}
+                  resizeMode="cover"
+                />
+              </View>
+              <View style={styles.profileInfo}>
+                <Text
+                  style={styles.profileName}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {data?.data?.user?.fullName || 'User Name'}
+                </Text>
+                <Text
+                  style={styles.profileEmail}
+                  numberOfLines={1}
+                  ellipsizeMode="tail">
+                  {data?.data?.user?.email || 'email@example.com'}
+                </Text>
+              </View>
+            </TouchableOpacity>
           </CustomCard>
           {filteredSections?.map((section, index) => (
             <SettingSection

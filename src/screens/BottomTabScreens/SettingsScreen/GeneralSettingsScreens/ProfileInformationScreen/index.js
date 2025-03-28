@@ -209,16 +209,18 @@ const ProfileInformationScreen = ({navigation}) => {
                   borderRadius: DimensionConstants.fifty,
                 }}
               />
-              <TouchableOpacity
-                onPress={handleSelectImage}
-                style={{
-                  position: 'absolute',
-                  bottom: 0,
-                  right: 0,
-                  padding: 4,
-                }}>
-                <EditImageIcon />
-              </TouchableOpacity>
+              {isEditing && (
+                <TouchableOpacity
+                  onPress={handleSelectImage}
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    padding: 4,
+                  }}>
+                  <EditImageIcon />
+                </TouchableOpacity>
+              )}
             </View>
           </View>
           <Spacing height={DimensionConstants.thirtyTwo} />

@@ -39,14 +39,6 @@ const SecurityScreen = () => {
   const securityOptions = [
     {
       title:
-        appStrings?.settings?.security?.twoFactor ||
-        'Two-Factor Authentication',
-      description: 'Add an extra layer of security to your account',
-      value: isTwoFactorEnabled,
-      onValueChange: setIsTwoFactorEnabled,
-    },
-    {
-      title:
         appStrings?.settings?.security?.biometric || 'Biometric Authentication',
       description: 'Use fingerprint or face recognition',
       value: isBiometricEnabled,
