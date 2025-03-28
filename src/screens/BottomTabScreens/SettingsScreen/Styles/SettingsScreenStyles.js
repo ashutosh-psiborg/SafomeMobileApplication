@@ -7,6 +7,9 @@ export const SettingsScreenStyles = theme =>
       backgroundColor: theme.otpBox,
     },
     container: {
+      // minHeight: '100%',
+      flex: 1,
+      justifyContent: 'space-between',
       padding: DimensionConstants.sixteen,
     },
     searchContainer: {
@@ -29,8 +32,6 @@ export const SettingsScreenStyles = theme =>
       padding: DimensionConstants.four,
     },
     profileContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
       padding: DimensionConstants.sixteen,
       backgroundColor: theme.cardBackground || '#fff',
       borderRadius: DimensionConstants.twelve,
@@ -108,8 +109,9 @@ export const SettingsScreenStyles = theme =>
       fontWeight: '500',
     },
     featuresCard: {
-      paddingRight: 0,
+      flex: 1,
       borderRadius: DimensionConstants.twelve,
+      justifyContent: 'space-between',
     },
     featureRow: {
       flexDirection: 'row',
