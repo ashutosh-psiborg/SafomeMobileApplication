@@ -161,31 +161,31 @@ const SettingsScreen = () => {
           navigation: () => navigation.navigate('SubscriptionScreen'),
         },
 
-        {
-          title: appStrings?.settings?.aboutDevice?.text,
-          icon: <AboutDeviceIcon />,
-          navigation: () => navigation.navigate('AboutDeviceScreen'),
-          line: false,
-        },
+        // {
+        //   title: appStrings?.settings?.aboutDevice?.text,
+        //   icon: <AboutDeviceIcon />,
+        //   navigation: () => navigation.navigate('AboutDeviceScreen'),
+        //   line: false,
+        // },
       ],
     },
-    {
-      title: appStrings?.settings?.preference?.text,
-      data: [
-        {
-          title: appStrings?.notification?.title?.text,
-          icon: <ProfileNotificationIcon />,
-          navigation: () => navigation.navigate('NotificationsScreen'),
-        },
-        {
-          title: appStrings?.settings?.appearance?.text,
-          icon: <AppearanceIcon />,
-          navigation: () => setModalVisible(true),
+    // {
+    //   title: appStrings?.settings?.preference?.text,
+    //   data: [
+    //     {
+    //       title: appStrings?.notification?.title?.text,
+    //       icon: <ProfileNotificationIcon />,
+    //       navigation: () => navigation.navigate('NotificationsScreen'),
+    //     },
+    //     {
+    //       title: appStrings?.settings?.appearance?.text,
+    //       icon: <AppearanceIcon />,
+    //       navigation: () => setModalVisible(true),
 
-          line: false,
-        },
-      ],
-    },
+    //       line: false,
+    //     },
+    //   ],
+    // },
     {
       title: appStrings?.settings?.otherSettings?.text,
       data: [
@@ -290,15 +290,15 @@ const SettingsScreen = () => {
               onPress={signOut}
             />
           )}
-          <Spacing height={DimensionConstants.sixteen} />
-          <Text
+          {/* <Spacing height={DimensionConstants.sixteen} /> */}
+          {/* <Text
             style={{
               textAlign: 'center',
               color: '#889CA3',
               fontSize: DimensionConstants.fourteen,
             }}>
             {appStrings?.settings?.appVersion?.text} 0.1
-          </Text>
+          </Text> */}
         </View>
       </ScrollView>
       <CustomModal
