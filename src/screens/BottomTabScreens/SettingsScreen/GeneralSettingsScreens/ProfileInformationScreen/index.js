@@ -3,7 +3,6 @@ import {View, Image, TouchableOpacity, ScrollView, Alert} from 'react-native';
 import {validationSchema} from '../../../../../utils/Validations';
 import MainBackground from '../../../../../components/MainBackground';
 import CustomHeader from '../../../../../components/CustomHeader';
-import MenuIcon from '../../../../../assets/icons/MenuIcon';
 import Spacing from '../../../../../components/Spacing';
 import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import {ImageConstants} from '../../../../../constants/ImageConstants';
@@ -32,6 +31,7 @@ const ProfileInformationScreen = ({navigation}) => {
     queryKey: ['userProfile'],
     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
   });
+
   const {
     control,
     handleSubmit,
@@ -63,7 +63,6 @@ const ProfileInformationScreen = ({navigation}) => {
         address: data?.data?.user?.address || '',
         gender: data?.data?.user?.gender || '',
       });
-
       if (data?.user?.profileImage) {
         setProfileImage(data?.user?.profileImage);
       }
@@ -71,24 +70,18 @@ const ProfileInformationScreen = ({navigation}) => {
   }, [data, reset]);
 
   const handleSelectImage = () => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.7,
-      },
-      response => {
-        if (response.didCancel) {
-          console.log('User cancelled image picker');
-        } else if (response.errorMessage) {
-          Alert.alert('Error', response.errorMessage);
-        } else {
-          const uri = response.assets?.[0]?.uri;
-          if (uri) {
-            setProfileImage(uri);
-          }
+    launchImageLibrary({mediaType: 'photo', quality: 0.7}, response => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorMessage) {
+        Alert.alert('Error', response.errorMessage);
+      } else {
+        const uri = response.assets?.[0]?.uri;
+        if (uri) {
+          setProfileImage(uri);
         }
-      },
-    );
+      }
+    });
   };
 
   const fields = [
@@ -152,14 +145,8 @@ const ProfileInformationScreen = ({navigation}) => {
   ];
 
   const {mutate, isLoading: isUpdating} = useMutation({
-    mutationFn: formData => {
-      return fetcher({
-        method: 'PUT',
-        url: 'auth/updateUser',
-        data: formData,
-      });
-    },
-
+    mutationFn: formData =>
+      fetcher({method: 'PUT', url: 'auth/updateUser', data: formData}),
     onSuccess: response => {
       Alert.alert(
         'Profile Updated',
@@ -177,6 +164,24 @@ const ProfileInformationScreen = ({navigation}) => {
     },
   });
 
+  const deleteAccountMutation = useMutation({
+    mutationFn: () => fetcher({method: 'DELETE', url: 'auth/deleteAccount'}),
+    onSuccess: () => {
+      Alert.alert(
+        'Account Deleted',
+        'Your account has been successfully deleted.',
+        [{text: 'OK', onPress: () => navigation.navigate('Login')}],
+      );
+    },
+    onError: error => {
+      Alert.alert(
+        'Deletion Failed',
+        error?.response?.data?.message || 'Something went wrong!',
+        [{text: 'OK'}],
+      );
+    },
+  });
+
   const onSubmit = data => {
     const filteredData = Object.fromEntries(
       Object.entries(data).filter(([key]) => {
@@ -187,15 +192,31 @@ const ProfileInformationScreen = ({navigation}) => {
     mutate(filteredData);
   };
 
+  const handleDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'Are you sure you want to delete your account? This action cannot be undone.',
+      [
+        {text: 'Cancel', style: 'cancel'},
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => deleteAccountMutation.mutate(),
+        },
+      ],
+    );
+  };
+
   return (
     <MainBackground noPadding>
       <CustomHeader
         title={'Profile information'}
-        icon={<MenuIcon marginRight={DimensionConstants.ten} />}
         backPress={() => navigation.goBack()}
       />
-      <View style={{padding: DimensionConstants.sixteen}}>
-        <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        contentContainerStyle={{padding: DimensionConstants.sixteen}}
+        showsVerticalScrollIndicator={false}>
+        <View showsVerticalScrollIndicator={false}>
           <Spacing height={DimensionConstants.thirtyTwo} />
           <View style={{alignItems: 'center'}}>
             <View style={{position: 'relative'}}>
@@ -225,7 +246,7 @@ const ProfileInformationScreen = ({navigation}) => {
           </View>
           <Spacing height={DimensionConstants.thirtyTwo} />
           <CommonForm control={control} fields={fields} errors={errors} />
-        </ScrollView>
+        </View>
         {isEditing ? (
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <CustomButton
@@ -244,12 +265,27 @@ const ProfileInformationScreen = ({navigation}) => {
             />
           </View>
         ) : (
-          <CustomButton
-            text={'Edit Details'}
-            onPress={() => setIsEditing(true)}
-          />
+          <>
+            <CustomButton
+              text={'Edit Details'}
+              onPress={() => setIsEditing(true)}
+            />
+            <CustomButton
+              text={'Delete Account'}
+              onPress={handleDeleteAccount}
+              color={'transparent'}
+              textColor={'#FF3B30'}
+              borderColor={'#FF3B30'}
+              style={{
+                borderWidth: 2,
+                borderRadius: DimensionConstants.eight,
+                paddingVertical: DimensionConstants.twelve,
+                backgroundColor: '#FFF5F5',
+              }}
+            />
+          </>
         )}
-      </View>
+      </ScrollView>
       {isLoading && <Loader />}
     </MainBackground>
   );

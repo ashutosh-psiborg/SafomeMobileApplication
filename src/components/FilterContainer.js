@@ -1,11 +1,6 @@
 import React, {useState} from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  StyleSheet,
-  Platform,
-} from 'react-native';
+import {View, Text, TouchableOpacity, StyleSheet, Platform} from 'react-native';
+import {Surface} from 'react-native-paper';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {DimensionConstants} from '../constants/DimensionConstants';
 
@@ -21,44 +16,79 @@ const FilterContainer = ({options, selected, onSelect, theme}) => {
   };
 
   const onDateChange = (event, selectedDate) => {
-    setShowPicker(false); // Hide picker after selection
-    if (selectedDate) {
+    setShowPicker(Platform.OS === 'ios');
+    if (selectedDate && event.type === 'set') {
       onSelect({
         label: 'Custom',
         startDate: selectedDate,
         endDate: selectedDate,
       });
     }
+    if (event.type === 'dismissed' || !selectedDate) {
+      setShowPicker(false);
+    }
   };
 
+  const styles = StyleSheet.create({
+    filterContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      padding: DimensionConstants.two,
+      backgroundColor: theme.background,
+      borderRadius: DimensionConstants.thirty,
+
+      elevation: 2,
+    },
+    filterButton: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: DimensionConstants.eight,
+      borderRadius: DimensionConstants.twentyFive,
+    },
+    selectedButton: {
+      backgroundColor: theme.primary,
+    },
+    unselectedButton: {
+      backgroundColor: theme.background,
+    },
+    filterText: {
+      fontSize: DimensionConstants.twelve,
+      fontWeight: '600',
+      textTransform: 'uppercase',
+    },
+    selectedText: {
+      color: theme.background,
+    },
+    unselectedText: {
+      color: theme.primary,
+    },
+  });
+
   return (
-    <View style={styles.filterContainer}>
+    <Surface style={styles.filterContainer}>
       {options.map(option => (
         <TouchableOpacity
           key={option}
           onPress={() => handleOptionPress(option)}
           style={[
             styles.filterButton,
-            selected === option || (selected?.label === 'Custom' && option === 'Custom')
-              ? {backgroundColor: theme.primary}
-              : {
-                  backgroundColor: 'white',
-                  borderColor: theme.primary,
-                  borderWidth: 1,
-                },
+            selected === option ||
+            (selected?.label === 'Custom' && option === 'Custom')
+              ? styles.selectedButton
+              : styles.unselectedButton,
           ]}>
           <Text
             style={[
               styles.filterText,
-              selected === option || (selected?.label === 'Custom' && option === 'Custom')
-                ? {color: 'white'}
-                : {color: theme.primary},
+              selected === option ||
+              (selected?.label === 'Custom' && option === 'Custom')
+                ? styles.selectedText
+                : styles.unselectedText,
             ]}>
             {option}
           </Text>
         </TouchableOpacity>
       ))}
-
       {showPicker && (
         <DateTimePicker
           mode="date"
@@ -68,27 +98,8 @@ const FilterContainer = ({options, selected, onSelect, theme}) => {
           onChange={onDateChange}
         />
       )}
-    </View>
+    </Surface>
   );
 };
-
-const styles = StyleSheet.create({
-  filterContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    padding: DimensionConstants.four,
-    borderRadius: DimensionConstants.twentyNine,
-    alignItems: 'center',
-  },
-  filterButton: {
-    paddingVertical: DimensionConstants.five,
-    paddingHorizontal: DimensionConstants.fifteen,
-    borderRadius: DimensionConstants.twenty,
-  },
-  filterText: {
-    fontWeight: '500',
-    fontSize: DimensionConstants.fourteen,
-  },
-});
 
 export default FilterContainer;
