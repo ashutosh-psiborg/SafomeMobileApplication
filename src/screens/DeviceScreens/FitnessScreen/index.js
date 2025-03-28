@@ -4,20 +4,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
-  Platform,
-  Keyboard,
-  Modal,
-  KeyboardAvoidingView,
-  TouchableWithoutFeedback,
 } from 'react-native';
-import {useFocusEffect} from '@react-navigation/native';
-import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
 import {
   DimensionConstants,
   height,
-  width,
 } from '../../../constants/DimensionConstants';
 import {useQuery} from '@tanstack/react-query';
 import {useSelector} from 'react-redux';
@@ -289,7 +282,7 @@ const FitnessScreen = ({navigation}) => {
             onSelect={setSelected}
             theme={theme}
           />
-          <Spacing height={DimensionConstants.twentyFour} />
+          <Spacing height={DimensionConstants.fifteen} />
           <CustomCard>
             <Spacing height={DimensionConstants.ten} />
             <View
@@ -439,7 +432,6 @@ const FitnessScreen = ({navigation}) => {
           <Spacing height={DimensionConstants.twentyFour} />
           <HomeMidHeader title={'Statistics'} showViewAll={false} />
           <Spacing height={DimensionConstants.ten} />
-
           {/* <StatisticsCards data={data} /> */}
           <HealthGraph data={data} />
         </View>
