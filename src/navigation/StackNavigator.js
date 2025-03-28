@@ -51,14 +51,11 @@ import RejectCallScreen from '../screens/DeviceScreens/FeaturesScreens/More/Reje
 import FallBackAlert from '../screens/DeviceScreens/FeaturesScreens/More/FallBackAlert/index';
 import RemindersScreen from '../screens/DeviceScreens/FeaturesScreens/More/RemindersScreen/index';
 import SmsAlertScreen from '../screens/DeviceScreens/FeaturesScreens/More/SmsAlertScreen/index';
-<<<<<<< HEAD
 import AddSosContact from '../screens/DeviceScreens/FeaturesScreens/More/AddSosContact/index';
 import AddContact from '../screens/DeviceScreens/FeaturesScreens/More/AddContact/index';
 import SoundGuardian from '../screens/DeviceScreens/FeaturesScreens/More/SoundGuardian/index';
-=======
 import SecurityScreen from '../screens/BottomTabScreens/SettingsScreen/SecuritySetting';
 import FAQScreen from '../screens/BottomTabScreens/SettingsScreen/FAQ';
->>>>>>> development
 
 const Stack = createNativeStackNavigator();
 
