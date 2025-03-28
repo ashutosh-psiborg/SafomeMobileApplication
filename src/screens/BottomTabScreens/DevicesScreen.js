@@ -29,6 +29,9 @@ import CommonForm from '../../utils/CommonForm';
 import {useForm} from 'react-hook-form';
 import RightArrowIcon from '../../assets/icons/RightArrowIcon';
 import FeaturesIcon from '../../assets/icons/FeaturesIcon';
+import AddRemoteIcon from '../../assets/icons/AddRemoteIcon';
+import AboutDeviceIcon from '../../assets/icons/AboutDeviceIcon';
+import SubscriptionIcon from '../../assets/icons/SubscriptionIcon';
 const DevicesScreen = ({navigation}) => {
   const [deviceId, setDeviceId] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
@@ -113,6 +116,23 @@ const DevicesScreen = ({navigation}) => {
       component: <FeaturesIcon />,
       label: 'Features',
       navigation: () => navigation.navigate('FeaturesScreens'),
+      // line: 'no',
+    },
+    {
+      component: <AddRemoteIcon />,
+      label: 'Manage Devices',
+      navigation: () => navigation.navigate('AddRemoveDeviceScreen'),
+    },
+
+    {
+      component: <SubscriptionIcon />,
+      label: 'Subscription',
+      navigation: () => navigation.navigate('SubscriptionScreen'),
+    },
+    {
+      component: <AboutDeviceIcon />,
+      label: 'About Device',
+      navigation: () => navigation.navigate('AboutDeviceScreen'),
       line: 'no',
     },
   ];
