@@ -14,7 +14,7 @@ const FilterContainer = ({options, selected, onSelect, theme}) => {
       onSelect(option);
     }
   };
-
+  console.log('-=-=-=-=-=-=-=', selected);
   const onDateChange = (event, selectedDate) => {
     setShowPicker(Platform.OS === 'ios');
     if (selectedDate && event.type === 'set') {
