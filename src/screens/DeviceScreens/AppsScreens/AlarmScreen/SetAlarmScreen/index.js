@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -17,8 +17,9 @@ import Spacing from '../../../../../components/Spacing';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../../utils/ApiService';
 import {useRoute} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const daysOfWeek = [ 'Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const repeatOptions = [
   {label: 'Once', value: 'Once'},
   {label: 'Daily', value: 'Daily'},
@@ -31,6 +32,23 @@ const SetAlarmScreen = ({navigation}) => {
   const [repeat, setRepeat] = useState('Once');
   const [selectedDays, setSelectedDays] = useState([]);
   const [isEnabled, setIsEnabled] = useState(true);
+  const [deviceId, setDeviceId] = useState('');
+  // Fetch Device ID from AsyncStorage
+  console.log('Fetching device ID from AsyncStorage', deviceId);
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
   const route = useRoute();
   const {index} = route.params;
   console.log(index);
@@ -69,7 +87,7 @@ const SetAlarmScreen = ({navigation}) => {
       let daysBinary = '';
       if (repeat === 'Custom') {
         // Updated condition
-        const weekDaysMap = ['Sun','Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', ];
+        const weekDaysMap = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         daysBinary = weekDaysMap
           .map(day => (selectedDays.includes(day) ? '1' : '0'))
           .join('');
@@ -88,7 +106,7 @@ const SetAlarmScreen = ({navigation}) => {
 
       return fetcher({
         method: 'POST',
-        url: 'deviceDataResponse/sendEvent/6907390711',
+        url: `deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: remindString},
       });
     },

@@ -1,4 +1,4 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useCallback, useEffect} from 'react';
 import {View, Text, TouchableOpacity, Switch, StyleSheet} from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {useQuery} from '@tanstack/react-query';
@@ -10,6 +10,7 @@ import ThreeDots from '../../../../assets/icons/ThreeDots';
 import Spacing from '../../../../components/Spacing';
 import fetcher from '../../../../utils/ApiService';
 import Loader from '../../../../components/Loader';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const daysMap = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
@@ -34,25 +35,40 @@ const formatDays = binaryString => {
 const AlarmScreen = ({navigation}) => {
   const [isEnabled, setIsEnabled] = useState(true);
   const toggleSwitch = () => setIsEnabled(prevState => !prevState);
+  const [deviceId, setDeviceId] = useState('');
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
+  console.log('=====', deviceId);
 
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['alarm'],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getDeviceAlarms/REMIND/6907390711`,
+        url: `deviceDataResponse/getDeviceAlarms/REMIND/${deviceId}`,
       }),
   });
 
-  // Fetch data when screen is focused
   useFocusEffect(
     useCallback(() => {
       refetch();
-    }, []),
+    }, [deviceId]),
   );
 
   const alarms = data;
-  console.log(`Alarms`, alarms);
+  console.log(`Alarms`, data);
 
   const alarmList = alarms
     ? Object.keys(alarms)
