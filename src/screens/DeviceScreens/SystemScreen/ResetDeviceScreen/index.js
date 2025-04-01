@@ -1,5 +1,5 @@
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {
@@ -12,13 +12,33 @@ import CustomButton from '../../../../components/CustomButton';
 import Spacing from '../../../../components/Spacing';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const ResetDeviceScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
+  const [deviceId, setDeviceId] = useState('');
+
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
+  console.log('Device===}}}}+++', deviceId);
   const resetMutation = useMutation({
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: 'deviceDataResponse/sendEvent/6907390711',
+        url: `deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: '[FACTORY]'},
       });
     },
