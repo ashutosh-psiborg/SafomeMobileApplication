@@ -41,7 +41,7 @@ const DevicesScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `/devices/deviceDetails/${deviceId || '67db981e5b0168be809f4edd'}`,
+        url: `/devices/deviceDetails/${deviceId}`,
       }),
   });
 

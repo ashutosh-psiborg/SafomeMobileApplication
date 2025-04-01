@@ -1,42 +1,75 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {View, StyleSheet, FlatList, TouchableOpacity, Text} from 'react-native';
+import {useFocusEffect} from '@react-navigation/native';
+import {useSelector} from 'react-redux';
+import {useMutation, useQuery} from '@tanstack/react-query';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import fetcher from '../../../../utils/ApiService';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import InfoCard from '../../../../components/InfoCard';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
-import {useSelector} from 'react-redux';
-import {useMutation, useQuery} from '@tanstack/react-query';
-import fetcher from '../../../../utils/ApiService';
 import Spacing from '../../../../components/Spacing';
-
-const DEVICE_ID = '6907390711';
+import Loader from '../../../../components/Loader';
 
 const AutoCallScreen = ({navigation}) => {
   const {appStrings} = useSelector(state => state.language);
   const [isEnabled, setIsEnabled] = useState(false);
   const [contactNumbers, setContactNumbers] = useState([]);
   const [selectedContacts, setSelectedContacts] = useState([]);
+  const [deviceId, setDeviceId] = useState('');
 
-  // Fetch Auto Call Status
-  const {data, refetch} = useQuery({
-    queryKey: ['autoCall'],
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
+
+  // Fetch AutoCall Data
+  const {data, refetch, isLoading} = useQuery({
+    queryKey: ['autoCall', deviceId],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getEvent/ACALL/${DEVICE_ID}`,
+        url: `deviceDataResponse/getEvent/ACALL/${deviceId}`,
       }),
+    enabled: !!deviceId, // Only fetch if deviceId is available
   });
 
   // Fetch Contact Numbers
-  const {data: contactData} = useQuery({
-    queryKey: ['contactNumbers'],
+  const {
+    data: contactData,
+    isLoading: contactIsLoading,
+    refetch: refetchContacts,
+  } = useQuery({
+    queryKey: ['contactNumbers', deviceId],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getContactNumber/PHBX/${DEVICE_ID}`,
+        url: `deviceDataResponse/getContactNumber/PHBX/${deviceId}`,
       }),
+    enabled: !!deviceId,
   });
 
+  // Refetch data when the screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+      refetchContacts();
+    }, [deviceId]),
+  );
+
+  // Update state when new data is available
   useEffect(() => {
     if (data?.data?.response?.acOff === 0) {
       setIsEnabled(false);
@@ -55,11 +88,12 @@ const AutoCallScreen = ({navigation}) => {
     }
   }, [contactData]);
 
+  // Auto Call Mutation
   const autoCallMutation = useMutation({
     mutationFn: async requestData => {
       return fetcher({
         method: 'POST',
-        url: `deviceDataResponse/sendEvent/${DEVICE_ID}`,
+        url: `deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: requestData},
       });
     },
@@ -72,16 +106,16 @@ const AutoCallScreen = ({navigation}) => {
     },
   });
 
+  // Toggle contact selection
   const toggleContactSelection = contactNumber => {
-    setSelectedContacts(prevSelected => {
-      if (prevSelected.includes(contactNumber)) {
-        return prevSelected.filter(num => num !== contactNumber);
-      } else {
-        return [...prevSelected, contactNumber];
-      }
-    });
+    setSelectedContacts(prevSelected =>
+      prevSelected.includes(contactNumber)
+        ? prevSelected.filter(num => num !== contactNumber)
+        : [...prevSelected, contactNumber],
+    );
   };
 
+  // Toggle Auto Call Switch
   const toggleSwitch = () => {
     const newState = !isEnabled;
     setIsEnabled(newState);
@@ -94,38 +128,42 @@ const AutoCallScreen = ({navigation}) => {
   };
 
   return (
-    <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
+    <MainBackground noPadding style={styles.container}>
       <CustomHeader
         title={appStrings?.system?.autoCallAnswer?.text}
         backgroundColor={'#fff'}
         backPress={() => navigation.goBack()}
       />
-      <View style={styles.container}>
-        <InfoCard
-          title={appStrings?.system?.autoCallAnswer?.text}
-          description={appStrings?.system?.autoCallDescription?.text}
-          isEnabled={isEnabled}
-          onToggle={toggleSwitch}
-        />
-        <Spacing height={DimensionConstants.ten} />
-        <Text style={styles.label}>Select Contacts for Auto Call:</Text>
-        <FlatList
-          data={contactNumbers}
-          keyExtractor={item => item.contactNumber}
-          renderItem={({item}) => (
-            <TouchableOpacity
-              style={[
-                styles.contactCard,
-                selectedContacts.includes(item.contactNumber) &&
-                  styles.selectedCard,
-              ]}
-              onPress={() => toggleContactSelection(item.contactNumber)}>
-              <Text style={styles.contactName}>{item.name}</Text>
-              <Text style={styles.contactNumber}>{item.contactNumber}</Text>
-            </TouchableOpacity>
-          )}
-        />
-      </View>
+      {contactIsLoading || isLoading ? (
+        <Loader />
+      ) : (
+        <View style={styles.content}>
+          <InfoCard
+            title={appStrings?.system?.autoCallAnswer?.text}
+            description={appStrings?.system?.autoCallDescription?.text}
+            isEnabled={isEnabled}
+            onToggle={toggleSwitch}
+          />
+          <Spacing height={DimensionConstants.ten} />
+          <Text style={styles.label}>Select Contacts for Auto Call:</Text>
+          <FlatList
+            data={contactNumbers}
+            keyExtractor={item => item.contactNumber}
+            renderItem={({item}) => (
+              <TouchableOpacity
+                style={[
+                  styles.contactCard,
+                  selectedContacts.includes(item?.contactNumber) &&
+                    styles.selectedCard,
+                ]}
+                onPress={() => toggleContactSelection(item?.contactNumber)}>
+                <Text style={styles.contactName}>{item?.name}</Text>
+                <Text style={styles.contactNumber}>{item?.contactNumber}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      )}
     </MainBackground>
   );
 };
@@ -134,6 +172,9 @@ export default AutoCallScreen;
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: '#F2F7FC',
+  },
+  content: {
     padding: DimensionConstants.sixteen,
   },
   label: {

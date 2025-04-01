@@ -59,9 +59,7 @@ const LocationScreen = ({navigation}) => {
     queryFn: async () => {
       const response = await fetcher({
         method: 'GET',
-        url: `deviceDataResponse/locations/${
-          deviceId || 6907390711
-        }?page=1&limit=300&startDate=24-03-2025&endDate=25-03-2025`,
+        url: `deviceDataResponse/locations/${deviceId}`,
       });
       return response;
     },
