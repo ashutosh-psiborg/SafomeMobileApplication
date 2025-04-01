@@ -47,10 +47,26 @@ const DevicesScreen = ({navigation}) => {
 
   useFocusEffect(
     useCallback(() => {
-      refetch();
-    }, [deviceId]),
+      const getStoredDeviceId = async () => {
+        try {
+          const storedMongoId = await AsyncStorage.getItem(
+            'selectedDeviceMongoId',
+          );
+          setDeviceId(storedMongoId);
+          console.log('Stored Mongo _id:=======', storedMongoId);
+        } catch (error) {
+          console.error('Failed to retrieve stored device data:', error);
+        }
+      };
+      getStoredDeviceId();
+    }, []),
   );
 
+  useEffect(() => {
+    if (deviceId) {
+      refetch();
+    }
+  }, [deviceId, refetch]);
   const {
     control,
     handleSubmit,
@@ -108,6 +124,11 @@ const DevicesScreen = ({navigation}) => {
     //   navigation: () => navigation.navigate('AppScreen'),
     // },
     {
+      component: <AddRemoteIcon />,
+      label: 'Manage Devices',
+      navigation: () => navigation.navigate('AddRemoveDeviceScreen'),
+    },
+    {
       component: <SystemIcon />,
       label: appStrings?.device?.system?.text,
       navigation: () => navigation.navigate('SystemScreen'),
@@ -117,11 +138,6 @@ const DevicesScreen = ({navigation}) => {
       label: 'Features',
       navigation: () => navigation.navigate('FeaturesScreens'),
       // line: 'no',
-    },
-    {
-      component: <AddRemoteIcon />,
-      label: 'Manage Devices',
-      navigation: () => navigation.navigate('AddRemoveDeviceScreen'),
     },
 
     {

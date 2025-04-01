@@ -1,23 +1,43 @@
 import React, {useState, useEffect} from 'react';
 import {StyleSheet, Text, View, Alert} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomHeader from '../../../../../components/CustomHeader';
 import MainBackground from '../../../../../components/MainBackground';
 import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import fetcher from '../../../../../utils/ApiService';
 import InfoCard from '../../../../../components/InfoCard';
+
 export default function RejectCallScreen({navigation}) {
+  const [deviceId, setDeviceId] = useState('');
   const [isEnabled, setIsEnabled] = useState(false);
 
+  useEffect(() => {
+    const getStoredDeviceId = async () => {
+      try {
+        const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+        if (storedDeviceId) {
+          setDeviceId(storedDeviceId);
+        }
+      } catch (error) {
+        console.error('Failed to retrieve stored device data:', error);
+      }
+    };
+    getStoredDeviceId();
+  }, []);
+
   const {data, isLoading, error, refetch} = useQuery({
-    queryKey: ['unknownCall'],
-    queryFn: () =>
-      fetcher({
+    queryKey: ['unknownCall', deviceId], // Re-fetch when deviceId changes
+    queryFn: () => {
+      if (!deviceId) return;
+      return fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getEvent/DEVREFUSEPHONESWITCH/6907390711`,
-      }),
+        url: `deviceDataResponse/getEvent/DEVREFUSEPHONESWITCH/${deviceId}`,
+      });
+    },
+    enabled: !!deviceId, // Only fetch if deviceId is available
   });
-  console.log(data?.data?.response?.devRefusePhoneSwitch);
+
   useEffect(() => {
     if (data?.data?.response?.devRefusePhoneSwitch === '0') {
       setIsEnabled(false);
@@ -28,9 +48,13 @@ export default function RejectCallScreen({navigation}) {
 
   const unknownCallMutation = useMutation({
     mutationFn: async requestData => {
+      if (!deviceId) {
+        Alert.alert('Error', 'Device ID not found.');
+        return;
+      }
       return fetcher({
         method: 'POST',
-        url: 'deviceDataResponse/sendEvent/6907390711',
+        url: `deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: requestData},
       });
     },
@@ -49,6 +73,11 @@ export default function RejectCallScreen({navigation}) {
   });
 
   const toggleSwitch = () => {
+    if (!deviceId) {
+      Alert.alert('Error', 'No device selected.');
+      return;
+    }
+
     const newState = !isEnabled;
     setIsEnabled(newState);
 
@@ -78,12 +107,17 @@ export default function RejectCallScreen({navigation}) {
             description={'Automatically rejects unknown calls'}
             isEnabled={isEnabled}
             onToggle={toggleSwitch}
+            disabled={!deviceId} // Disable toggle if no deviceId
           />
           <Text
             style={[
               styles.FindDeviceCardTxt1,
               {padding: DimensionConstants.fifteen},
-            ]}>{`• Only registered contacts can call \n• If there is unknown call, message will be sent to the app for parents to know`}</Text>
+            ]}>
+            {'\u2022'} Only registered contacts can call {'\n'}
+            {'\u2022'} If there is an unknown call, a message will be sent to
+            the app for parents to know
+          </Text>
         </View>
       </View>
     </MainBackground>
@@ -93,16 +127,6 @@ export default function RejectCallScreen({navigation}) {
 const styles = StyleSheet.create({
   mainBackground: {
     backgroundColor: '#F2F7FC',
-  },
-  FindDeviceCard: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: DimensionConstants.nineteen,
-  },
-  FindDeviceCardTxt: {
-    fontSize: DimensionConstants.fourteen,
-    fontWeight: '500',
   },
   FindDeviceCardTxt1: {
     fontSize: DimensionConstants.twelve,

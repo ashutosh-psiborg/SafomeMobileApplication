@@ -1,5 +1,6 @@
 import {View, Text, TextInput, Alert} from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MainBackground from '../../../../../components/MainBackground';
 import CustomHeader from '../../../../../components/CustomHeader';
 import {DimensionConstants} from '../../../../../constants/DimensionConstants';
@@ -7,12 +8,29 @@ import CustomButton from '../../../../../components/CustomButton';
 import fetcher from '../../../../../utils/ApiService';
 import {useMutation} from '@tanstack/react-query';
 
-const SEND_EVENT_URL = `/deviceDataResponse/sendEvent/6907390711`;
-
 const SoundGuardian = ({navigation}) => {
+  const [deviceId, setDeviceId] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
 
+  useEffect(() => {
+    const getStoredDeviceId = async () => {
+      try {
+        const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+        if (storedDeviceId) {
+          setDeviceId(storedDeviceId);
+        }
+      } catch (error) {
+        console.error('Failed to retrieve stored device data:', error);
+      }
+    };
+    getStoredDeviceId();
+  }, []);
+
   const sendCallRequest = type => {
+    if (!deviceId) {
+      Alert.alert('Error', 'No device selected.');
+      return;
+    }
     if (!phoneNumber) {
       Alert.alert('Error', 'Please enter a phone number.');
       return;
@@ -24,9 +42,13 @@ const SoundGuardian = ({navigation}) => {
 
   const callGuardianMutation = useMutation({
     mutationFn: async formattedData => {
+      if (!deviceId) {
+        Alert.alert('Error', 'Device ID not found.');
+        return;
+      }
       return fetcher({
         method: 'POST',
-        url: SEND_EVENT_URL,
+        url: `/deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: formattedData},
       });
     },
@@ -67,6 +89,7 @@ const SoundGuardian = ({navigation}) => {
               borderRadius: 8,
               marginBottom: 16,
             }}
+            editable={!!deviceId} // Disable input if no device selected
           />
 
           <View>
@@ -83,6 +106,7 @@ const SoundGuardian = ({navigation}) => {
           <CustomButton
             text={'Monitor'}
             onPress={() => sendCallRequest('MONITOR')}
+            disabled={!deviceId} // Disable button if no device selected
           />
           <CustomButton
             text={'Call'}
@@ -91,6 +115,7 @@ const SoundGuardian = ({navigation}) => {
             textColor={'#FF310C'}
             onPress={() => sendCallRequest('CALL')}
             style={{marginTop: 10}}
+            disabled={!deviceId} // Disable button if no device selected
           />
         </View>
       </View>

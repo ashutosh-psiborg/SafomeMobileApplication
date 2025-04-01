@@ -7,6 +7,7 @@ import {
   StyleSheet,
 } from 'react-native';
 import React, {useState, useEffect} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import MainBackground from '../../../../../components/MainBackground';
 import CustomHeader from '../../../../../components/CustomHeader';
@@ -15,15 +16,24 @@ import CustomButton from '../../../../../components/CustomButton';
 import fetcher from '../../../../../utils/ApiService';
 import {useMutation} from '@tanstack/react-query';
 
-const SEND_EVENT_URL = `/deviceDataResponse/sendEvent/6907390711`;
-
 const RemindersScreen = ({navigation}) => {
+  const [deviceId, setDeviceId] = useState('');
   const [time, setTime] = useState(new Date());
   const [showPicker, setShowPicker] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
-    setTime(new Date());
+    const getStoredDeviceId = async () => {
+      try {
+        const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+        if (storedDeviceId) {
+          setDeviceId(storedDeviceId);
+        }
+      } catch (error) {
+        console.error('Failed to retrieve stored device data:', error);
+      }
+    };
+    getStoredDeviceId();
   }, []);
 
   const convertToHex = str =>
@@ -34,9 +44,13 @@ const RemindersScreen = ({navigation}) => {
 
   const sendReminderMutation = useMutation({
     mutationFn: async formattedData => {
+      if (!deviceId) {
+        Alert.alert('Error', 'Device ID not found.');
+        return;
+      }
       return fetcher({
         method: 'POST',
-        url: SEND_EVENT_URL,
+        url: `/deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: formattedData},
       });
     },
@@ -51,6 +65,10 @@ const RemindersScreen = ({navigation}) => {
   });
 
   const sendReminder = () => {
+    if (!deviceId) {
+      Alert.alert('Error', 'No device selected.');
+      return;
+    }
     if (!message) {
       Alert.alert('Error', 'Please enter a message.');
       return;
@@ -77,7 +95,9 @@ const RemindersScreen = ({navigation}) => {
         <Text style={styles.label}>Reminder Time:</Text>
         <TouchableOpacity
           onPress={() => setShowPicker(true)}
-          style={styles.timeButton}>
+          style={styles.timeButton}
+          disabled={!deviceId} // Disable if no device selected
+        >
           <Text style={styles.timeText}>
             {`${String(time.getHours()).padStart(2, '0')}:${String(
               time.getMinutes(),
@@ -103,12 +123,14 @@ const RemindersScreen = ({navigation}) => {
           value={message}
           onChangeText={setMessage}
           style={styles.input}
+          editable={!!deviceId} // Disable input if no device selected
         />
 
         <CustomButton
           text="Set Reminder"
           onPress={sendReminder}
           style={styles.button}
+          disabled={!deviceId} // Disable button if no device selected
         />
       </View>
     </MainBackground>

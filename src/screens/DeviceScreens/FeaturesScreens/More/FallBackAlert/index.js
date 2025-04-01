@@ -1,5 +1,5 @@
 import {View, Alert} from 'react-native';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {useQuery, useMutation} from '@tanstack/react-query';
 import MainBackground from '../../../../../components/MainBackground';
 import CustomHeader from '../../../../../components/CustomHeader';
@@ -7,8 +7,28 @@ import InfoCard from '../../../../../components/InfoCard';
 import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import Spacing from '../../../../../components/Spacing';
 import fetcher from '../../../../../utils/ApiService';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
+import Loader from '../../../../../components/Loader';
 const FallBackAlert = ({navigation}) => {
+  const [deviceId, setDeviceId] = useState('');
+
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
+  console.log('Device===PPP', deviceId);
   const [switches, setSwitches] = useState({
     fallAlert: false,
     emergencyCall: false,
@@ -19,7 +39,7 @@ const FallBackAlert = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: 'deviceDataResponse/getEvent/FALLDOWN/6907390711',
+        url: `deviceDataResponse/getEvent/FALLDOWN/${deviceId}`,
       }),
   });
 
@@ -36,7 +56,7 @@ const FallBackAlert = ({navigation}) => {
     mutationFn: async requestData => {
       return fetcher({
         method: 'POST',
-        url: 'deviceDataResponse/sendEvent/6907390711',
+        url: `deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: requestData},
       });
     },
@@ -60,7 +80,11 @@ const FallBackAlert = ({navigation}) => {
 
     mutation.mutate(commandMap[key]);
   };
-
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch, deviceId]),
+  );
   const info = [
     {
       key: 'fallAlert',
@@ -82,19 +106,23 @@ const FallBackAlert = ({navigation}) => {
         backgroundColor={'#FFFFFF'}
         backPress={() => navigation.goBack()}
       />
-      <View style={{padding: DimensionConstants.twenty}}>
-        {info?.map(({key, title, description}) => (
-          <React.Fragment key={key}>
-            <InfoCard
-              title={title}
-              description={description}
-              isEnabled={switches[key]}
-              onToggle={() => handleToggle(key)}
-            />
-            <Spacing height={DimensionConstants.ten} />
-          </React.Fragment>
-        ))}
-      </View>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <View style={{padding: DimensionConstants.twenty}}>
+          {info?.map(({key, title, description}) => (
+            <React.Fragment key={key}>
+              <InfoCard
+                title={title}
+                description={description}
+                isEnabled={switches[key]}
+                onToggle={() => handleToggle(key)}
+              />
+              <Spacing height={DimensionConstants.ten} />
+            </React.Fragment>
+          ))}
+        </View>
+      )}
     </MainBackground>
   );
 };

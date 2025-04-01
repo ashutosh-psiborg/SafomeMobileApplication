@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   FlatList,
 } from 'react-native';
-import React from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {useForm} from 'react-hook-form';
 import MainBackground from '../../../../../components/MainBackground';
 import CustomCard from '../../../../../components/CustomCard';
@@ -21,16 +21,34 @@ import fetcher from '../../../../../utils/ApiService';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {ImageConstants} from '../../../../../constants/ImageConstants';
 import DeleteIcon from '../../../../../assets/icons/DeleteIcon';
-
-const SEND_EVENT_URL = `/deviceDataResponse/sendEvent/6907390711`;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
 
 const AddContact = ({navigation}) => {
+  const [deviceId, setDeviceId] = useState('');
+
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
+  console.log('Device===@@@=', deviceId);
   const {data, refetch, isLoading} = useQuery({
     queryKey: ['sosContacts'],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getContactNumber/PHBX/6907390711`,
+        url: `deviceDataResponse/getContactNumber/PHBX/${deviceId}`,
       }),
   });
 
@@ -81,7 +99,7 @@ const AddContact = ({navigation}) => {
 
       return fetcher({
         method: 'POST',
-        url: SEND_EVENT_URL,
+        url: `/deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: formattedData},
       });
     },
@@ -102,7 +120,7 @@ const AddContact = ({navigation}) => {
 
       return fetcher({
         method: 'POST',
-        url: SEND_EVENT_URL,
+        url: `/deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: formattedData},
       });
     },
@@ -126,7 +144,11 @@ const AddContact = ({navigation}) => {
       ],
     );
   };
-
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch, deviceId]),
+  );
   const fields = [
     {
       name: 'phoneNumberOne',

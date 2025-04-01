@@ -1,5 +1,6 @@
 import {View, Alert} from 'react-native';
 import React, {useEffect, useState} from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useQuery, useMutation} from '@tanstack/react-query';
 import MainBackground from '../../../../../components/MainBackground';
 import CustomHeader from '../../../../../components/CustomHeader';
@@ -9,31 +10,48 @@ import Spacing from '../../../../../components/Spacing';
 import fetcher from '../../../../../utils/ApiService';
 
 const SmsAlertScreen = ({navigation}) => {
+  const [deviceId, setDeviceId] = useState('');
   const [switches, setSwitches] = useState({
     fallAlert: false,
     emergencyCall: false,
   });
 
-  const {data, isLoading, error, refetch} = useQuery({
-    queryKey: ['fallAlertStatus'],
+  useEffect(() => {
+    const getStoredDeviceId = async () => {
+      try {
+        const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+        if (storedDeviceId) {
+          setDeviceId(storedDeviceId);
+        }
+      } catch (error) {
+        console.error('Failed to retrieve stored device data:', error);
+      }
+    };
+    getStoredDeviceId();
+  }, []);
+console.log()
+  const {data, refetch} = useQuery({
+    queryKey: ['fallAlertStatus', deviceId],
     queryFn: () =>
-      fetcher({
-        method: 'GET',
-        url: '/deviceDataResponse/getEvent/SOSSMS/6907390711',
-      }),
+      deviceId
+        ? fetcher({
+            method: 'GET',
+            url: `/deviceDataResponse/getEvent/SOSSMS/${deviceId}`,
+          })
+        : null,
+    enabled: !!deviceId, // Prevents execution if deviceId is not set
   });
-  const {
-    data: lowBattery,
-    isLoading: lowBatteryloading,
-    error: lowBatteryError,
-    refetch: lowBatteryRefetch,
-  } = useQuery({
-    queryKey: ['lowBatteryStatus'],
+
+  const {data: lowBattery, refetch: lowBatteryRefetch} = useQuery({
+    queryKey: ['lowBatteryStatus', deviceId],
     queryFn: () =>
-      fetcher({
-        method: 'GET',
-        url: '/deviceDataResponse/getEvent/LOWBAT/6907390711',
-      }),
+      deviceId
+        ? fetcher({
+            method: 'GET',
+            url: `/deviceDataResponse/getEvent/LOWBAT/${deviceId}`,
+          })
+        : null,
+    enabled: !!deviceId,
   });
 
   useEffect(() => {
@@ -49,7 +67,7 @@ const SmsAlertScreen = ({navigation}) => {
     mutationFn: async requestData => {
       return fetcher({
         method: 'POST',
-        url: 'deviceDataResponse/sendEvent/6907390711',
+        url: `deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: requestData},
       });
     },
@@ -87,6 +105,7 @@ const SmsAlertScreen = ({navigation}) => {
       description: 'Sends an emergency message when the SOS button is pressed.',
     },
   ];
+
   return (
     <MainBackground noPadding style={{backgroundColor: '#F2F7FC'}}>
       <CustomHeader
@@ -95,13 +114,14 @@ const SmsAlertScreen = ({navigation}) => {
         backPress={() => navigation.goBack()}
       />
       <View style={{padding: DimensionConstants.twenty}}>
-        {info?.map(({key, title, description}) => (
+        {info.map(({key, title, description}) => (
           <React.Fragment key={key}>
             <InfoCard
               title={title}
               description={description}
               isEnabled={switches[key]}
               onToggle={() => handleToggle(key)}
+              disabled={!deviceId} // Prevent toggling if no deviceId
             />
             <Spacing height={DimensionConstants.ten} />
           </React.Fragment>

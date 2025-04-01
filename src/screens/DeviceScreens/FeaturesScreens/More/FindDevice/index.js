@@ -1,19 +1,36 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, View} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import FindDeviceIcon from '../../../../../assets/icons/FindDeviceIcon';
 import CustomCard from '../../../../../components/CustomCard';
 import CustomHeader from '../../../../../components/CustomHeader';
 import MainBackground from '../../../../../components/MainBackground';
 import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import CustomButton from '../../../../../components/CustomButton';
-import {useMutation, useQuery} from '@tanstack/react-query';
+import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../../utils/ApiService';
+
 export default function FindDevice({navigation}) {
+  const [deviceId, setDeviceId] = useState('');
+
+  useEffect(() => {
+    const getStoredDeviceId = async () => {
+      try {
+        const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+        if (storedDeviceId) {
+          setDeviceId(storedDeviceId);
+        }
+      } catch (error) {
+        console.error('Failed to retrieve stored device data:', error);
+      }
+    };
+    getStoredDeviceId();
+  }, []);
   const findMutation = useMutation({
-    mutationFn: async requestData => {
+    mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: 'deviceDataResponse/sendEvent/6907390711',
+        url: `deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: '[FIND]'},
       });
     },
@@ -21,7 +38,7 @@ export default function FindDevice({navigation}) {
       console.log('Device found');
     },
     onError: error => {
-      console.error('request failed', error);
+      console.error('Request failed', error);
     },
   });
 
@@ -32,12 +49,7 @@ export default function FindDevice({navigation}) {
         backgroundColor={'#FFFFFF'}
         backPress={() => navigation.goBack()}
       />
-      <View
-        style={{
-          padding: DimensionConstants.fifteen,
-          justifyContent: 'space-between',
-          flex: 1,
-        }}>
+      <View style={styles.container}>
         <View>
           <CustomCard style={styles.FindDeviceCard}>
             <FindDeviceIcon />
@@ -48,13 +60,15 @@ export default function FindDevice({navigation}) {
               </Text>
             </View>
           </CustomCard>
-          <Text
-            style={[
-              styles.FindDeviceCardTxt1,
-              {padding: DimensionConstants.fifteen},
-            ]}>{`• Press "Find device" to activate sound on device \n• Device will play a sound`}</Text>
+          <Text style={styles.instructions}>
+            {`• Press "Find device" to activate sound on device \n• Device will play a sound`}
+          </Text>
         </View>
-        <CustomButton text="Play Sound" onPress={() => findMutation.mutate()} />
+        <CustomButton
+          text="Play Sound"
+          onPress={() => findMutation.mutate()}
+          disabled={!deviceId}
+        />
       </View>
     </MainBackground>
   );
@@ -64,8 +78,12 @@ const styles = StyleSheet.create({
   mainBackground: {
     backgroundColor: '#F2F7FC',
   },
+  container: {
+    padding: DimensionConstants.fifteen,
+    justifyContent: 'space-between',
+    flex: 1,
+  },
   FindDeviceCard: {
-    display: 'flex',
     flexDirection: 'row',
     alignItems: 'center',
     gap: DimensionConstants.nineteen,
@@ -75,6 +93,12 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   FindDeviceCardTxt1: {
+    fontSize: DimensionConstants.twelve,
+    fontWeight: '500',
+    color: '#889CA3',
+  },
+  instructions: {
+    padding: DimensionConstants.fifteen,
     fontSize: DimensionConstants.twelve,
     fontWeight: '500',
     color: '#889CA3',

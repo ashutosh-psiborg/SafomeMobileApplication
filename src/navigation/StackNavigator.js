@@ -352,8 +352,6 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="SoundGuardian"
         component={SoundGuardian}
-        name="SecurityScreen"
-        component={SecurityScreen}
       />
       <Stack.Screen
         options={{headerShown: false}}
