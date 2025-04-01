@@ -47,7 +47,6 @@ const AlarmScreen = ({navigation}) => {
       console.error('Failed to retrieve stored device data:', error);
     }
   };
-  console.log('=====', deviceId);
 
   useEffect(() => {
     getStoredDeviceId();
@@ -60,11 +59,11 @@ const AlarmScreen = ({navigation}) => {
         url: `deviceDataResponse/getDeviceAlarms/REMIND/${deviceId}`,
       }),
   });
-
+  console.log(deviceId, '====');
   useFocusEffect(
     useCallback(() => {
       refetch();
-    }, [deviceId]),
+    }, [deviceId, isLoading]),
   );
 
   const alarms = data;

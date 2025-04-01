@@ -47,7 +47,7 @@ const LocationScreen = ({navigation}) => {
     useCallback(() => {
       getSelectedDevice();
       refetchLocation();
-    }, []),
+    }, [deviceId]),
   );
 
   const {
@@ -118,8 +118,8 @@ const LocationScreen = ({navigation}) => {
               key={mapKey}
               style={styles.map}
               initialRegion={{
-                latitude: location?.latitude || 28.50704765,
-                longitude: location?.longitude || 77.40246858,
+                latitude: location?.latitude,
+                longitude: location?.longitude,
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }}>

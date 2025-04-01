@@ -1,5 +1,5 @@
 import {View, Alert} from 'react-native';
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
@@ -8,10 +8,9 @@ import RadioButtonCard from '../../../../components/RadioButtonCard';
 import Spacing from '../../../../components/Spacing';
 import CustomButton from '../../../../components/CustomButton';
 import fetcher from '../../../../utils/ApiService';
-
-const DEVICE_ID = '6907390711';
-const GET_EVENT_URL = `/deviceDataResponse/getEvent/profile/${DEVICE_ID}`;
-const SEND_EVENT_URL = `/deviceDataResponse/sendEvent/${DEVICE_ID}`;
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
+import Loader from '../../../../components/Loader';
 
 const options = [
   {label: 'Vibration and ringing', value: 1},
@@ -22,11 +21,36 @@ const options = [
 
 const DisableFunctionScreen = ({navigation}) => {
   const [selected, setSelected] = useState(0);
+  const [deviceId, setDeviceId] = useState('');
+  console.log(deviceId);
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
 
-  const {data, refetch} = useQuery({
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
+  const {data, refetch, isLoading} = useQuery({
     queryKey: ['deviceAlertMode'],
-    queryFn: () => fetcher({method: 'GET', url: GET_EVENT_URL}),
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `/deviceDataResponse/getEvent/profile/${deviceId}`,
+      }),
   });
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [deviceId]),
+  );
 
   useEffect(() => {
     if (data?.data?.response?.profile) {
@@ -42,7 +66,7 @@ const DisableFunctionScreen = ({navigation}) => {
     mutationFn: async selectedValue => {
       return fetcher({
         method: 'POST',
-        url: SEND_EVENT_URL,
+        url: `/deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: `[profile,${selectedValue}]`}, // Send the correct value
       });
     },
@@ -72,15 +96,19 @@ const DisableFunctionScreen = ({navigation}) => {
         backgroundColor={'#ffffff'}
         backPress={() => navigation.goBack()}
       />
-      <View style={{padding: DimensionConstants.sixteen}}>
-        <RadioButtonCard
-          data={options}
-          onSelect={setSelected}
-          selected={selected} // Store index, not value
-        />
-        <Spacing height={DimensionConstants.twenty} />
-        <CustomButton text="Save" onPress={handleSave} />
-      </View>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <View style={{padding: DimensionConstants.sixteen}}>
+          <RadioButtonCard
+            data={options}
+            onSelect={setSelected}
+            selected={selected} // Store index, not value
+          />
+          <Spacing height={DimensionConstants.twenty} />
+          <CustomButton text="Save" onPress={handleSave} />
+        </View>
+      )}
     </MainBackground>
   );
 };

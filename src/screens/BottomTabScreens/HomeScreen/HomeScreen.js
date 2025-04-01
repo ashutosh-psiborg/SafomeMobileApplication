@@ -65,7 +65,7 @@ const HomeScreen = ({navigation}) => {
       getSelectedDevice();
       refetchFitness();
       refetchLocation();
-    }, []),
+    }, [deviceId]),
   );
 
   const {
@@ -77,7 +77,7 @@ const HomeScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/healthData/${deviceId || 6907390711}`,
+        url: `deviceDataResponse/healthData/${deviceId}`,
       }),
   });
 
@@ -103,7 +103,7 @@ const HomeScreen = ({navigation}) => {
     queryFn: async () => {
       const response = await fetcher({
         method: 'GET',
-        url: `deviceDataResponse/locations/${deviceId || 6907390711}`,
+        url: `deviceDataResponse/locations/${deviceId}`,
       });
       return response;
     },
@@ -121,7 +121,7 @@ const HomeScreen = ({navigation}) => {
       }
     },
   });
-console.log("locationData====",locationData?.data);
+  console.log('locationData====', locationData?.data);
   useEffect(() => {
     const latestLocation = locationData?.data?.results?.[0];
     if (latestLocation?.latitude && latestLocation?.longitude) {
@@ -218,7 +218,8 @@ console.log("locationData====",locationData?.data);
               style={styles.placeText}
               numberOfLines={1}
               ellipsizeMode="tail">
-              {locationData?.data?.results?.[0]?.placeName || 'Location not available'}
+              {locationData?.data?.results?.[0]?.placeName ||
+                'Location not available'}
             </Text>
           </View>
           <View style={styles.refreshContainer}>

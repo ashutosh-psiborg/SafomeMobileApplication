@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import {View, StyleSheet, Alert} from 'react-native';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
@@ -8,11 +8,9 @@ import RadioButtonCard from '../../../../components/RadioButtonCard';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import fetcher from '../../../../utils/ApiService';
 import {useMutation, useQuery} from '@tanstack/react-query';
-
-const DEVICE_ID = '6907390711';
-const GET_EVENT_URL = `/deviceDataResponse/getEvent/UPLOAD/${DEVICE_ID}`;
-const SEND_EVENT_URL = `/deviceDataResponse/sendEvent/${DEVICE_ID}`;
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
+import Loader from '../../../../components/Loader';
 const trackingOptions = [
   {label: 'Update every 5 minutes', value: 300},
   {label: 'Update every 10 minutes', value: 600},
@@ -22,12 +20,38 @@ const trackingOptions = [
 
 const TrackingFrequencyScreen = ({navigation}) => {
   const [selected, setSelected] = useState(0);
+  const [deviceId, setDeviceId] = useState('');
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
 
-  const {data, refetch} = useQuery({
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
+
+  console.log('Device', deviceId);
+
+  const {data, refetch, isLoading} = useQuery({
     queryKey: ['trackingFrequency'],
-    queryFn: () => fetcher({method: 'GET', url: GET_EVENT_URL}),
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `/deviceDataResponse/getEvent/UPLOAD/${deviceId}`,
+      }),
   });
-
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [deviceId]),
+  );
   useEffect(() => {
     if (data?.data?.response?.uploadTimeInterval) {
       const interval = Number(data.data.response.uploadTimeInterval);
@@ -44,7 +68,7 @@ const TrackingFrequencyScreen = ({navigation}) => {
     mutationFn: async seconds => {
       return fetcher({
         method: 'POST',
-        url: SEND_EVENT_URL,
+        url: `/deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: `[UPLOAD,${seconds}]`},
       });
     },
@@ -75,14 +99,18 @@ const TrackingFrequencyScreen = ({navigation}) => {
         backPress={() => navigation.goBack()}
       />
       <Spacing height={DimensionConstants.ten} />
-      <View style={styles.container}>
-        <RadioButtonCard
-          data={trackingOptions}
-          onSelect={setSelected}
-          selected={selected}
-        />
-        <CustomButton text="Save" onPress={handleSave} />
-      </View>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <View style={styles.container}>
+          <RadioButtonCard
+            data={trackingOptions}
+            onSelect={setSelected}
+            selected={selected}
+          />
+          <CustomButton text="Save" onPress={handleSave} />
+        </View>
+      )}
     </MainBackground>
   );
 };
