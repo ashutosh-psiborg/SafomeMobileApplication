@@ -12,18 +12,17 @@ import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {useSelector} from 'react-redux';
 import CustomCard from '../../../../components/CustomCard';
-import Spacing from '../../../../components/Spacing';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import {ImageConstants} from '../../../../constants/ImageConstants';
 import {useQuery, useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
-import CustomButton from '../../../../components/CustomButton';
 import InputModal from '../../../../components/InputModal';
 import {useTranslation} from 'react-i18next';
 import {useForm} from 'react-hook-form';
 import {validationSchema} from '../../../../utils/Validations';
 import {yupResolver} from '@hookform/resolvers/yup';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const AddRemoveDeviceScreen = ({navigation}) => {
   const [inputModalVisible, setInputModalVisible] = useState(false);
@@ -47,7 +46,9 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     const getStoredDeviceId = async () => {
       try {
         const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
-        const storedMongoId = await AsyncStorage.getItem('selectedDeviceMongoId');
+        const storedMongoId = await AsyncStorage.getItem(
+          'selectedDeviceMongoId',
+        );
         if (storedDeviceId) setSelectedDeviceId(storedDeviceId);
         console.log('Stored Mongo _id:', storedMongoId);
       } catch (error) {
@@ -158,7 +159,6 @@ const AddRemoveDeviceScreen = ({navigation}) => {
       console.error('Failed to save device ID or Mongo ID:', error);
     }
   };
-  
 
   return (
     <MainBackground noPadding style={{backgroundColor: theme.otpBox}}>
@@ -166,79 +166,85 @@ const AddRemoveDeviceScreen = ({navigation}) => {
         title="Add / Remove Device"
         backgroundColor={theme.background}
         backPress={() => navigation.goBack()}
+        icon={
+          <MaterialIcons
+            name="add-circle-outline"
+            size={26}
+            marginRight={DimensionConstants.thirteen}
+          />
+        }
+        onIconPress={() => setInputModalVisible(true)}
       />
       {loading ? (
         <Loader />
       ) : (
-        <ScrollView showsVerticalScrollIndicator={false}>
-          <View style={styles.container}>
-            <View style={styles.dashedContainer}>
-              <Text style={styles.addDeviceText}>Add New Device</Text>
-              <CustomButton
-                width="100%"
-                text="Add Device"
-                onPress={() => setInputModalVisible(true)}
-              />
-            </View>
-            <Spacing height={DimensionConstants.twenty} />
-            <Text
-              style={{
-                fontSize: DimensionConstants.fourteen,
-                fontWeight: '500',
-              }}>
-              {' '}
-              Select Device
-            </Text>
-            {data?.data?.results
-              ?.slice()
-              .reverse()
-              .map(item => (
-                <TouchableOpacity
+        <ScrollView
+          contentContainerStyle={styles.container}
+          showsVerticalScrollIndicator={false}>
+          <Text
+            style={{
+              fontSize: DimensionConstants.fourteen,
+              fontWeight: '500',
+            }}>
+            Select Device
+          </Text>
+          {data?.data?.results
+            ?.slice()
+            .reverse()
+            .map(item => (
+              <TouchableOpacity
+                key={item?.deviceId}
+                activeOpacity={0.7}
+                onPress={() => handleSelectDevice(item?.deviceId, item?._id)}>
+                <CustomCard
                   key={item?.deviceId}
-                  activeOpacity={0.7}
-                  onPress={() => handleSelectDevice(item?.deviceId, item?._id)}>
-                  <CustomCard
-                    key={item?.deviceId}
-                    style={[
-                      styles.card,
-                      selectedDeviceId === item?.deviceId &&
-                        styles.selectedCard,
-                    ]}>
-                    {selectedDeviceId === item?.deviceId && (
-                      <Text
-                        style={{
-                          color: theme.primary,
-                          fontSize: DimensionConstants.fourteen,
-                          fontWeight: '600',
-                          textAlign: 'right',
-                        }}>
-                        Selected
-                      </Text>
-                    )}
-                    <View style={styles.innerContainer}>
-                      <Image source={ImageConstants.blackWatch} />
-                      <Spacing height={DimensionConstants.thirty} />
+                  style={[
+                    styles.card,
+                    selectedDeviceId === item?.deviceId && styles.card1,
+                  ]}>
+                  <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                    <View style={styles.imageContainer}>
+                      <Image
+                        source={ImageConstants.blackWatch}
+                        style={styles.watchImage}
+                        resizeMode="contain"
+                      />
+                    </View>
+                    <View style={{gap: DimensionConstants.five}}>
                       <Text
                         style={[
                           styles.deviceName,
-                          selectedDeviceId === item?.deviceId,
+                          selectedDeviceId === item?.deviceId &&
+                            styles.selectedText,
                         ]}>
-                        SOS {item?.deviceName}
+                        SOS: {item?.deviceName}
                       </Text>
-                      <Text style={styles.macId}>MAC ID: {item?.deviceId}</Text>
-                      <CustomButton
-                        width="110%"
-                        text="Remove Device"
-                        onPress={e => {
-                          e.stopPropagation();
-                          handleRemoveDevice(item?._id);
-                        }}
-                      />
+                      <Text
+                        style={[
+                          styles.macId,
+                          selectedDeviceId === item?.deviceId &&
+                            styles.selectedMacId,
+                        ]}>
+                        MAC ID: {item?.deviceId}
+                      </Text>
                     </View>
-                  </CustomCard>
-                </TouchableOpacity>
-              ))}
-          </View>
+                  </View>
+
+                  <TouchableOpacity
+                    style={styles.removeButton}
+                    onPress={handleRemoveDevice}>
+                    <MaterialIcons
+                      name="delete"
+                      size={28}
+                      color={
+                        selectedDeviceId === item?.deviceId ? 'white' : 'red'
+                      }
+                    />
+                  </TouchableOpacity>
+                </CustomCard>
+              </TouchableOpacity>
+            ))}
+
           <InputModal
             isVisible={inputModalVisible}
             onClose={() => setInputModalVisible(false)}
@@ -258,16 +264,27 @@ const AddRemoveDeviceScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: DimensionConstants.sixteen,
-    paddingVertical: DimensionConstants.twentyFour,
+    paddingVertical: DimensionConstants.ten,
   },
   card: {
     borderRadius: DimensionConstants.twelve,
     marginTop: DimensionConstants.ten,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  card1: {
+    borderRadius: DimensionConstants.twelve,
+    marginTop: DimensionConstants.ten,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#7fbaee',
+    borderWidth: 1,
+    borderColor: '#599dd8',
   },
   selectedCard: {
     backgroundColor: '#7fbaee', // Light blue background for selected
-    borderWidth: 1,
-    borderColor: '#599dd8',
   },
   selectedText: {
     fontWeight: '600',
@@ -280,10 +297,22 @@ const styles = StyleSheet.create({
   },
   deviceName: {
     fontSize: DimensionConstants.sixteen,
+    fontWeight: '600',
+    color: '#333333',
+  },
+  selectedText: {
+    fontWeight: '700',
+    color: '#FFFFFF', // White text for contrast on selected gradient
   },
   macId: {
     fontSize: DimensionConstants.fourteen,
+    fontWeight: '500',
     color: 'rgba(0, 0, 0, 0.6)',
+  },
+  selectedMacId: {
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '500',
+    color: '#FFFFFF',
   },
   dashedContainer: {
     alignItems: 'center',
@@ -295,6 +324,19 @@ const styles = StyleSheet.create({
   addDeviceText: {
     fontSize: DimensionConstants.sixteen,
     fontWeight: '500',
+  },
+  imageContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: 'rgba(59, 65, 172, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: DimensionConstants.twelve,
+  },
+  watchImage: {
+    width: 40,
+    height: 40,
   },
 });
 
