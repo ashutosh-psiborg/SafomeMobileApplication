@@ -1,5 +1,5 @@
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
-import React, {useState} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import {
@@ -13,9 +13,28 @@ import Spacing from '../../../../components/Spacing';
 import CustomButton from '../../../../components/CustomButton';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 const RemoteRestartScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedAction, setSelectedAction] = useState('');
+  const [deviceId, setDeviceId] = useState('');
+
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
+  console.log('Device===}}}}', deviceId);
 
   const handlePress = action => {
     setSelectedAction(action);
@@ -25,7 +44,7 @@ const RemoteRestartScreen = ({navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: 'deviceDataResponse/sendEvent/6907390711',
+        url: `deviceDataResponse/sendEvent/${deviceId}`,
         data:
           selectedAction === 'Restart'
             ? {data: '[RESET]'}
@@ -63,14 +82,16 @@ const RemoteRestartScreen = ({navigation}) => {
         <CustomCard style={styles.featuresCard}>
           {icons.map((item, index) => (
             <View key={index}>
-              <View style={styles.featureRow}>
-                <View style={styles.featureContent}>
+              <TouchableOpacity style={styles.featureRow}>
+                <TouchableOpacity
+                  style={styles.featureContent}
+                  onPress={() => handlePress(item?.action)}>
                   <Text style={styles.featureText}>{item.label}</Text>
-                </View>
-                <TouchableOpacity onPress={() => handlePress(item?.action)}>
-                  <RightArrowIcon color="black" marginRight={10} />
                 </TouchableOpacity>
-              </View>
+                {/* <TouchableOpacity onPress={() => handlePress(item?.action)}> */}
+                <RightArrowIcon color="black" marginRight={10} />
+                {/* </TouchableOpacity> */}
+              </TouchableOpacity>
 
               {item?.line !== 'no' && <View style={styles.separator} />}
             </View>
