@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -15,7 +15,8 @@ import Spacing from '../../../../components/Spacing';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
 import {useRoute} from '@react-navigation/native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 const SetDndScreen = ({navigation}) => {
@@ -23,6 +24,24 @@ const SetDndScreen = ({navigation}) => {
   const [endTime, setEndTime] = useState(new Date());
   const [showPicker, setShowPicker] = useState(null);
   const [selectedDays, setSelectedDays] = useState([]);
+  const [deviceId, setDeviceId] = useState('');
+
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
+  console.log('Device', deviceId);
   const route = useRoute();
   const {index} = route.params;
   console.log(index);
@@ -64,7 +83,7 @@ const SetDndScreen = ({navigation}) => {
       console.log('Payload:', remindString);
       return fetcher({
         method: 'POST',
-        url: 'deviceDataResponse/sendEvent/6907390711',
+        url: `deviceDataResponse/sendEvent/${deviceId}`,
         data: {data: remindString},
       });
     },

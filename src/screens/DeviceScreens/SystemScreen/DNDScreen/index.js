@@ -1,5 +1,5 @@
 import {View, Text, Switch, StyleSheet, TouchableOpacity} from 'react-native';
-import React, {useCallback} from 'react';
+import React, {useCallback, useState, useEffect} from 'react';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import Spacing from '../../../../components/Spacing';
@@ -8,6 +8,7 @@ import ThreeDots from '../../../../assets/icons/ThreeDots';
 import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
 import {useFocusEffect} from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const DAYS_MAP = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
@@ -23,12 +24,30 @@ const parseTimeSection = timeSection => {
 };
 
 const DNDScreen = ({navigation}) => {
+  const [deviceId, setDeviceId] = useState('');
+
+  // Fetch Device ID from AsyncStorage
+  const getStoredDeviceId = async () => {
+    try {
+      const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+      if (storedDeviceId) {
+        setDeviceId(storedDeviceId);
+      }
+    } catch (error) {
+      console.error('Failed to retrieve stored device data:', error);
+    }
+  };
+
+  useEffect(() => {
+    getStoredDeviceId();
+  }, []);
+  console.log('Device===', deviceId);
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['alarm'],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getSilenceTime/SILENCETIME2/6907390711`,
+        url: `deviceDataResponse/getSilenceTime/SILENCETIME2/${deviceId}`,
       }),
   });
   console.log(data);
@@ -36,7 +55,7 @@ const DNDScreen = ({navigation}) => {
   useFocusEffect(
     useCallback(() => {
       refetch();
-    }, [refetch]),
+    }, [refetch, deviceId]),
   );
 
   const timeSections = [
