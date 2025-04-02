@@ -7,8 +7,8 @@ import {Provider, useDispatch} from 'react-redux';
 import store from './src/redux/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {loadThemeFromStorage} from './src/redux/slices/themeSlice';
-import { loadLanguageStrings } from './src/redux/slices/languageSlice'; // adjust path
-
+import {loadLanguageStrings} from './src/redux/slices/languageSlice'; // adjust path
+import {Provider as Paper} from 'react-native-paper';
 // Component to load theme on startup
 const Setup = () => {
   const dispatch = useDispatch();
@@ -40,11 +40,13 @@ export default function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <I18nextProvider i18n={i18n}>
-          <Setup />
-        </I18nextProvider>
-      </Provider>
+      <Paper>
+        <Provider store={store}>
+          <I18nextProvider i18n={i18n}>
+            <Setup />
+          </I18nextProvider>
+        </Provider>
+      </Paper>
     </QueryClientProvider>
   );
 }

@@ -307,7 +307,7 @@ const HomeScreen = ({navigation}) => {
             width: width / 2,
             alignItems: 'center',
           }}
-          onPress={() => setIsModalVisible(true)}>
+          onPress={() => navigation.navigate('GeofenceScreen')}>
           <Text style={{color: '#000', fontWeight: '600'}}>
             + Add geofence details
           </Text>

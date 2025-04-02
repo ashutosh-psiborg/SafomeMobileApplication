@@ -56,6 +56,7 @@ import AddContact from '../screens/DeviceScreens/FeaturesScreens/More/AddContact
 import SoundGuardian from '../screens/DeviceScreens/FeaturesScreens/More/SoundGuardian/index';
 import SecurityScreen from '../screens/BottomTabScreens/SettingsScreen/SecuritySetting';
 import FAQScreen from '../screens/BottomTabScreens/SettingsScreen/FAQ';
+import GeofenceScreen from '../screens/Geofencing';
 
 const Stack = createNativeStackNavigator();
 
@@ -355,8 +356,18 @@ const StackNavigator = () => {
       />
       <Stack.Screen
         options={{headerShown: false}}
+        name="SecurityScreen"
+        component={SecurityScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
         name="FAQScreen"
         component={FAQScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="GeofenceScreen"
+        component={GeofenceScreen}
       />
     </Stack.Navigator>
   );
