@@ -56,7 +56,9 @@ const FitnessScreen = ({navigation}) => {
         const storedMongoId = await AsyncStorage.getItem(
           'selectedDeviceMongoId',
         );
-        setDevId(storedDeviceId);
+        if (storedDeviceId) {
+          setDevId(storedDeviceId);
+        }
         setDeviceId(storedMongoId);
         console.log('Stored Mongo _id:', storedMongoId);
       } catch (error) {
@@ -211,12 +213,13 @@ const FitnessScreen = ({navigation}) => {
     error,
     refetch: refetchFitnessData,
   } = useQuery({
-    queryKey: ['fitness', startDate, endDate],
+    queryKey: ['fitness', startDate, endDate, devId],
     queryFn: () =>
       fetcher({
         method: 'GET',
         url: `deviceDataResponse/healthData/${devId}?startDate=${startDate}&endDate=${endDate}`,
       }),
+    enabled: !!devId, // Prevents query from running with an empty deviceId
   });
 
   const {
@@ -224,12 +227,13 @@ const FitnessScreen = ({navigation}) => {
     isLoading: stepLoading,
     refetch: refetchStepData,
   } = useQuery({
-    queryKey: ['steps', startDate, endDate],
+    queryKey: ['steps', startDate, endDate, devId],
     queryFn: () =>
       fetcher({
         method: 'GET',
         url: `deviceDataResponse/getStepData/${devId}?startDate=${startDate}&endDate=${endDate}`,
       }),
+    enabled: !!devId, // Prevents query from running with an empty deviceId
   });
   console.log('+++++++++++', stepData?.data?.totalStepsOverall);
   const steps = stepData?.data?.totalStepsOverall;

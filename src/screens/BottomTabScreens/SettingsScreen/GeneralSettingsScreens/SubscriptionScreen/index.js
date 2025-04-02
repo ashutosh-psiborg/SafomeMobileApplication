@@ -7,7 +7,8 @@ import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import Spacing from '../../../../../components/Spacing';
 import CustomButton from '../../../../../components/CustomButton';
 import SubscriptionModal from './SubscriptionModal';
-
+import {useQuery} from '@tanstack/react-query';
+import fetcher from '../../../../../utils/ApiService';
 const plans = [
   {id: 1, price: '₹ 199', duration: 'Monthly', description: 'Billed monthly'},
   {
@@ -40,7 +41,15 @@ const SubscriptionScreen = ({navigation}) => {
   const [modalVisible, setModalVisible] = useState(false);
 
   const modalPlans = plans.slice(0, 2); // Show only first 2 plans in modal
-
+  const {data, isLoading, error, refetch} = useQuery({
+    queryKey: ['subscription'],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `/Subscription/get-PlanDetails`,
+      }),
+  });
+  console.log(data);
   return (
     <MainBackground noPadding style={styles.mainBackground}>
       <CustomHeader
@@ -52,19 +61,19 @@ const SubscriptionScreen = ({navigation}) => {
 
       <View style={styles.container}>
         <CustomCard style={styles.card}>
-          {plans.map(plan => {
-            const isSelected = selectedPlan === plan.id;
+          {data?.planDetails?.map(plan => {
+            const isSelected = selectedPlan === plan._id;
             return (
               <TouchableOpacity
-                key={plan.id}
-                onPress={() => setSelectedPlan(plan.id)}
+                key={plan._id}
+                onPress={() => setSelectedPlan(plan._id)}
                 style={[
                   styles.planContainer,
                   {
                     backgroundColor: isSelected ? '#0279E1' : '#ffffff',
                     borderColor: isSelected ? '#0279E1' : '#F4D9DC',
                     marginBottom:
-                      plan?.last === 'yes' ? 0 : DimensionConstants.sixteen,
+                      plan?.uid === 'SUBS-03' ? 0 : DimensionConstants.sixteen,
                   },
                 ]}>
                 <View style={styles.planHeader}>
@@ -73,7 +82,7 @@ const SubscriptionScreen = ({navigation}) => {
                       styles.priceText,
                       {color: isSelected ? '#ffffff' : '#000000'},
                     ]}>
-                    {plan?.price}
+                    ₹ {plan?.price}
                   </Text>
                   <View
                     style={[
@@ -85,34 +94,32 @@ const SubscriptionScreen = ({navigation}) => {
                         styles.durationText,
                         {color: isSelected ? '#0279E1' : '#ffffff'},
                       ]}>
-                      {plan?.duration}
+                      {plan?.durationInMonths} months
                     </Text>
                   </View>
                 </View>
 
-                {plan?.save && (
-                  <View
+                <View
+                  style={[
+                    styles.saveContainer,
+                    {backgroundColor: isSelected ? '#ffffff' : '#0279E1'},
+                  ]}>
+                  <Text
                     style={[
-                      styles.saveContainer,
-                      {backgroundColor: isSelected ? '#ffffff' : '#0279E1'},
+                      styles.saveText,
+                      {color: isSelected ? '#0279E1' : '#ffffff'},
                     ]}>
-                    <Text
-                      style={[
-                        styles.saveText,
-                        {color: isSelected ? '#0279E1' : '#ffffff'},
-                      ]}>
-                      {plan?.save}
-                    </Text>
-                  </View>
-                )}
+                    SAVE 33%
+                  </Text>
+                </View>
 
-                <Spacing height={DimensionConstants.sixteen} />
+                <Spacing height={DimensionConstants.fourteen} />
                 <Text
                   style={[
                     styles.descriptionText,
                     {color: isSelected ? '#ffffff' : '#000000'},
                   ]}>
-                  {plan?.description}
+                  {plan?.planName}
                 </Text>
               </TouchableOpacity>
             );
