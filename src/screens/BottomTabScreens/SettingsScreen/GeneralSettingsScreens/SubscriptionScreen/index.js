@@ -9,6 +9,8 @@ import CustomButton from '../../../../../components/CustomButton';
 import SubscriptionModal from './SubscriptionModal';
 import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../../../../utils/ApiService';
+import Loader from '../../../../../components/Loader';
+
 const plans = [
   {id: 1, price: '₹ 199', duration: 'Monthly', description: 'Billed monthly'},
   {
@@ -58,79 +60,84 @@ const SubscriptionScreen = ({navigation}) => {
         backPress={() => navigation.goBack()}
       />
       <Spacing height={DimensionConstants.eight} />
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <View style={styles.container}>
+          <CustomCard style={styles.card}>
+            {data?.planDetails?.map(plan => {
+              const isSelected = selectedPlan === plan._id;
+              return (
+                <TouchableOpacity
+                  key={plan._id}
+                  onPress={() => setSelectedPlan(plan._id)}
+                  style={[
+                    styles.planContainer,
+                    {
+                      backgroundColor: isSelected ? '#0279E1' : '#ffffff',
+                      borderColor: isSelected ? '#0279E1' : '#F4D9DC',
+                      marginBottom:
+                        plan?.uid === 'SUBS-03'
+                          ? 0
+                          : DimensionConstants.sixteen,
+                    },
+                  ]}>
+                  <View style={styles.planHeader}>
+                    <Text
+                      style={[
+                        styles.priceText,
+                        {color: isSelected ? '#ffffff' : '#000000'},
+                      ]}>
+                      ₹ {plan?.price}
+                    </Text>
+                    <View
+                      style={[
+                        styles.durationContainer,
+                        {backgroundColor: isSelected ? '#ffffff' : '#FE605D'},
+                      ]}>
+                      <Text
+                        style={[
+                          styles.durationText,
+                          {color: isSelected ? '#0279E1' : '#ffffff'},
+                        ]}>
+                        {plan?.durationInMonths} months
+                      </Text>
+                    </View>
+                  </View>
 
-      <View style={styles.container}>
-        <CustomCard style={styles.card}>
-          {data?.planDetails?.map(plan => {
-            const isSelected = selectedPlan === plan._id;
-            return (
-              <TouchableOpacity
-                key={plan._id}
-                onPress={() => setSelectedPlan(plan._id)}
-                style={[
-                  styles.planContainer,
-                  {
-                    backgroundColor: isSelected ? '#0279E1' : '#ffffff',
-                    borderColor: isSelected ? '#0279E1' : '#F4D9DC',
-                    marginBottom:
-                      plan?.uid === 'SUBS-03' ? 0 : DimensionConstants.sixteen,
-                  },
-                ]}>
-                <View style={styles.planHeader}>
-                  <Text
-                    style={[
-                      styles.priceText,
-                      {color: isSelected ? '#ffffff' : '#000000'},
-                    ]}>
-                    ₹ {plan?.price}
-                  </Text>
                   <View
                     style={[
-                      styles.durationContainer,
-                      {backgroundColor: isSelected ? '#ffffff' : '#FE605D'},
+                      styles.saveContainer,
+                      {backgroundColor: isSelected ? '#ffffff' : '#0279E1'},
                     ]}>
                     <Text
                       style={[
-                        styles.durationText,
+                        styles.saveText,
                         {color: isSelected ? '#0279E1' : '#ffffff'},
                       ]}>
-                      {plan?.durationInMonths} months
+                      SAVE 33%
                     </Text>
                   </View>
-                </View>
 
-                <View
-                  style={[
-                    styles.saveContainer,
-                    {backgroundColor: isSelected ? '#ffffff' : '#0279E1'},
-                  ]}>
+                  <Spacing height={DimensionConstants.fourteen} />
                   <Text
                     style={[
-                      styles.saveText,
-                      {color: isSelected ? '#0279E1' : '#ffffff'},
+                      styles.descriptionText,
+                      {color: isSelected ? '#ffffff' : '#000000'},
                     ]}>
-                    SAVE 33%
+                    {plan?.planName}
                   </Text>
-                </View>
+                </TouchableOpacity>
+              );
+            })}
+          </CustomCard>
 
-                <Spacing height={DimensionConstants.fourteen} />
-                <Text
-                  style={[
-                    styles.descriptionText,
-                    {color: isSelected ? '#ffffff' : '#000000'},
-                  ]}>
-                  {plan?.planName}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </CustomCard>
-
-        <CustomButton
-          text={'Have a coupon code'}
-          onPress={() => setModalVisible(true)}
-        />
-      </View>
+          <CustomButton
+            text={'Have a coupon code'}
+            onPress={() => setModalVisible(true)}
+          />
+        </View>
+      )}
 
       <SubscriptionModal
         visible={modalVisible}

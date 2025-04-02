@@ -47,7 +47,9 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     const getStoredDeviceId = async () => {
       try {
         const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
-        const storedMongoId = await AsyncStorage.getItem('selectedDeviceMongoId');
+        const storedMongoId = await AsyncStorage.getItem(
+          'selectedDeviceMongoId',
+        );
         if (storedDeviceId) setSelectedDeviceId(storedDeviceId);
         console.log('Stored Mongo _id:', storedMongoId);
       } catch (error) {
@@ -120,7 +122,7 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     mutationFn: deviceId =>
       fetcher({
         method: 'DELETE',
-        url: `recycleBin/deleteDevicePermanent/${deviceId}`,
+        url: `devices/deleteDevicePermanent/${deviceId}`,
       }),
     onSuccess: () => {
       Alert.alert('Success', 'Device removed successfully.');
@@ -158,7 +160,6 @@ const AddRemoveDeviceScreen = ({navigation}) => {
       console.error('Failed to save device ID or Mongo ID:', error);
     }
   };
-  
 
   return (
     <MainBackground noPadding style={{backgroundColor: theme.otpBox}}>
