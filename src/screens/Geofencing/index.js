@@ -19,11 +19,13 @@ import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../utils/ApiService';
 import MapViewClustering from 'react-native-map-clustering';
 import {DimensionConstants} from '../../constants/DimensionConstants';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const API_KEY = 'AIzaSyBwDaERJWZV7h28D67mRXG-dIBYSEPQMgQ'; // Your Google Maps API key
 
 const GeofenceScreen = ({navigation}) => {
   const [nameZoneModal, setNameZoneModal] = useState(false);
+  const [deviceId, setDeviceId] = useState(false);
   const [searchedLocation, setSearchedLocation] = useState('');
   const [geofence, setGeofence] = useState({
     type: null,
@@ -32,7 +34,21 @@ const GeofenceScreen = ({navigation}) => {
   });
   const [undoStack, setUndoStack] = useState([]);
   const [redoStack, setRedoStack] = useState([]);
+  useEffect(() => {
+    const getStoredDeviceId = async () => {
+      try {
+        const storedMongoId = await AsyncStorage.getItem(
+          'selectedDeviceMongoId',
+        );
+        if (storedMongoId) setDeviceId(storedMongoId);
+        console.log('Stored Mongo _id:', deviceId);
+      } catch (error) {
+        console.error('Failed to retrieve stored device data:', error);
+      }
+    };
 
+    getStoredDeviceId();
+  }, []);
   const initialRegion = {
     latitude: 28.502291,
     longitude: 77.401863,
@@ -45,7 +61,7 @@ const GeofenceScreen = ({navigation}) => {
     mutationFn: async payload =>
       await fetcher({
         method: 'POST',
-        url: '/geoFence/create/67ebc593372de1221923f24d',
+        url: `/geoFence/create/${deviceId}`,
         data: payload,
       }),
     onSuccess: () => {

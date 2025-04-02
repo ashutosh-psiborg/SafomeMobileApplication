@@ -122,8 +122,8 @@ export const HomeScreenStyles = theme =>
     rowContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      flex: 1, // Ensures it takes available space
-      flexWrap: 'wrap',
+      //flex: 1, // Ensures it takes available space
+      // flexWrap: 'wrap',
     },
     placeText: {
       fontSize: DimensionConstants.sixteen,
