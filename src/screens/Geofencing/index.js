@@ -18,11 +18,9 @@ import axios from 'axios';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../utils/ApiService';
 import MapViewClustering from 'react-native-map-clustering';
+import {DimensionConstants} from '../../constants/DimensionConstants';
 
-const API_KEY = 'AIzaSyBG-dIBYSEPQMgQ'; // Ensure this is your full, valid Google Maps API key
-
-const GEO_FENCE_API_URL =
-  'http://localhost:8002/api/v1/geoFence/create/67dbe8ecf0bc81719bbd1aa5';
+const API_KEY = 'AIzaSyBwDaERJWZV7h28D67mRXG-dIBYSEPQMgQ'; // Your Google Maps API key
 
 const GeofenceScreen = ({navigation}) => {
   const [nameZoneModal, setNameZoneModal] = useState(false);
@@ -44,24 +42,21 @@ const GeofenceScreen = ({navigation}) => {
 
   const mapRef = useRef(null);
   const mutation = useMutation({
-    mutationFn: payload =>
-      fetcher({
+    mutationFn: async payload =>
+      await fetcher({
         method: 'POST',
         url: '/geoFence/create/67ebc593372de1221923f24d',
         data: payload,
       }),
     onSuccess: () => {
-      Alert.alert('Success', 'Device added successfully!');
-      refetch();
-      setInputModalVisible(false);
+      Alert.alert('Success', 'Geofence added successfully!');
+      setNameZoneModal(false);
     },
     onError: error => {
-      Alert.alert(
-        'Error',
-        error?.response?.data?.message || 'Failed to add device.',
-      );
+      Alert.alert('Error', error.message || 'Failed to add device.');
     },
   });
+
   const mapPressHandler = e => {
     const {latitude, longitude} = e.nativeEvent.coordinate;
     console.log('Map pressed at:', latitude, longitude);
@@ -72,6 +67,7 @@ const GeofenceScreen = ({navigation}) => {
         type: 'Polygon',
         polygon: [...geofence.polygon, {latitude, longitude}],
       });
+      console.log('Updated geofence:', geofence);
     } else if (geofence.type === 'Circle') {
       const newCircle = {
         type: 'Circle',
@@ -112,43 +108,41 @@ const GeofenceScreen = ({navigation}) => {
         type: geofence.type,
         location: {
           type: 'Point',
-          coordinates: [geofence.circle.longitude, geofence.circle.latitude], // [longitude, latitude] as per GeoJSON
+          coordinates: [geofence.circle.longitude, geofence.circle.latitude],
         },
         radius: geofence.circle.radius,
       };
     } else if (geofence.type === 'Polygon') {
-      // Assuming the API might also support polygons; adjust if it only supports circles
+      const polygonCoords = geofence.polygon.map(point => [
+        point.longitude,
+        point.latitude,
+      ]);
+      if (
+        polygonCoords[0][0] !== polygonCoords[polygonCoords.length - 1][0] ||
+        polygonCoords[0][1] !== polygonCoords[polygonCoords.length - 1][1]
+      ) {
+        polygonCoords.push(polygonCoords[0]);
+      }
       payload = {
         name: geofenceName,
         type: geofence.type,
         location: {
           type: 'Polygon',
-          coordinates: [
-            geofence.polygon.map(point => [point.longitude, point.latitude]),
-          ], // Array of [longitude, latitude]
+          coordinates: polygonCoords,
         },
       };
     }
 
-    console.log('Saving geofence payload:', payload);
+    console.log('Saving geofence payload:', JSON.stringify(payload, null, 2));
 
     try {
-      // const response = await axios.post(GEO_FENCE_API_URL, payload, {
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      // });
-      // console.log('API response:', response.data);
-      // Alert.alert('Success', 'Geofence created successfully!');
-      // setNameZoneModal(false);
-      // navigation.goBack();
-      mutation.mutate(payload);
+      await mutation.mutateAsync(payload);
     } catch (error) {
-      console.error(
-        'Error saving geofence:',
-        error.response?.data || error.message,
+      console.error('Error saving geofence:', error.response.data.message);
+      Alert.alert(
+        'Failed',
+        error.response.data.message || 'Failed to save geofence.',
       );
-      Alert.alert('Error', error || 'Failed to save geofence.');
     }
   };
 
@@ -193,7 +187,7 @@ const GeofenceScreen = ({navigation}) => {
             coordinates={geofence.polygon}
             strokeColor="green"
             fillColor="rgba(0, 255, 0, 0.2)"
-            strokeWidth={2}
+            strokeWidth={DimensionConstants.two}
           />
         )}
         {geofence.type === 'Circle' &&
@@ -208,7 +202,7 @@ const GeofenceScreen = ({navigation}) => {
                 radius={geofence.circle.radius}
                 strokeColor="green"
                 fillColor="rgba(0, 255, 0, 0.2)"
-                strokeWidth={2}
+                strokeWidth={DimensionConstants.two}
               />
               <Marker
                 pinColor="green"
@@ -258,7 +252,7 @@ const GeofenceScreen = ({navigation}) => {
                 }}>
                 <MaterialCommunityIcons
                   name="chevron-right"
-                  size={32}
+                  size={DimensionConstants.thirty}
                   color="green"
                 />
               </Marker>
@@ -300,7 +294,6 @@ const GeofenceScreen = ({navigation}) => {
 
 const FloatingActions = ({geofence, setGeofence, undo, redo, saveGeofence}) => {
   const [circleRadius, setCircleRadius] = useState(500);
-  const [actionBarEnabled, setActionBarEnabled] = useState(true);
 
   const floatingOptions = [
     {
@@ -311,7 +304,6 @@ const FloatingActions = ({geofence, setGeofence, undo, redo, saveGeofence}) => {
           type: 'Circle',
           circle: {latitude: null, longitude: null, radius: circleRadius},
         });
-        setActionBarEnabled(false);
       },
     },
     {
@@ -319,7 +311,6 @@ const FloatingActions = ({geofence, setGeofence, undo, redo, saveGeofence}) => {
       icon: 'shape-polygon-plus',
       action: () => {
         setGeofence({type: 'Polygon', polygon: []});
-        setActionBarEnabled(false);
       },
     },
   ];
@@ -328,61 +319,50 @@ const FloatingActions = ({geofence, setGeofence, undo, redo, saveGeofence}) => {
     <View style={styles.floatingContainer}>
       <View style={styles.floatingActions}>
         <View style={styles.actionButtons}>
-          {actionBarEnabled ? (
-            floatingOptions.map(({title, icon, action}, index) => (
-              <TouchableOpacity
-                key={index}
-                onPress={action}
-                style={styles.floatingOption}>
-                <View style={styles.optionTextContainer}>
-                  <Text style={styles.optionText}>{title}</Text>
-                </View>
-                <View style={styles.optionIconContainer}>
-                  <MaterialCommunityIcons name={icon} size={28} color="white" />
-                </View>
-              </TouchableOpacity>
-            ))
-          ) : (
-            <TouchableOpacity onPress={saveGeofence} style={styles.saveButton}>
-              <Text style={styles.saveButtonText}>Save</Text>
-            </TouchableOpacity>
-          )}
-          <View style={styles.controlButtons}>
+          {floatingOptions.map(({title, icon, action}, index) => (
             <TouchableOpacity
-              onPress={() => setActionBarEnabled(!actionBarEnabled)}
-              style={styles.toggleButton}>
-              <MaterialIcons
-                name={actionBarEnabled ? 'close' : 'add'}
-                size={24}
-                color="white"
-              />
+              key={index}
+              onPress={action}
+              style={styles.floatingOption}>
+              <View style={styles.optionTextContainer}>
+                <Text style={styles.optionText}>{title}</Text>
+              </View>
+              <View style={styles.optionIconContainer}>
+                <MaterialCommunityIcons
+                  name={icon}
+                  size={DimensionConstants.twentyFour}
+                  color="white"
+                />
+              </View>
             </TouchableOpacity>
-            {geofence.type === 'Polygon' && (
-              <>
-                <TouchableOpacity onPress={redo} style={styles.undoRedoButton}>
-                  <MaterialCommunityIcons
-                    name="redo-variant"
-                    size={20}
-                    color="white"
-                  />
-                </TouchableOpacity>
-                <TouchableOpacity onPress={undo} style={styles.undoRedoButton}>
-                  <MaterialCommunityIcons
-                    name="undo-variant"
-                    size={20}
-                    color="white"
-                  />
-                </TouchableOpacity>
-              </>
-            )}
-          </View>
+          ))}
+          {geofence.type === 'Polygon' && (
+            <View style={styles.undoRedoContainer}>
+              <TouchableOpacity onPress={undo} style={styles.undoRedoButton}>
+                <MaterialCommunityIcons
+                  name="undo-variant"
+                  size={DimensionConstants.twenty}
+                  color="white"
+                />
+              </TouchableOpacity>
+              <View style={styles.separator} />
+              <TouchableOpacity onPress={redo} style={styles.undoRedoButton}>
+                <MaterialCommunityIcons
+                  name="redo-variant"
+                  size={DimensionConstants.twenty}
+                  color="white"
+                />
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
         {geofence.type === 'Circle' && (
           <View style={styles.sliderContainer}>
-            <Text style={styles.sliderLabel}>Radius</Text>
             <View style={styles.sliderRange}>
-              <Text style={styles.sliderRangeText}>50</Text>
-              <Text style={styles.sliderRangeText}>1000</Text>
+              <Text style={styles.sliderLabel}>Radius</Text>
+              <Text style={styles.sliderRangeText}>
+                {Math.floor(circleRadius)}
+              </Text>
             </View>
             <Slider
               minimumTrackTintColor="#3498db"
@@ -435,15 +415,10 @@ const NameZoneModal = ({visible, onConfirm, closeModal}) => {
       <Modal visible={visible} onDismiss={closeModal}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
-            <TouchableOpacity
-              onPress={closeModal}
-              style={styles.modalCloseButton}>
-              <MaterialIcons name="close" size={24} color="green" />
-            </TouchableOpacity>
             <View style={styles.modalIconContainer}>
               <MaterialIcons
                 name="drive-file-rename-outline"
-                size={28}
+                size={DimensionConstants.twentyFour}
                 color="#3498db"
               />
             </View>
@@ -452,7 +427,6 @@ const NameZoneModal = ({visible, onConfirm, closeModal}) => {
               Please give a name for your geofence.
             </Text>
             <TextInput
-              value={newName}
               onChangeText={setNewName}
               style={styles.modalInput}
               placeholder="Geofence Name"
@@ -540,12 +514,16 @@ const GooglePlacesInput = ({onLocationSelect}) => {
               setPlaces([]);
               setShowResult(false);
             }}>
-            <MaterialIcons name="close" size={24} color="green" />
+            <MaterialIcons
+              name="close"
+              size={DimensionConstants.twentyFour}
+              color="green"
+            />
           </TouchableOpacity>
         ) : (
           <MaterialIcons
             name="manage-search"
-            size={24}
+            size={DimensionConstants.twentyFour}
             color="black"
             style={styles.searchIcon}
           />
@@ -559,7 +537,11 @@ const GooglePlacesInput = ({onLocationSelect}) => {
             <TouchableOpacity
               style={styles.searchResultItem}
               onPress={() => getCoordinates(item.place_id)}>
-              <MaterialIcons name="navigate-next" size={20} color="white" />
+              <MaterialIcons
+                name="navigate-next"
+                size={DimensionConstants.twenty}
+                color="white"
+              />
               <Text style={styles.searchResultText}>{item.description}</Text>
             </TouchableOpacity>
           )}
@@ -575,14 +557,14 @@ const styles = StyleSheet.create({
   map: {height: '100%', width: '100%'},
   searchContainer: {
     position: 'absolute',
-    top: 16,
+    top: DimensionConstants.ten,
     width: '100%',
-    paddingHorizontal: 16,
+    paddingHorizontal: DimensionConstants.fifteen,
   },
   searchInputContainer: {
     backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 24,
+    padding: DimensionConstants.fifteen,
+    borderRadius: DimensionConstants.twenty,
   },
   searchInputWrapper: {
     flexDirection: 'row',
@@ -592,116 +574,166 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     color: 'white',
-    paddingVertical: 12,
-    paddingLeft: 16,
-    paddingRight: 48,
+    paddingVertical: DimensionConstants.ten,
+    paddingLeft: DimensionConstants.fifteen,
+    paddingRight: DimensionConstants.forty,
     backgroundColor: '#2980b9',
-    borderRadius: 16,
+    borderRadius: DimensionConstants.fifteen,
   },
-  searchIcon: {position: 'absolute', right: 16},
-  searchResults: {marginTop: 8},
-  searchResultItem: {flexDirection: 'row', padding: 8},
+  searchIcon: {position: 'absolute', right: DimensionConstants.fifteen},
+  searchResults: {marginTop: DimensionConstants.ten},
+  searchResultItem: {
+    flexDirection: 'row',
+    padding: DimensionConstants.ten,
+  },
   searchResultText: {color: 'black'},
-  floatingContainer: {position: 'absolute', bottom: 0, right: 0, width: '100%'},
-  floatingActions: {padding: 16, alignItems: 'flex-end'},
-  actionButtons: {gap: 12},
-  floatingOption: {flexDirection: 'row', alignItems: 'center', gap: 8},
+  floatingContainer: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: '100%',
+  },
+  floatingActions: {
+    padding: DimensionConstants.fifteen,
+    alignItems: 'flex-end',
+  },
+  actionButtons: {gap: DimensionConstants.ten},
+  floatingOption: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: DimensionConstants.ten,
+  },
   optionTextContainer: {
     backgroundColor: '#3498db',
-    width: 100,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    width: DimensionConstants.oneHundred,
+    paddingVertical: DimensionConstants.ten,
+    paddingHorizontal: DimensionConstants.fifteen,
+    borderRadius: DimensionConstants.ten,
+    alignItems: 'center',
   },
   optionText: {color: 'white', textAlign: 'right'},
   optionIconContainer: {
     backgroundColor: '#3498db',
-    padding: 8,
-    borderRadius: 8,
+    padding: DimensionConstants.ten,
+    borderRadius: DimensionConstants.ten,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  saveButton: {backgroundColor: '#2ecc71', padding: 16, borderRadius: 9999},
-  saveButtonText: {color: 'white', fontWeight: 'bold'},
-  controlButtons: {flexDirection: 'row', gap: 16, marginTop: 12},
-  toggleButton: {backgroundColor: '#3498db', padding: 12, borderRadius: 8},
+  undoRedoContainer: {
+    backgroundColor: '#3498db',
+    flexDirection: 'row',
+    paddingHorizontal: DimensionConstants.five,
+    marginHorizontal: DimensionConstants.ten,
+    borderRadius: DimensionConstants.ten,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginBottom: DimensionConstants.ten,
+  },
   undoRedoButton: {
-    backgroundColor: 'rgba(0, 0, 0, 0.9)',
-    padding: 8,
-    borderRadius: 9999,
+    padding: DimensionConstants.ten,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  separator: {
+    width: DimensionConstants.one,
+    height: '80%',
+    backgroundColor: 'rgba(255, 255, 240, 0.4)',
   },
   sliderContainer: {
-    backgroundColor: 'white',
-    borderWidth: 1,
-    borderColor: 'gray',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    borderWidth: DimensionConstants.one,
+    borderColor: '#3498db',
+    borderRadius: DimensionConstants.ten,
+    padding: DimensionConstants.fifteen,
+    marginVertical: DimensionConstants.fifteen,
   },
-  sliderLabel: {fontSize: 16, fontWeight: '600', color: '#333'},
+  sliderLabel: {
+    fontSize: DimensionConstants.fifteen,
+    fontWeight: '600',
+    color: '#333',
+  },
   sliderRange: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: 8,
   },
   sliderRangeText: {color: '#333'},
-  sliderTrack: {height: 6, backgroundColor: 'gray', borderRadius: 10},
+  sliderTrack: {
+    height: DimensionConstants.five,
+    backgroundColor: 'gray',
+    borderRadius: DimensionConstants.five,
+  },
   sliderThumb: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: DimensionConstants.twenty,
+    height: DimensionConstants.twenty,
+    borderRadius: DimensionConstants.ten,
     backgroundColor: 'white',
     shadowColor: '#000',
     shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowRadius: DimensionConstants.four,
+    borderWidth: DimensionConstants.one,
+    borderColor: '#3498db',
   },
-  createButton: {backgroundColor: '#2ecc71', padding: 16, borderRadius: 12},
-  createButtonText: {color: 'white', textAlign: 'center', fontWeight: '600'},
-  disabledButton: {backgroundColor: '#bdc3c7'},
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.2)',
+  createButton: {
+    backgroundColor: '#FF310C',
+    padding: DimensionConstants.fifteen,
+    borderRadius: DimensionConstants.ten,
+    width: '100%',
   },
-  modalContainer: {padding: 16},
+  createButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  disabledButton: {backgroundColor: '#bdc3c7', width: '100%'},
+  modalContainer: {padding: DimensionConstants.fifteen},
   modalContent: {
     backgroundColor: 'white',
-    padding: 24,
-    borderRadius: 12,
+    padding: DimensionConstants.twenty,
+    borderRadius: DimensionConstants.ten,
     alignItems: 'center',
-    gap: 16,
+    gap: DimensionConstants.fifteen,
   },
-  modalCloseButton: {position: 'absolute', top: 16, right: 16},
+  modalCloseButton: {
+    position: 'absolute',
+    top: DimensionConstants.fifteen,
+    right: DimensionConstants.fifteen,
+  },
   modalIconContainer: {
-    padding: 16,
+    padding: DimensionConstants.fifteen,
     backgroundColor: 'rgba(52, 152, 219, 0.2)',
     borderRadius: 9999,
   },
-  modalTitle: {fontSize: 18, fontWeight: 'bold', color: '#333'},
+  modalTitle: {
+    fontSize: DimensionConstants.fifteen,
+    fontWeight: 'bold',
+    color: '#333',
+  },
   modalSubtitle: {color: '#666'},
   modalInput: {
     width: '100%',
-    borderWidth: 1,
+    borderWidth: DimensionConstants.one,
     borderColor: 'gray',
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 18,
+    borderRadius: DimensionConstants.ten,
+    padding: DimensionConstants.ten,
+    fontSize: DimensionConstants.fifteen,
   },
   modalButton: {
-    backgroundColor: '#2ecc71',
-    padding: 12,
-    borderRadius: 8,
+    backgroundColor: '#FF310C',
+    padding: DimensionConstants.ten,
+    borderRadius: DimensionConstants.ten,
     width: '100%',
   },
-  modalButtonText: {color: 'white', textAlign: 'center', fontWeight: '600'},
+  modalButtonText: {
+    color: 'white',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
   modalCancelButton: {
-    borderWidth: 1,
+    borderWidth: DimensionConstants.one,
     borderColor: 'gray',
-    padding: 12,
-    borderRadius: 8,
+    padding: DimensionConstants.ten,
+    borderRadius: DimensionConstants.ten,
     width: '100%',
   },
   modalCancelButtonText: {

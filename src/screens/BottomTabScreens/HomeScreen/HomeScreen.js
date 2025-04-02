@@ -121,7 +121,7 @@ const HomeScreen = ({navigation}) => {
       }
     },
   });
-console.log("locationData====",locationData?.data);
+  console.log('locationData====', locationData?.data);
   useEffect(() => {
     const latestLocation = locationData?.data?.results?.[0];
     if (latestLocation?.latitude && latestLocation?.longitude) {
@@ -218,7 +218,8 @@ console.log("locationData====",locationData?.data);
               style={styles.placeText}
               numberOfLines={1}
               ellipsizeMode="tail">
-              {locationData?.data?.results?.[0]?.placeName || 'Location not available'}
+              {locationData?.data?.results?.[0]?.placeName ||
+                'Location not available'}
             </Text>
           </View>
           <View style={styles.refreshContainer}>
@@ -306,7 +307,7 @@ console.log("locationData====",locationData?.data);
             width: width / 2,
             alignItems: 'center',
           }}
-          onPress={() => setIsModalVisible(true)}>
+          onPress={() => navigation.navigate('GeofenceScreen')}>
           <Text style={{color: '#000', fontWeight: '600'}}>
             + Add geofence details
           </Text>
