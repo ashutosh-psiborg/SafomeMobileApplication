@@ -118,8 +118,8 @@ const LocationScreen = ({navigation}) => {
               key={mapKey}
               style={styles.map}
               initialRegion={{
-                latitude: location?.latitude,
-                longitude: location?.longitude,
+                latitude: location?.latitude || 28.506033,
+                longitude: location?.longitude || 77.3992725,
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }}>

@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from 'react-native';
-import React, {useState, useEffect, useMemo} from 'react';
+import React, {useState, useEffect, useMemo, useCallback} from 'react';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
 import {
@@ -36,6 +36,7 @@ import {useMutation} from '@tanstack/react-query';
 import CustomModal from '../../../components/CustomModal';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HealthGraph from '../../../components/HealthGraph';
+import {useFocusEffect} from '@react-navigation/native';
 
 const FitnessScreen = ({navigation}) => {
   const theme = useSelector(
@@ -43,16 +44,19 @@ const FitnessScreen = ({navigation}) => {
   );
   const [modalVisible, setModalVisible] = useState(false);
   const [deviceId, setDeviceId] = useState('');
-
+  const [devId, setDevId] = useState('');
   const [isStepReady, setIsStepReady] = useState(false);
   const [selected, setSelected] = useState('Today');
 
   useEffect(() => {
     const getStoredDeviceId = async () => {
       try {
+        const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+
         const storedMongoId = await AsyncStorage.getItem(
           'selectedDeviceMongoId',
         );
+        setDevId(storedDeviceId);
         setDeviceId(storedMongoId);
         console.log('Stored Mongo _id:', storedMongoId);
       } catch (error) {
@@ -62,7 +66,7 @@ const FitnessScreen = ({navigation}) => {
 
     getStoredDeviceId();
   }, []);
-  // console.log('deviceId::::::::::', deviceId);
+  console.log('deviceId::::::::::', devId);
   const {
     data: profileData,
     isLoading: profileDataLoading,
@@ -73,7 +77,7 @@ const FitnessScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `/devices/deviceDetails/${deviceId || '67db981e5b0168be809f4edd'}`,
+        url: `/devices/deviceDetails/${deviceId}`,
       }),
   });
   // console.log('/==', profileData.data.weight, profileError);
@@ -211,7 +215,7 @@ const FitnessScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/healthData/6907390711?startDate=${startDate}&endDate=${endDate}`,
+        url: `deviceDataResponse/healthData/${devId}?startDate=${startDate}&endDate=${endDate}`,
       }),
   });
 
@@ -224,7 +228,7 @@ const FitnessScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getStepData/6907390711?startDate=${startDate}&endDate=${endDate}`,
+        url: `deviceDataResponse/getStepData/${devId}?startDate=${startDate}&endDate=${endDate}`,
       }),
   });
   console.log('+++++++++++', stepData?.data?.totalStepsOverall);
@@ -240,7 +244,12 @@ const FitnessScreen = ({navigation}) => {
       setIsStepReady(false);
     }
   }, [stepData, stepLoading]);
-
+  useFocusEffect(
+    useCallback(() => {
+      refetchFitnessData();
+      refetchStepData();
+    }, [deviceId]),
+  );
   if (isLoading || stepLoading) {
     return (
       <MainBackground style={{backgroundColor: theme.otpBox}}>
