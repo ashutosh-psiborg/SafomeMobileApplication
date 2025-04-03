@@ -317,7 +317,7 @@ const FitnessScreen = ({navigation}) => {
                     <CalorieBurnIcon />
                     <Text style={styles.statLabel}>Calories</Text>
                   </View>
-                  <Text style={styles.statValue}>{stats.calories}</Text>
+                  <Text style={styles.statValue}>{stats.calories} kcal</Text>
                 </View>
                 <View style={styles.statDivider} />
                 <View style={styles.statItem}>
@@ -325,7 +325,7 @@ const FitnessScreen = ({navigation}) => {
                     <BlueFlagIcon />
                     <Text style={styles.statLabel}>{stats.label}</Text>
                   </View>
-                  <Text style={styles.statValue}>{stats.goalOrAvg}</Text>
+                  <Text style={styles.statValue}>{stats.goalOrAvg} steps</Text>
                 </View>
               </LinearGradient>
             </CustomCard>

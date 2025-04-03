@@ -13,7 +13,6 @@ import {DimensionConstants} from '../../constants/DimensionConstants';
 import Spacing from '../../components/Spacing';
 import CustomCard from '../../components/CustomCard';
 import BlueBellIcon from '../../assets/icons/BlueBellIcon';
-import DownArrowIcon from '../../assets/icons/DownArrowIcon';
 const NotificationScreen = ({navigation}) => {
   const [selectedButton, setSelectedButton] = useState(0);
 
@@ -105,7 +104,6 @@ const NotificationScreen = ({navigation}) => {
                     </Text>
                   </View>
                 </View>
-                <DownArrowIcon />
               </View>
             </CustomCard>
           ))}

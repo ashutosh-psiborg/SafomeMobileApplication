@@ -44,7 +44,7 @@ const AddContact = ({navigation}) => {
   }, []);
   console.log('Device===@@@=', deviceId);
   const {data, refetch, isLoading} = useQuery({
-    queryKey: ['sosContacts'],
+    queryKey: ['sosContacts', deviceId],
     queryFn: () =>
       fetcher({
         method: 'GET',
