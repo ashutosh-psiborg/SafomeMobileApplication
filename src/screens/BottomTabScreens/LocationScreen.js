@@ -90,7 +90,7 @@ const LocationScreen = ({navigation}) => {
     isLoading: isLocationLoading,
     refetch: refetchLocation,
   } = useQuery({
-    queryKey: ['location', startDate, endDate],
+    queryKey: ['location', startDate, endDate, deviceId],
     queryFn: async () => {
       const response = await fetcher({
         method: 'GET',
