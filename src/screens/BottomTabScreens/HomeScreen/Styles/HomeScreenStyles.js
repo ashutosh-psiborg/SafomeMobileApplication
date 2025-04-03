@@ -12,15 +12,12 @@ export const HomeScreenStyles = theme =>
       alignItems: 'center',
       padding: DimensionConstants.five,
     },
-    // addressContainer: {
-    //   flexDirection: 'row',
-    //   justifyContent: 'space-between',
-    //   alignItems: 'center',
-    // },
+
     mapContainer: {
       borderRadius: DimensionConstants.twenty,
-      height: height * 0.65,
+      height: DimensionConstants.twoHundredSixty,
       overflow: 'hidden',
+      padding: 0,
     },
     map: {
       height: '100%',

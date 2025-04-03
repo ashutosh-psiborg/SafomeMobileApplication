@@ -8,8 +8,6 @@ import {
   Modal,
   TextInput,
 } from 'react-native';
-import MapViewClustering from 'react-native-map-clustering';
-import MapView, {PROVIDER_GOOGLE, Marker, Circle} from 'react-native-maps';
 import {useSelector} from 'react-redux';
 import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../../utils/ApiService';
@@ -32,19 +30,21 @@ import {useFocusEffect} from '@react-navigation/native';
 import moment from 'moment';
 import CustomCard from '../../../components/CustomCard';
 import TimeLineIcon from '../../../assets/icons/TimeLineIcon';
-import Slider from '@react-native-community/slider';
-import CustomModal from '../../../components/CustomModal';
-import CustomButton from '../../../components/CustomButton';
+import CustomMapCard from '../../../components/CustomMapCard';
 
-const HomeScreen = ({navigation}) => {
+const HomeScreen = ({navigation, liveLocation}) => {
+  // Add liveLocation as a prop
   const [selected, setSelected] = useState('Week');
-  const [radius, setRadius] = useState(100); // default 100 meters
-  const [radiusInput, setRadiusInput] = useState('100');
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const [showAllLocations, setShowAllLocations] = useState(false);
   const [deviceId, setDeviceId] = useState('');
+  const [devId, setDevId] = useState('');
   const [location, setLocation] = useState(null);
   const [mapKey, setMapKey] = useState(0);
+  const [selectedGeoFence, setSelectedGeoFence] = useState(null);
+  const [mapRegion, setMapRegion] = useState(null);
+  const mapRef = useRef(null);
+  const [selectedGeoFenceId, setSelectedGeoFenceId] = useState(null);
+
   const locationRef = useRef(null);
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -62,24 +62,91 @@ const HomeScreen = ({navigation}) => {
 
   useFocusEffect(
     useCallback(() => {
+      const getStoredDeviceId = async () => {
+        try {
+          const storedMongoId = await AsyncStorage.getItem(
+            'selectedDeviceMongoId',
+          );
+          if (storedMongoId) setDevId(storedMongoId);
+        } catch (error) {
+          console.error('Failed to retrieve stored device data:', error);
+        }
+      };
+      getStoredDeviceId();
       getSelectedDevice();
       refetchFitness();
       refetchLocation();
+      refetchGeoFence();
     }, [deviceId]),
   );
 
-  const {
-    data: fitnessData,
-    isLoading: isFitnessLoading,
-    refetch: refetchFitness,
-  } = useQuery({
-    queryKey: ['fitness', selected],
-    queryFn: () =>
-      fetcher({
-        method: 'GET',
-        url: `deviceDataResponse/healthData/${deviceId}`,
-      }),
-  });
+  const handleGeoFenceSelect = item => {
+    setSelectedGeoFenceId(item.value);
+    const selected = geoFenceData?.data?.results.find(
+      fence => fence._id === item.value,
+    );
+    if (selected) {
+      setSelectedGeoFence(selected);
+      if (selected.type === 'Circle') {
+        const latitude = selected.location.coordinates[0].latitude;
+        const longitude = selected.location.coordinates[0].longitude;
+        setMapRegion({
+          latitude,
+          longitude,
+          latitudeDelta: 0.005,
+          longitudeDelta: 0.005,
+        });
+        if (mapRef.current) {
+          mapRef.current.animateToRegion(
+            {
+              latitude,
+              longitude,
+              latitudeDelta: 0.005,
+              longitudeDelta: 0.005,
+            },
+            1000,
+          );
+        }
+      } else if (selected.type === 'Polygon') {
+        const polygonCoordinates = selected.location.coordinates.map(coord => ({
+          latitude: coord.latitude,
+          longitude: coord.longitude,
+        }));
+        if (mapRef.current) {
+          mapRef.current.fitToCoordinates(polygonCoordinates, {
+            edgePadding: {top: 50, right: 50, bottom: 50, left: 50},
+            animated: true,
+          });
+        }
+      }
+    }
+  };
+
+  const handleLiveLocationPress = () => {
+    if (liveLocation && liveLocation.latitude && liveLocation.longitude) {
+      const {latitude, longitude} = liveLocation;
+      setLocation({latitude, longitude});
+      setMapRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+      if (mapRef.current) {
+        mapRef.current.animateToRegion(
+          {
+            latitude,
+            longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          },
+          1000,
+        );
+      }
+    } else {
+      Alert.alert('Error', 'Live location data is not available.');
+    }
+  };
 
   const {
     data: stepData,
@@ -91,6 +158,19 @@ const HomeScreen = ({navigation}) => {
       fetcher({
         method: 'GET',
         url: `deviceDataResponse/getStepData/6907390711`,
+      }),
+  });
+
+  const {
+    data: fitnessData,
+    isLoading: isFitnessLoading,
+    refetch: refetchFitness,
+  } = useQuery({
+    queryKey: ['fitness', selected],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `deviceDataResponse/healthData/${deviceId}`,
       }),
   });
 
@@ -121,7 +201,22 @@ const HomeScreen = ({navigation}) => {
       }
     },
   });
-  console.log('locationData====', locationData?.data);
+
+  const {
+    data: geoFenceData,
+    isLoading: isGeoFenceLoading,
+    refetch: refetchGeoFence,
+  } = useQuery({
+    queryKey: ['geoFence', devId],
+    queryFn: async () => {
+      const response = await fetcher({
+        method: 'GET',
+        url: `geoFence/getFence/${devId}`,
+      });
+      return response;
+    },
+  });
+
   useEffect(() => {
     const latestLocation = locationData?.data?.results?.[0];
     if (latestLocation?.latitude && latestLocation?.longitude) {
@@ -135,46 +230,6 @@ const HomeScreen = ({navigation}) => {
       }
     }
   }, [locationData]);
-
-  const isWithinGeofence = (lat1, lon1, lat2, lon2, radius = 100) => {
-    const toRad = value => (value * Math.PI) / 180;
-    const R = 6371000;
-
-    const dLat = toRad(lat2 - lat1);
-    const dLon = toRad(lon2 - lon1);
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(toRad(lat1)) *
-        Math.cos(toRad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-
-    return distance <= radius;
-  };
-
-  useEffect(() => {
-    if (location && locationData?.data) {
-      const insideFence = locationData.data.results.find(item =>
-        isWithinGeofence(
-          location.latitude,
-          location.longitude,
-          parseFloat(item.latitude),
-          parseFloat(item.longitude),
-          100,
-        ),
-      );
-      // if (insideFence) {
-      //   Alert.alert(
-      //     'Geofence Alert',
-      //     `You are within 100 meters of ${insideFence.placeName}`,
-      //   );
-      // }
-    }
-  }, [location, locationData]);
 
   const handleRefresh = async () => {
     await refetchLocation();
@@ -230,70 +285,24 @@ const HomeScreen = ({navigation}) => {
               <RefreshIcon />
             </TouchableOpacity>
           </View>
-          <View style={{marginTop: 10, alignItems: 'center'}}>
-            {/* <TouchableOpacity
-              style={{
-                backgroundColor: '#FF310C',
-                padding: 10,
-                borderRadius: 8,
-                marginBottom: 10,
-              }}
-              onPress={() => setIsModalVisible(true)}>
-              <Text style={{color: 'white'}}>Set Radius</Text>
-            </TouchableOpacity> */}
-          </View>
         </View>
 
         <Spacing height={DimensionConstants.fifteen} />
-        <View style={styles.mapContainer}>
-          {location ? (
-            <MapViewClustering
-              key={mapKey}
-              style={styles.map}
-              provider={PROVIDER_GOOGLE}
-              initialRegion={{
-                latitude: location.latitude,
-                longitude: location.longitude,
-                latitudeDelta: 0.01,
-                longitudeDelta: 0.01,
-              }}
-              clusterColor="#FFB6B6"
-              animationEnabled>
-              {locationData?.data?.results?.map((item, index) => {
-                const lat = parseFloat(item.latitude);
-                const long = parseFloat(item.longitude);
-                if (!isNaN(lat) && !isNaN(long)) {
-                  return (
-                    <React.Fragment key={index}>
-                      <Marker
-                        coordinate={{latitude: lat, longitude: long}}
-                        title={item.placeName || 'Location'}
-                        description={moment(item.createdAt).format(
-                          'DD MMM YYYY, hh:mm A',
-                        )}
-                      />
-                      <Circle
-                        center={{latitude: lat, longitude: long}}
-                        radius={radius}
-                        strokeWidth={1}
-                        strokeColor="#FF310C"
-                        fillColor="#FFB6B6"
-                      />
-                    </React.Fragment>
-                  );
-                }
-                return null;
-              })}
-              <Marker
-                coordinate={location}
-                title="Your Location"
-                pinColor="red"
-              />
-            </MapViewClustering>
-          ) : (
-            <Loader />
-          )}
-        </View>
+
+        {/* <LocationInfoCard /> */}
+        {/* <Spacing height={DimensionConstants.ten} /> */}
+        <CustomMapCard
+          location={location}
+          isGeoFenceLoading={isGeoFenceLoading}
+          geoFenceData={geoFenceData}
+          selectedGeoFence={selectedGeoFence}
+          handleGeoFenceSelect={handleGeoFenceSelect}
+          mapRef={mapRef}
+          mapKey={mapKey}
+          mapRegion={mapRegion}
+          onLiveLocationPress={handleLiveLocationPress}
+          liveLocation={location}
+        />
 
         <Spacing height={DimensionConstants.ten} />
         <TouchableOpacity
@@ -312,7 +321,6 @@ const HomeScreen = ({navigation}) => {
             + Add geofence details
           </Text>
         </TouchableOpacity>
-        {/* <Spacing height={DimensionConstants.ten} /> */}
 
         <HomeMidHeader
           title={'Recent Location'}
@@ -366,40 +374,6 @@ const HomeScreen = ({navigation}) => {
           navigation={navigation}
         />
       </ScrollView>
-      <CustomModal
-        isVisible={isModalVisible}
-        modalHeight={height / 3.5}
-        onClose={() => setIsModalVisible(false)}>
-        <View style={{flex: 1, justifyContent: 'center'}}>
-          <Text style={{fontSize: 18, fontWeight: 'bold', marginBottom: 10}}>
-            Set Geofence Radius
-          </Text>
-
-          <Slider
-            style={{width: '100%', height: 40}}
-            minimumValue={50}
-            maximumValue={1000}
-            step={10}
-            value={radius}
-            minimumTrackTintColor="#FF310C"
-            maximumTrackTintColor="#d3d3d3"
-            thumbTintColor="#FF310C"
-            onValueChange={value => {
-              setRadius(value);
-              setRadiusInput(String(value));
-            }}
-          />
-
-          <Text style={{textAlign: 'center', marginVertical: 10, fontSize: 16}}>
-            {radius} meters
-          </Text>
-
-          <CustomButton
-            text={'Save'}
-            onPress={() => setIsModalVisible(false)}
-          />
-        </View>
-      </CustomModal>
     </MainBackground>
   );
 };
