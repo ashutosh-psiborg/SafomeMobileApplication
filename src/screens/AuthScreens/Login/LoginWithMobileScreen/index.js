@@ -45,9 +45,10 @@ const LoginWithMobileScreen = ({navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: '/auth/loginWithPhoneNumber',
+        url: '/auth/sendOtp',
         data: {
-          phoneNumber: phoneNumber,
+          purpose: 'LOGIN',
+          contact: phoneNumber,
         },
       });
     },
@@ -62,8 +63,12 @@ const LoginWithMobileScreen = ({navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: '/auth/loginVerifyOTP',
-        data: {phoneNumber: phoneNumber, otp: num},
+        url: 'auth/verifyOTP',
+        data: {
+          contact: phoneNumber,
+          otp: num,
+          purpose: 'LOGIN',
+        },
         noAuth: true,
       });
     },

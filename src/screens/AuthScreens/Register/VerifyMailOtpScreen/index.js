@@ -33,7 +33,7 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
         url: '/auth/sendOtp',
         data: {
           contact: user.email,
-          type: 'EMAIL',
+          purpose: 'REGISTRATION',
         },
       });
     },
@@ -55,12 +55,12 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
     mutationFn: async () => {
       const data = {
         contact: user?.email,
-        type: 'EMAIL',
+        purpose: 'REGISTRATION',
         otp: code,
       };
       return fetcher({
         method: 'POST                                                    ',
-        url: 'auth/verify-Emailorphoneotp',
+        url: 'auth/verifyOTP',
         data,
       });
     },

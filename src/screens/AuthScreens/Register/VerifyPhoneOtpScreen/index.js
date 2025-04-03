@@ -30,7 +30,7 @@ const VerifyPhoneOtpScreen = ({navigation}) => {
         url: 'auth/sendOtp',
         data: {
           contact: user.phoneNumber,
-          type: 'PHONE',
+          purpose: 'REGISTRATION',
         },
       });
     },
@@ -52,8 +52,8 @@ const VerifyPhoneOtpScreen = ({navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: 'auth/verify-Emailorphoneotp',
-        data: {contact: user.phoneNumber, type: 'PHONE', otp: code},
+        url: 'auth/verifyOTP',
+        data: {contact: user.phoneNumber, purpose: 'REGISTRATION', otp: code},
       });
     },
     onSuccess: data => {
