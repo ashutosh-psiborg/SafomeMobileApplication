@@ -1,4 +1,4 @@
-import React, {useRef, useState, useEffect, useCallback} from 'react';
+import React, {useRef, useState, useEffect, useCallback, useMemo} from 'react';
 import {
   View,
   Text,
@@ -23,6 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import fetcher from '../../utils/ApiService';
 import Loader from '../../components/Loader';
 import moment from 'moment';
+import FilterContainer from '../../components/FilterContainer';
 
 const LocationScreen = ({navigation}) => {
   const snapPoints = ['25%', '40%'];
@@ -31,6 +32,9 @@ const LocationScreen = ({navigation}) => {
   const [location, setLocation] = useState(null);
   const locationRef = useRef(null);
   const [mapKey, setMapKey] = useState(0);
+  const options = useMemo(() => ['Today', 'Week', 'Month', 'Custom'], []);
+  const [selected, setSelected] = useState('Today');
+
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -50,16 +54,47 @@ const LocationScreen = ({navigation}) => {
     }, [deviceId]),
   );
 
+  const getDateRange = useCallback(selection => {
+    const today = moment().format('DD-MM-YYYY');
+    if (typeof selection === 'object' && selection.label === 'Custom') {
+      return {
+        startDate: moment(selection.startDate).format('DD-MM-YYYY'),
+        endDate: today,
+      };
+    }
+    switch (selection) {
+      case 'Today':
+        return {startDate: today, endDate: today};
+      case 'Week':
+        return {
+          startDate: moment().subtract(7, 'days').format('DD-MM-YYYY'),
+          endDate: today,
+        };
+      case 'Month':
+        return {
+          startDate: moment().subtract(30, 'days').format('DD-MM-YYYY'),
+          endDate: today,
+        };
+      default:
+        return {startDate: today, endDate: today};
+    }
+  }, []);
+
+  const {startDate, endDate} = useMemo(
+    () => getDateRange(selected),
+    [selected, getDateRange],
+  );
+  console.log('++++', {startDate, endDate});
   const {
     data: locationData,
     isLoading: isLocationLoading,
     refetch: refetchLocation,
   } = useQuery({
-    queryKey: ['location'],
+    queryKey: ['location', startDate, endDate, deviceId],
     queryFn: async () => {
       const response = await fetcher({
         method: 'GET',
-        url: `deviceDataResponse/locations/${deviceId}`,
+        url: `deviceDataResponse/locations/${deviceId}?startDate=${startDate}&endDate=${endDate}&page=1&limit=40`,
       });
       return response;
     },
@@ -77,7 +112,6 @@ const LocationScreen = ({navigation}) => {
       }
     },
   });
-
   useEffect(() => {
     const latestLocation = locationData?.data?.results?.[0];
     if (latestLocation?.latitude && latestLocation?.longitude) {
@@ -169,45 +203,57 @@ const LocationScreen = ({navigation}) => {
               <ScrollView contentContainerStyle={styles.sheetContent}>
                 <HomeMidHeader title="Recent Location" showViewAll={false} />
                 <Spacing height={DimensionConstants.ten} />
-                <CustomCard>
-                  {locationData?.data?.results?.map((item, index, arr) => (
-                    <TouchableOpacity
-                      key={index}
-                      onPress={() =>
-                        focusOnLocation(
-                          parseFloat(item.latitude),
-                          parseFloat(item.longitude),
-                        )
-                      }
-                      style={{flexDirection: 'row', alignItems: 'flex-start'}}>
-                      <View style={{width: 20, alignItems: 'center'}}>
-                        <TimeLineIcon />
-                        {index !== arr.length - 1 && (
-                          <View
-                            style={{
-                              width: 1,
-                              flex: 1,
-                              backgroundColor: 'transparent',
-                              borderLeftWidth: 1,
-                              borderLeftColor: '#FF310C',
-                              borderStyle: 'dashed',
-                              marginTop: 2,
-                            }}
-                          />
-                        )}
-                      </View>
-                      <View style={{marginLeft: 10, paddingBottom: 20}}>
-                        <Text style={{fontWeight: 'bold'}}>
-                          {moment(item?.createdAt).format('D MMMM YYYY')}
-                        </Text>
-                        <Text style={{color: '#666'}}>
-                          {moment(item?.createdAt).format('hh:mm A')}
-                        </Text>
-                        <Text style={{marginTop: 4}}>{item?.placeName}</Text>
-                      </View>
-                    </TouchableOpacity>
-                  ))}
-                </CustomCard>
+                <FilterContainer
+                  options={options}
+                  selected={selected}
+                  onSelect={setSelected}
+                  theme={theme}
+                />
+                <Spacing height={DimensionConstants.ten} />
+                {isLocationLoading ? null : (
+                  <CustomCard>
+                    {locationData?.data?.results?.map((item, index, arr) => (
+                      <TouchableOpacity
+                        key={index}
+                        onPress={() =>
+                          focusOnLocation(
+                            parseFloat(item.latitude),
+                            parseFloat(item.longitude),
+                          )
+                        }
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'flex-start',
+                        }}>
+                        <View style={{width: 20, alignItems: 'center'}}>
+                          <TimeLineIcon />
+                          {index !== arr.length - 1 && (
+                            <View
+                              style={{
+                                width: 1,
+                                flex: 1,
+                                backgroundColor: 'transparent',
+                                borderLeftWidth: 1,
+                                borderLeftColor: '#FF310C',
+                                borderStyle: 'dashed',
+                                marginTop: 2,
+                              }}
+                            />
+                          )}
+                        </View>
+                        <View style={{marginLeft: 10, paddingBottom: 20}}>
+                          <Text style={{fontWeight: 'bold'}}>
+                            {moment(item?.createdAt).format('D MMMM YYYY')}
+                          </Text>
+                          <Text style={{color: '#666'}}>
+                            {moment(item?.createdAt).format('hh:mm A')}
+                          </Text>
+                          <Text style={{marginTop: 4}}>{item?.placeName}</Text>
+                        </View>
+                      </TouchableOpacity>
+                    ))}
+                  </CustomCard>
+                )}
               </ScrollView>
             </BottomSheetView>
           </BottomSheet>
