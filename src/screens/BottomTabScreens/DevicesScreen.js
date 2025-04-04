@@ -12,21 +12,15 @@ import BlackWatchIcon from '../../assets/icons/BlackWatchIcon';
 import CustomCard from '../../components/CustomCard';
 import CustomButton from '../../components/CustomButton';
 import Spacing from '../../components/Spacing';
-import {DimensionConstants, height} from '../../constants/DimensionConstants';
+import {DimensionConstants} from '../../constants/DimensionConstants';
 import DownArrowIcon from '../../assets/icons/DownArrowIcon';
 import {useSelector} from 'react-redux';
-import DeviceCallIcon from '../../assets/icons/DeviceCallIcon';
-import FitnessIcon from '../../assets/icons/FitnessIcon';
-import AppsIcon from '../../assets/icons/AppsIcon';
 import SystemIcon from '../../assets/icons/SystemIcon';
 import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../utils/ApiService';
 import Loader from '../../components/Loader';
 import {useFocusEffect} from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomModal from '../../components/CustomModal';
-import CommonForm from '../../utils/CommonForm';
-import {useForm} from 'react-hook-form';
 import RightArrowIcon from '../../assets/icons/RightArrowIcon';
 import FeaturesIcon from '../../assets/icons/FeaturesIcon';
 import AddRemoteIcon from '../../assets/icons/AddRemoteIcon';
@@ -34,7 +28,6 @@ import AboutDeviceIcon from '../../assets/icons/AboutDeviceIcon';
 import SubscriptionIcon from '../../assets/icons/SubscriptionIcon';
 const DevicesScreen = ({navigation}) => {
   const [deviceId, setDeviceId] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
 
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['deviceDetails'],
@@ -67,16 +60,6 @@ const DevicesScreen = ({navigation}) => {
       refetch();
     }
   }, [deviceId, refetch]);
-  const {
-    control,
-    handleSubmit,
-    formState: {errors},
-    reset,
-  } = useForm({
-    defaultValues: {
-      deviceName: '',
-    },
-  });
 
   const {appStrings} = useSelector(state => state.language);
 
@@ -95,27 +78,6 @@ const DevicesScreen = ({navigation}) => {
 
     getStoredDeviceId();
   }, []);
-
-  // Set device name in form when data loads
-  useEffect(() => {
-    if (data?.data?.deviceName) {
-      reset({deviceName: data.data.deviceName});
-    }
-  }, [data, reset]);
-
-  const handleUpdateDevice = async formData => {
-    try {
-      await fetcher({
-        method: 'PATCH',
-        url: `/devices/updateDevice/${deviceId}`,
-        data: {deviceName: formData.deviceName},
-      });
-      setModalVisible(false);
-      refetch();
-    } catch (error) {
-      console.error('Error updating device name:', error);
-    }
-  };
 
   const icons = [
     // {
@@ -233,40 +195,6 @@ const DevicesScreen = ({navigation}) => {
           </ScrollView>
         </View>
       )}
-
-      <CustomModal
-        isVisible={modalVisible}
-        modalHeight={height / 3.5}
-        onClose={() => setModalVisible(false)}>
-        <View
-          style={{
-            justifyContent: 'space-between',
-            flex: 1,
-            paddingBottom: DimensionConstants.fifteen,
-          }}>
-          <Text
-            style={{fontSize: DimensionConstants.fourteen, fontWeight: '500'}}>
-            Change the name of your device
-          </Text>
-          <Spacing height={DimensionConstants.ten} />
-          <CommonForm control={control} fields={fields} errors={errors} />
-          <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <CustomButton
-              text="Cancel"
-              width="48%"
-              color="#fff"
-              textColor="rgba(0, 0, 0, 0.6)"
-              borderColor="rgba(0, 0, 0, 0.3)"
-              onPress={() => setModalVisible(false)}
-            />
-            <CustomButton
-              text="Save"
-              width="48%"
-              onPress={handleSubmit(handleUpdateDevice)}
-            />
-          </View>
-        </View>
-      </CustomModal>
     </MainBackground>
   );
 };

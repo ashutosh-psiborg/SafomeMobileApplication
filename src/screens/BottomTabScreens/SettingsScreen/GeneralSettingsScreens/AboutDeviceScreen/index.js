@@ -41,7 +41,7 @@ const features = [
   },
 ];
 
-const AboutDeviceScreen = () => {
+const AboutDeviceScreen = ({navigation}) => {
   return (
     <MainBackground noPadding style={styles.mainBackground}>
       <CustomHeader
