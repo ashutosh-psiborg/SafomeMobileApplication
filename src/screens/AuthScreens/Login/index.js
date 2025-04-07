@@ -57,10 +57,10 @@ const LoginScreen = ({navigation}) => {
       if (response) {
         console.log({userInfo: response.data});
         const googlePayload = {
-          fullName: response.data.user.name,
-          email: response.data.user.email,
-          avatarUrl: response.data.user.photo,
-          uid: uidData?.nextUId,
+          fullName: response?.data?.user?.name,
+          email: response?.data?.user?.email,
+          avatarUrl: response?.data?.user?.photo,
+          uid: uidData?.data?.uid,
         };
 
         googleMutation.mutate(googlePayload);

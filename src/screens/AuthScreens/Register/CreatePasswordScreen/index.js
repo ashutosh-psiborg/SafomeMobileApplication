@@ -36,9 +36,10 @@ const CreatePasswordScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: '/auth/generateUserUId',
+        url: '/user/generateUserUId',
       }),
   });
+  console.log('uidData',uidData)
   const {
     control,
     handleSubmit,
@@ -90,7 +91,7 @@ const CreatePasswordScreen = ({navigation}) => {
     const updatedUserData = {
       ...user,
       password: data?.password,
-      uid: uidData?.nextUId,
+      uid: uidData?.data?.uid,
     };
 
     dispatch(setUserData(updatedUserData));
