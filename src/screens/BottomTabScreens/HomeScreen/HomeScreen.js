@@ -57,6 +57,10 @@ const HomeScreen = ({navigation, liveLocation}) => {
     }, [deviceId, devId]),
   );
 
+  useEffect(() => {
+    getSelectedDevice();
+  }, []);
+
   const {
     data: deviceData,
     isLoading,
@@ -172,7 +176,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
     isLoading: isLocationLoading,
     refetch: refetchLocation,
   } = useQuery({
-    queryKey: ['location'],
+    queryKey: ['location', devId, deviceId],
     queryFn: async () => {
       const response = await fetcher({
         method: 'GET',
@@ -194,7 +198,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
       }
     },
   });
-
+  console.log('++++++++++++++++++++++++++++++++++++', locationData);
   const {
     data: geoFenceData,
     isLoading: isGeoFenceLoading,
