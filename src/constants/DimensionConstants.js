@@ -104,21 +104,21 @@ export const DimensionConstants = {
   ninetyNine: ms(99),
   oneHundred: ms(100),
   oneHundredThree: ms(103),
-  oneHundredTen:ms(110),
+  oneHundredTen: ms(110),
   oneHundredEighteen: ms(118),
   oneHundredTwenty: ms(120),
   oneHundredTwentyFour: ms(124),
-  oneHundredThirty:ms(130),
-  oneHundredFortyFive :ms(145),
+  oneHundredThirty: ms(130),
+  oneHundredFortyFive: ms(145),
   oneHundredFortySeven: ms(147),
   oneHundredFifty: ms(150),
   oneHundredFiftyFour: ms(154),
   oneHundredsixty: ms(160),
-  oneHundredsixtyOne:ms(161),
+  oneHundredsixtyOne: ms(161),
   oneHundredSixtyFour: ms(164),
   oneHundredSeventy: ms(170),
   oneHundredSeventyFour: ms(174),
-  oneHundredEighty:ms(180),
+  oneHundredEighty: ms(180),
   oneHundredEightyyFour: ms(184),
 
   oneHundredNintySix: ms(196),
@@ -135,7 +135,9 @@ export const DimensionConstants = {
   threeTwenty: ms(320),
   threeFifty: ms(350),
   fourHundred: ms(400),
+
   fourFifty: ms(450),
+  fourSixty: ms(460),
   fiveHundred: ms(500),
   oneThusand: ms(1000),
   twoThousand: ms(2000),
@@ -160,7 +162,5 @@ export const DoubleDimensionConstants = {
   zeroPointTwoFive: ms(0.25),
   zeroPointSevenFive: ms(0.75),
 };
-
-
 
 export const {height, width} = Dimensions.get('screen');

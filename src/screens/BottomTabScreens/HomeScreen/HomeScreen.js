@@ -1,41 +1,23 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  Modal,
-  TextInput,
-} from 'react-native';
+import {View, Text, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
-import {useQuery} from '@tanstack/react-query';
+import {useQuery, useQueryClient} from '@tanstack/react-query';
 import fetcher from '../../../utils/ApiService';
 import Loader from '../../../components/Loader';
 import MainBackground from '../../../components/MainBackground';
 import Spacing from '../../../components/Spacing';
-import AddressIcon from '../../../assets/icons/AddressIcon';
-import RefreshIcon from '../../../assets/icons/RefreshIcon';
 import {HomeScreenStyles} from './Styles/HomeScreenStyles';
-import StatisticsCards from '../../../components/StatisticsCards';
 import HomeMidHeader from '../../../components/HomeMidHeader';
 import LogoHeader from '../../../components/LogoHeader';
-import {
-  DimensionConstants,
-  height,
-  width,
-} from '../../../constants/DimensionConstants';
+import {DimensionConstants} from '../../../constants/DimensionConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
-import moment from 'moment';
-import CustomCard from '../../../components/CustomCard';
-import TimeLineIcon from '../../../assets/icons/TimeLineIcon';
+
 import CustomMapCard from '../../../components/CustomMapCard';
 
 const HomeScreen = ({navigation, liveLocation}) => {
   // Add liveLocation as a prop
   const [selected, setSelected] = useState('Week');
-  const [showAllLocations, setShowAllLocations] = useState(false);
   const [deviceId, setDeviceId] = useState('');
   const [devId, setDevId] = useState('');
   const [location, setLocation] = useState(null);
@@ -44,7 +26,6 @@ const HomeScreen = ({navigation, liveLocation}) => {
   const [mapRegion, setMapRegion] = useState(null);
   const mapRef = useRef(null);
   const [selectedGeoFenceId, setSelectedGeoFenceId] = useState(null);
-
   const locationRef = useRef(null);
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
@@ -80,7 +61,13 @@ const HomeScreen = ({navigation, liveLocation}) => {
     }, [deviceId]),
   );
 
+  const {data: deviceData, isLoading} = useQuery({
+    queryKey: ['deviceDetails'],
+    // queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
+  });
+
   const handleGeoFenceSelect = item => {
+    console.log('***************************', item);
     setSelectedGeoFenceId(item.value);
     const selected = geoFenceData?.data?.results.find(
       fence => fence._id === item.value,
@@ -231,11 +218,6 @@ const HomeScreen = ({navigation, liveLocation}) => {
     }
   }, [locationData]);
 
-  const handleRefresh = async () => {
-    await refetchLocation();
-    await refetchFitness();
-  };
-
   if (isLocationLoading) {
     return (
       <MainBackground style={{backgroundColor: theme.otpBox}}>
@@ -244,54 +226,28 @@ const HomeScreen = ({navigation, liveLocation}) => {
     );
   }
 
-  if (
-    !locationData?.data.results ||
-    !Array.isArray(locationData?.data.results) ||
-    locationData?.data?.results?.length === 0
-  ) {
-    return (
-      <MainBackground style={{backgroundColor: theme.otpBox}}>
-        <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
-        <View style={{alignItems: 'center'}}>
-          <Text style={{color: theme.text, fontSize: 16}}>
-            No Data Found, Please Select Device in settings
-          </Text>
-        </View>
-      </MainBackground>
-    );
-  }
+  // if (
+  //   !locationData?.data.results ||
+  //   !Array.isArray(locationData?.data.results) ||
+  //   locationData?.data?.results?.length === 0
+  // ) {
+  //   return (
+  //     <MainBackground style={{backgroundColor: theme.otpBox}}>
+  //       <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
+  //       <View style={{alignItems: 'center'}}>
+  //         <Text style={{color: theme.text, fontSize: 16}}>
+  //           No Data Found, Please Select Device in settings
+  //         </Text>
+  //       </View>
+  //     </MainBackground>
+  //   );
+  // }
 
   return (
-    <MainBackground style={{backgroundColor: theme.otpBox}}>
-      <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <Spacing height={DimensionConstants.twentyFour} />
-        <View style={styles.addressContainer}>
-          <View style={styles.rowContainer}>
-            <AddressIcon />
-            <Text
-              style={styles.placeText}
-              numberOfLines={1}
-              ellipsizeMode="tail">
-              {locationData?.data?.results?.[0]?.placeName ||
-                'Location not available'}
-            </Text>
-          </View>
-          <View style={styles.refreshContainer}>
-            <TouchableOpacity
-              onPress={handleRefresh}
-              style={styles.refreshButton}>
-              <Text style={styles.refreshText}>Refresh</Text>
-              <RefreshIcon />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        <Spacing height={DimensionConstants.fifteen} />
-
-        {/* <LocationInfoCard /> */}
-        {/* <Spacing height={DimensionConstants.ten} /> */}
+    <MainBackground style={{backgroundColor: theme.otpBox, padding: 0}}>
+      <View style={{flex: 1}}>
         <CustomMapCard
+          deviceData={deviceData}
           location={location}
           isGeoFenceLoading={isGeoFenceLoading}
           geoFenceData={geoFenceData}
@@ -303,77 +259,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
           onLiveLocationPress={handleLiveLocationPress}
           liveLocation={location}
         />
-
-        <Spacing height={DimensionConstants.ten} />
-        <TouchableOpacity
-          style={{
-            borderWidth: 1,
-            borderColor: '#FF310C',
-            padding: 10,
-            borderRadius: 20,
-            marginBottom: 10,
-            borderStyle: 'dashed',
-            width: width / 2,
-            alignItems: 'center',
-          }}
-          onPress={() => navigation.navigate('GeofenceScreen')}>
-          <Text style={{color: '#000', fontWeight: '600'}}>
-            + Add geofence details
-          </Text>
-        </TouchableOpacity>
-
-        <HomeMidHeader
-          title={'Recent Location'}
-          onPress={() => navigation.navigate('MainApp', {screen: 'Location'})}
-        />
-        <Spacing height={DimensionConstants.ten} />
-
-        <CustomCard>
-          {(showAllLocations
-            ? locationData?.data.results
-            : locationData?.data?.results?.slice(0, 3)
-          ).map((item, index, arr) => (
-            <View
-              key={index}
-              style={{flexDirection: 'row', alignItems: 'flex-start'}}>
-              <View style={{width: 20, alignItems: 'center'}}>
-                <TimeLineIcon />
-                {index !== arr.length - 1 && (
-                  <View
-                    style={{
-                      width: 1,
-                      flex: 1,
-                      backgroundColor: 'transparent',
-                      borderLeftWidth: 1,
-                      borderLeftColor: '#FF310C',
-                      borderStyle: 'dashed',
-                      marginTop: 2,
-                    }}
-                  />
-                )}
-              </View>
-              <View style={{marginLeft: 10, paddingBottom: 20}}>
-                <Text style={{fontWeight: 'bold'}}>
-                  {moment(item?.createdAt).format('DD-MM-YYYY')}
-                </Text>
-                <Text style={{color: '#666'}}>
-                  {moment(item?.createdAt).format('hh:mm A')}
-                </Text>
-                <Text style={{marginTop: 4}}>{item?.placeName}</Text>
-              </View>
-            </View>
-          ))}
-        </CustomCard>
-
-        <Spacing height={DimensionConstants.twentyFour} />
-        <HomeMidHeader title="Statistics" showViewAll={false} />
-        <StatisticsCards
-          data={fitnessData}
-          loading={isFitnessLoading}
-          stepData={stepData}
-          navigation={navigation}
-        />
-      </ScrollView>
+      </View>
     </MainBackground>
   );
 };

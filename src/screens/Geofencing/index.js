@@ -579,7 +579,7 @@ const styles = StyleSheet.create({
   },
   searchInputContainer: {
     backgroundColor: '#fff',
-    padding: DimensionConstants.fifteen,
+    padding: DimensionConstants.ten,
     borderRadius: DimensionConstants.twenty,
   },
   searchInputWrapper: {
@@ -593,7 +593,7 @@ const styles = StyleSheet.create({
     paddingVertical: DimensionConstants.ten,
     paddingLeft: DimensionConstants.fifteen,
     paddingRight: DimensionConstants.forty,
-    backgroundColor: '#2980b9',
+    backgroundColor: '#0279E1',
     borderRadius: DimensionConstants.fifteen,
   },
   searchIcon: {position: 'absolute', right: DimensionConstants.fifteen},
@@ -620,7 +620,7 @@ const styles = StyleSheet.create({
     gap: DimensionConstants.ten,
   },
   optionTextContainer: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#0279E1',
     width: DimensionConstants.oneHundred,
     paddingVertical: DimensionConstants.ten,
     paddingHorizontal: DimensionConstants.fifteen,
@@ -629,7 +629,7 @@ const styles = StyleSheet.create({
   },
   optionText: {color: 'white', textAlign: 'right'},
   optionIconContainer: {
-    backgroundColor: '#3498db',
+    backgroundColor: '#0279E1',
     padding: DimensionConstants.ten,
     borderRadius: DimensionConstants.ten,
     justifyContent: 'center',
@@ -659,7 +659,7 @@ const styles = StyleSheet.create({
     width: '100%',
     backgroundColor: 'rgba(255, 255, 255, 1)',
     borderWidth: DimensionConstants.one,
-    borderColor: '#3498db',
+    borderColor: '#0279E1',
     borderRadius: DimensionConstants.ten,
     padding: DimensionConstants.fifteen,
     marginVertical: DimensionConstants.fifteen,

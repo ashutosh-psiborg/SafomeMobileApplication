@@ -38,10 +38,9 @@ const AddRemoveDeviceScreen = ({navigation}) => {
   });
 
   const {data, loading, refetch} = useQuery({
-    queryKey: ['deviceDetails'],
+    queryKey: ['allDevice'],
     queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
   });
-
   useEffect(() => {
     const getStoredDeviceId = async () => {
       try {
