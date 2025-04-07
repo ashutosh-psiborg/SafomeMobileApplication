@@ -20,6 +20,7 @@ import fetcher from '../../utils/ApiService';
 import MapViewClustering from 'react-native-map-clustering';
 import {DimensionConstants} from '../../constants/DimensionConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import CustomHeader from '../../components/CustomHeader';
 
 const API_KEY = 'AIzaSyBwDaERJWZV7h28D67mRXG-dIBYSEPQMgQ'; // Your Google Maps API key
 
@@ -179,6 +180,7 @@ const GeofenceScreen = ({navigation}) => {
 
   return (
     <View style={styles.container}>
+      {/* <CustomHeader title='Geofence' /> */}
       <MapView
         ref={mapRef}
         provider="google"

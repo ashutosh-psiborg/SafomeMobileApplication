@@ -1,23 +1,17 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {View, Text, Alert} from 'react-native';
+import {View, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import fetcher from '../../../utils/ApiService';
 import Loader from '../../../components/Loader';
 import MainBackground from '../../../components/MainBackground';
-import Spacing from '../../../components/Spacing';
 import {HomeScreenStyles} from './Styles/HomeScreenStyles';
-import HomeMidHeader from '../../../components/HomeMidHeader';
-import LogoHeader from '../../../components/LogoHeader';
-import {DimensionConstants} from '../../../constants/DimensionConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
 
 import CustomMapCard from '../../../components/CustomMapCard';
 
 const HomeScreen = ({navigation, liveLocation}) => {
-  // Add liveLocation as a prop
-  const [selected, setSelected] = useState('Week');
   const [deviceId, setDeviceId] = useState('');
   const [devId, setDevId] = useState('');
   const [location, setLocation] = useState(null);
@@ -27,10 +21,10 @@ const HomeScreen = ({navigation, liveLocation}) => {
   const mapRef = useRef(null);
   const [selectedGeoFenceId, setSelectedGeoFenceId] = useState(null);
   const locationRef = useRef(null);
+  const queryClient = useQueryClient();
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
-  const styles = HomeScreenStyles(theme);
 
   const getSelectedDevice = async () => {
     try {
@@ -48,6 +42,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
           const storedMongoId = await AsyncStorage.getItem(
             'selectedDeviceMongoId',
           );
+          console.log('storedMongoId', storedMongoId);
           if (storedMongoId) setDevId(storedMongoId);
         } catch (error) {
           console.error('Failed to retrieve stored device data:', error);
@@ -55,15 +50,25 @@ const HomeScreen = ({navigation, liveLocation}) => {
       };
       getStoredDeviceId();
       getSelectedDevice();
-      refetchFitness();
+
       refetchLocation();
       refetchGeoFence();
-    }, [deviceId]),
+      deviceDataRefetch();
+    }, [deviceId, devId]),
   );
 
-  const {data: deviceData, isLoading} = useQuery({
-    queryKey: ['deviceDetails'],
-    // queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
+  const {
+    data: deviceData,
+    isLoading,
+    error,
+    refetch: deviceDataRefetch,
+  } = useQuery({
+    queryKey: ['deviceData', devId, deviceId],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `/devices/deviceDetails/${devId}`,
+      }),
   });
 
   const handleGeoFenceSelect = item => {
@@ -134,32 +139,33 @@ const HomeScreen = ({navigation, liveLocation}) => {
       Alert.alert('Error', 'Live location data is not available.');
     }
   };
+  const handleDeviceSelect = async device => {
+    console.log('0&&&&&&&&&&&&&&&&&', device.deviceId);
 
-  const {
-    data: stepData,
-    isLoading: stepLoading,
-    refetch: refetchStepData,
-  } = useQuery({
-    queryKey: ['steps'],
-    queryFn: () =>
-      fetcher({
-        method: 'GET',
-        url: `deviceDataResponse/getStepData/6907390711`,
-      }),
-  });
+    setDeviceId(device.deviceId);
+    setDevId(device._id);
+    setSelectedGeoFence(null); // Reset selected geofence
+    setSelectedGeoFenceId(null);
+    try {
+      await AsyncStorage.setItem('selectedDeviceId', device.deviceId);
+      await AsyncStorage.setItem('selectedDeviceMongoId', device._id);
 
-  const {
-    data: fitnessData,
-    isLoading: isFitnessLoading,
-    refetch: refetchFitness,
-  } = useQuery({
-    queryKey: ['fitness', selected],
-    queryFn: () =>
-      fetcher({
-        method: 'GET',
-        url: `deviceDataResponse/healthData/${deviceId}`,
-      }),
-  });
+      refetchLocation();
+      refetchGeoFence();
+    } catch (error) {
+      console.error('Failed to save device selection:', error);
+    }
+  };
+
+  const handleGeoFenceDelete = () => {
+    // Refetch all data after geofence deletion
+    setSelectedGeoFence(null); // Reset selected geofence
+    setSelectedGeoFenceId(null); // Reset geofence ID
+    refetchGeoFence();
+    refetchLocation();
+    // Optionally refetch device data if needed
+    queryClient.invalidateQueries(['deviceDetails']);
+  };
 
   const {
     data: locationData,
@@ -258,6 +264,8 @@ const HomeScreen = ({navigation, liveLocation}) => {
           mapRegion={mapRegion}
           onLiveLocationPress={handleLiveLocationPress}
           liveLocation={location}
+          onDeviceSelect={handleDeviceSelect}
+          onGeoFenceDelete={handleGeoFenceDelete}
         />
       </View>
     </MainBackground>

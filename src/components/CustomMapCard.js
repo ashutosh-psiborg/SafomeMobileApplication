@@ -18,7 +18,6 @@ import fetcher from '../utils/ApiService';
 import CustomCard from './CustomCard';
 import Loader from './Loader';
 import SafomeLogo from '../assets/icons/SafomeLogo';
-import {Dropdown} from 'react-native-element-dropdown';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const CustomMapCard = ({
@@ -31,27 +30,49 @@ const CustomMapCard = ({
   onLiveLocationPress,
   deviceData,
   geoFenceData,
+  onDeviceSelect,
+  onGeoFenceDelete,
 }) => {
   const navigation = useNavigation();
   const [isZoneMode, setIsZoneMode] = useState(false);
-  const [showZoneList, setShowZoneList] = useState(false);
+  const [showList, setShowList] = useState(false);
+  const [listType, setListType] = useState(null);
+  const [selectedDeviceName, setSelectedDeviceName] = useState(
+    deviceData?.data?.deviceName || 'Select Device',
+  );
+
+  const {data: allDevicesData, isLoading: isDevicesLoading} = useQuery({
+    queryKey: ['allDevices'],
+    queryFn: () => fetcher({method: 'GET', url: 'devices/getDevices'}),
+  });
 
   const deleteGeoFenceMutation = useMutation({
     mutationFn: fenceId =>
       fetcher({method: 'DELETE', url: `/geoFence/deleteFence/${fenceId}`}),
-    onSuccess: () => Alert.alert('Success', 'Geofence deleted successfully'),
+    onSuccess: () => {
+      Alert.alert('Success', 'Geofence deleted successfully'),
+        onGeoFenceDelete();
+    },
+
     onError: error =>
       Alert.alert('Error', error.message || 'Failed to delete geofence'),
   });
 
-  const handleZoneClick = async () => {
-    // await refetch();
+  const handleZoneClick = () => {
     setIsZoneMode(true);
-    setShowZoneList(false);
+    setListType('zones');
+    setShowList(false);
   };
+
   const handleLiveClick = () => {
     setIsZoneMode(false);
-    setShowZoneList(false);
+    setShowList(false);
+    setListType(null);
+  };
+
+  const handleDeviceNameClick = () => {
+    setListType('devices');
+    setShowList(!showList);
   };
 
   const onDeletePress = geofence => {
@@ -73,13 +94,17 @@ const CustomMapCard = ({
     if (geoFenceData?.data?.results?.length > 0) {
       return (
         <TouchableOpacity
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-          }}
-          onPress={() => setShowZoneList(true)}>
+          style={{flexDirection: 'row', justifyContent: 'space-between'}}
+          onPress={() => {
+            setListType('zones');
+            setShowList(!showList);
+          }}>
           <Text style={styles.selectZoneText}>Select Zone</Text>
-          <MaterialIcons name="keyboard-arrow-down" color="white" size={20} />
+          {showList ? (
+            <MaterialIcons name="keyboard-arrow-up" color="white" size={20} />
+          ) : (
+            <MaterialIcons name="keyboard-arrow-down" color="white" size={20} />
+          )}
         </TouchableOpacity>
       );
     }
@@ -90,51 +115,104 @@ const CustomMapCard = ({
     );
   };
 
-  const renderZoneList = () => (
-    <>
-      <View style={styles.zoneListContainer}>
-        <TouchableOpacity
-          style={styles.addZoneButton}
-          onPress={() => navigation.navigate('GeofenceScreen')}>
-          <LinearGradient
-            colors={['#007bff', '#0056b3']}
-            style={styles.addZoneGradient}
-            start={{x: 0, y: 0}}
-            end={{x: 1, y: 1}}>
-            <FontAwesome6 name="map-location-dot" size={18} color="#fff" />
-            <Text style={styles.addZoneText}>Add New Zone</Text>
-          </LinearGradient>
-        </TouchableOpacity>
-        <ScrollView contentContainerStyle={styles.zoneList}>
-          {geoFenceData?.data?.results?.length > 0 ? (
-            geoFenceData.data.results.map(item => (
-              <View key={item._id} style={styles.zoneItem}>
+  const renderListContent = () => {
+    if (listType === 'zones') {
+      return (
+        <View style={styles.zoneListContainer}>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+            onPress={() => navigation.navigate('GeofenceScreen')}>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: DimensionConstants.five,
+              }}>
+              <MaterialIcons name="add-circle-outline" size={18} />
+              <Text style={styles.addZoneText}>Add New Zone</Text>
+            </View>
+            <MaterialIcons name="keyboard-arrow-right" size={18} />
+          </TouchableOpacity>
+          <ScrollView contentContainerStyle={styles.zoneList}>
+            {geoFenceData?.data?.results?.length > 0 ? (
+              geoFenceData.data.results.map(item => (
+                <View key={item._id} style={styles.zoneItem}>
+                  <TouchableOpacity
+                    style={styles.zoneItemButton}
+                    onPress={() => {
+                      handleGeoFenceSelect({value: item._id});
+                      setShowList(false);
+                    }}>
+                    <Text style={styles.zoneItemText}>{item?.name}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.deleteButton}
+                    onPress={() => onDeletePress(item)}>
+                    <MaterialCommunityIcons
+                      name="delete-empty"
+                      size={18}
+                      color="#ff4d4d"
+                    />
+                  </TouchableOpacity>
+                </View>
+              ))
+            ) : (
+              <Text style={styles.noGeofenceText}>No Geofences Available</Text>
+            )}
+          </ScrollView>
+        </View>
+      );
+    } else if (listType === 'devices') {
+      return (
+        <View style={styles.deviceListContainer}>
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              gap: 5,
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+            <View style={{flexDirection: 'row', gap: 5, alignItems: 'center'}}>
+              <MaterialIcons name="watch" size={15} />
+              <Text
+                style={{
+                  fontSize: DimensionConstants.fifteen,
+                  fontWeight: '500',
+                }}>
+                Device List
+              </Text>
+            </View>
+            <MaterialIcons name="keyboard-arrow-right" size={20} />
+          </TouchableOpacity>
+          <ScrollView contentContainerStyle={styles.deviceList}>
+            {allDevicesData?.data?.results?.length > 0 ? (
+              allDevicesData.data.results.map(item => (
                 <TouchableOpacity
-                  style={styles.zoneItemButton}
+                  key={item._id}
+                  style={styles.deviceItem}
                   onPress={() => {
-                    handleGeoFenceSelect({value: item._id});
-                    setShowZoneList(false);
+                    setSelectedDeviceName(item.deviceName);
+                    onDeviceSelect(item);
+                    setShowList(false);
                   }}>
-                  <Text style={styles.zoneItemText}>{item?.name}</Text>
+                  <Text style={styles.deviceItemText}>{item.deviceName}</Text>
+                  <MaterialIcons name="keyboard-arrow-right" size={20} />
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.deleteButton}
-                  onPress={() => onDeletePress(item)}>
-                  <MaterialCommunityIcons
-                    name="delete-empty"
-                    size={18}
-                    color="#ff4d4d"
-                  />
-                </TouchableOpacity>
-              </View>
-            ))
-          ) : (
-            <Text style={styles.noGeofenceText}>No Geofences Available</Text>
-          )}
-        </ScrollView>
-      </View>
-    </>
-  );
+              ))
+            ) : (
+              <Text style={styles.noDeviceText}>No Devices Available</Text>
+            )}
+          </ScrollView>
+        </View>
+      );
+    }
+    return null;
+  };
+
   return (
     <GestureHandlerRootView>
       <CustomCard style={styles.mapContainer}>
@@ -159,7 +237,6 @@ const CustomMapCard = ({
                   pinColor="red"
                 />
               )}
-
               {selectedGeoFence?.type === 'Circle' && (
                 <Circle
                   center={{
@@ -172,7 +249,6 @@ const CustomMapCard = ({
                   fillColor="rgba(255,0,0,0.3)"
                 />
               )}
-
               {selectedGeoFence?.type === 'Polygon' &&
                 selectedGeoFence.location.coordinates.length > 2 && (
                   <Polygon
@@ -200,9 +276,13 @@ const CustomMapCard = ({
               </TouchableOpacity>
             </View>
             <View style={styles.topCardContainer}>
-              <CustomCard>
+              <CustomCard
+                style={{
+                  paddingVertical: DimensionConstants.five,
+                  paddingHorizontal: DimensionConstants.eight,
+                }}>
                 <View style={styles.deviceContainer}>
-                  <SafomeLogo />
+                  <SafomeLogo width={50} height={50} />
                   <View style={styles.deviceInfo}>
                     {isZoneMode && selectedGeoFence ? (
                       <TouchableOpacity
@@ -210,13 +290,16 @@ const CustomMapCard = ({
                           flexDirection: 'row',
                           justifyContent: 'space-between',
                         }}
-                        onPress={() => setShowZoneList(!showZoneList)}>
+                        onPress={() => {
+                          setListType('zones');
+                          setShowList(!showList);
+                        }}>
                         <Text style={styles.deviceName}>
                           {selectedGeoFence.name}
                         </Text>
                         <MaterialIcons
                           name={
-                            showZoneList
+                            showList
                               ? 'keyboard-arrow-up'
                               : 'keyboard-arrow-down'
                           }
@@ -232,13 +315,13 @@ const CustomMapCard = ({
                           flexDirection: 'row',
                           justifyContent: 'space-between',
                         }}
-                        onPress={() => setShowZoneList(!showZoneList)}>
+                        onPress={handleDeviceNameClick}>
                         <Text style={styles.deviceName}>
-                          {deviceData?.data?.deviceName}
+                          {deviceData?.data?.deviceName || 'Select Device'}
                         </Text>
                         <MaterialIcons
                           name={
-                            showZoneList
+                            showList
                               ? 'keyboard-arrow-up'
                               : 'keyboard-arrow-down'
                           }
@@ -249,7 +332,7 @@ const CustomMapCard = ({
                     )}
                   </View>
                 </View>
-                {showZoneList && renderZoneList()}
+                {showList && renderListContent()}
               </CustomCard>
               <View style={styles.buttonContainer}>
                 <TouchableOpacity
@@ -316,7 +399,7 @@ const styles = StyleSheet.create({
   deviceInfo: {
     flex: 1,
     backgroundColor: '#0279E1',
-    padding: DimensionConstants.twelve,
+    padding: DimensionConstants.eight,
     borderRadius: DimensionConstants.ten,
   },
   deviceName: {
@@ -327,11 +410,11 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     gap: DimensionConstants.ten,
-    marginTop: DimensionConstants.ten,
+    marginTop: DimensionConstants.five,
   },
   iconButton: {
     paddingHorizontal: 20,
-    paddingVertical: 5,
+    paddingVertical: 3,
     backgroundColor: '#0279E1',
     borderRadius: 15,
     justifyContent: 'center',
@@ -342,43 +425,26 @@ const styles = StyleSheet.create({
     fontSize: DimensionConstants.fourteen,
     fontWeight: '500',
   },
-  selectZoneText: {fontSize: DimensionConstants.fifteen, fontWeight: '500'},
-  noGeofenceText: {
-    textAlign: 'center',
-    color: 'black',
+  selectZoneText: {
     fontSize: DimensionConstants.fifteen,
     fontWeight: '500',
+    color: 'white',
   },
-  addZoneButton: {flexDirection: 'row', gap: 10, marginTop: 20},
-  addZoneText: {fontSize: 15},
-  zoneList: {padding: 10},
-  zoneItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: 5,
+  noGeofenceText: {
+    textAlign: 'center',
+    color: 'white',
+    fontSize: DimensionConstants.fifteen,
   },
   zoneListContainer: {
-    padding: DimensionConstants.ten,
-    backgroundColor: 'rgba(255, 255, 255, 0.95)', // Slightly transparent white background
+    padding: DimensionConstants.five,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: DimensionConstants.ten,
-    marginTop: DimensionConstants.ten,
   },
-  addZoneButton: {
-    marginBottom: DimensionConstants.ten, // Space below the button
-  },
-  addZoneGradient: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: DimensionConstants.eight,
-    paddingHorizontal: DimensionConstants.fifteen,
-    borderRadius: DimensionConstants.eight,
-  },
+
   addZoneText: {
     fontSize: DimensionConstants.fifteen,
-    color: '#fff',
+    color: 'black',
     fontWeight: '600',
-    marginLeft: DimensionConstants.ten,
   },
   zoneList: {
     paddingVertical: DimensionConstants.five,
@@ -387,27 +453,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: DimensionConstants.eight,
-    paddingHorizontal: DimensionConstants.ten,
-    backgroundColor: '#f8f9fa', // Light gray background for items
     borderRadius: DimensionConstants.eight,
-    marginVertical: DimensionConstants.three,
   },
   zoneItemButton: {
     flex: 1,
-    paddingVertical: DimensionConstants.five,
+    paddingVertical: DimensionConstants.one,
   },
   zoneItemText: {
     fontSize: DimensionConstants.fifteen,
-    color: '#212529',
+    color: 'black',
     fontWeight: '500',
   },
   deleteButton: {
-    padding: DimensionConstants.five,
+    // padding: DimensionConstants.five,
   },
-  noGeofenceText: {
+  deviceListContainer: {
+    // padding: DimensionConstants.five,
+    backgroundColor: 'rgba(255, 255, 255, 0.95)',
+    borderRadius: DimensionConstants.ten,
+    marginTop: DimensionConstants.ten,
+  },
+  deviceList: {
+    paddingVertical: DimensionConstants.two,
+    marginLeft: DimensionConstants.two,
+  },
+  deviceItem: {
+    marginVertical: DimensionConstants.two,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  deviceItemText: {
+    fontSize: DimensionConstants.fourteen,
+    color: 'black',
+    fontWeight: '500',
+  },
+  noDeviceText: {
     textAlign: 'center',
-    color: '#666',
+    color: 'white',
     fontSize: DimensionConstants.fifteen,
     paddingVertical: DimensionConstants.ten,
     fontStyle: 'italic',
