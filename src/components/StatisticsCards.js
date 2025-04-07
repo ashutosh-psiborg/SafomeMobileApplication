@@ -1,31 +1,13 @@
-import {
-  View,
-  Text,
-  StyleSheet,
-  ActivityIndicator,
-  TouchableOpacity,
-} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Animated} from 'react-native';
 import React from 'react';
-import {useSelector} from 'react-redux';
-import CustomCard from './CustomCard';
 import {DimensionConstants} from '../constants/DimensionConstants';
+import CustomCard from './CustomCard';
 import HeartIcon from '../assets/icons/HeartIcon';
 import BloodOxygenIcon from '../assets/icons/BloodOxygenIcon';
 import BloodPressureIcon from '../assets/icons/BloodPressureIcon';
 import StepsIcon from '../assets/icons/StepsIcon';
 
-const StatisticsCards = ({data, loading, stepData, navigation}) => {
-  const theme = useSelector(
-    state => state.theme.themes[state.theme.currentTheme],
-  );
-  if (loading) {
-    return (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#0279E1" />
-      </View>
-    );
-  }
-
+export default function StatisticsCards({data, stepData}) {
   const heartRateHistory = data?.data?.heartRateHistory || [];
   const latestReading = heartRateHistory.find(
     item => parseInt(item.heartRate, 10) !== 1,
@@ -34,101 +16,84 @@ const StatisticsCards = ({data, loading, stepData, navigation}) => {
   const bpData = data?.data?.bphrt;
   const oxygenData = data?.data?.oxygen;
 
-  const cardData = [
+  const detailCardData = [
     {
       title: 'Heart Rate',
-      icon: <HeartIcon size={20} />,
+      icon: <HeartIcon width={25} height={25} />,
       value: latestReading?.heartRate,
       unit: 'BPM',
     },
     {
       title: 'Steps',
-      icon: <StepsIcon />,
+      icon: <StepsIcon width={25} height={25} />,
       value: stepData?.data?.totalStepsOverall,
       unit: 'Steps',
     },
     {
-      title: 'Blood Pressure',
-      icon: <BloodPressureIcon />,
+      title: 'B P',
+      icon: <BloodPressureIcon width={25} height={25} />,
       value: bpData ? `${bpData?.SystolicBP}/${bpData?.DiastolicBP}` : '',
       unit: 'mm Hg',
     },
     {
-      title: 'Blood Oxygen',
-      icon: <BloodOxygenIcon />,
+      title: 'B O',
+      icon: <BloodOxygenIcon width={25} height={25} />,
       value: oxygenData?.SPO2Rating || 98,
       unit: '%',
     },
   ];
 
   return (
-    <View style={styles.container}>
-      {Array.from({length: 2}).map((_, rowIndex) => (
-        <View style={styles.cardRowContainer} key={rowIndex}>
-          {cardData.slice(rowIndex * 2, rowIndex * 2 + 2).map((card, index) => (
-            <CustomCard style={styles.fullWidthCard} key={index}>
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('MainApp', {screen: 'Health'});
-                }}>
-                <View style={styles.rowContainer}>
-                  {card.icon}
-                  <Text style={styles.cardTitle}>{card.title}</Text>
-                </View>
-                <Text style={styles.cardContent}>
-                  {card.value}
-                  {card.unit && (
-                    <Text style={styles.bpmText}> {card.unit}</Text>
-                  )}
-                </Text>
-              </TouchableOpacity>
-            </CustomCard>
+    <CustomCard>
+      <View style={styles.container}>
+        <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+          {detailCardData.map((item, index) => (
+            <View key={index} style={{flex: 1, alignItems: 'center'}}>
+              {item.icon}
+
+              <Text
+                style={[styles.titleTxt]}
+                numberOfLines={2}
+                ellipsizeMode="tail">
+                {item.title}
+              </Text>
+
+              <Text style={styles.value}>
+                {(item.value || 0) + ' ' + item.unit}
+              </Text>
+            </View>
           ))}
         </View>
-      ))}
-    </View>
+      </View>
+    </CustomCard>
   );
-};
-
-export default StatisticsCards;
+  src / lang;
+}
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: DimensionConstants.sixteen,
-    flexDirection: 'column',
-    gap: DimensionConstants.ten,
-    padding: DimensionConstants.three,
+    backgroundColor: 'white',
+    borderRadius: 10,
+    marginTop: 5,
   },
-  fullWidthCard: {
-    width: '48%',
-  },
-  cardRowContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  cardTitle: {
-    fontWeight: '500',
-    fontSize: DimensionConstants.twelve,
-    marginLeft: DimensionConstants.five,
-  },
-  cardContent: {
-    fontSize: DimensionConstants.eighteen,
-    fontWeight: '500',
-    marginTop: DimensionConstants.five,
-  },
-  bpmText: {
-    color: '#808080',
-    fontSize: DimensionConstants.twelve,
-    fontWeight: '500',
-  },
-  rowContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  loaderContainer: {
+
+  title: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: DimensionConstants.twenty,
+    textAlign: 'center',
+    color: 'black',
+  },
+  titleTxt: {
+    color: 'rgba(82, 82, 82)',
+    flexWrap: 'wrap',
+    textAlign: 'center',
+    maxWidth: '100%',
+    marginTop: 5,
+  },
+  value: {
+    fontSize: DimensionConstants.fifteen,
+    alignSelf: 'center',
+    fontWeight: '500',
+    color: 'black',
+    marginVertical: 10,
   },
 });
