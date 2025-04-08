@@ -26,8 +26,18 @@ import FeaturesIcon from '../../assets/icons/FeaturesIcon';
 import AddRemoteIcon from '../../assets/icons/AddRemoteIcon';
 import AboutDeviceIcon from '../../assets/icons/AboutDeviceIcon';
 import SubscriptionIcon from '../../assets/icons/SubscriptionIcon';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+
 const DevicesScreen = ({navigation}) => {
   const [deviceId, setDeviceId] = useState('');
+
+  // Static subscription data - replace with actual data from API when available
+  const [subscriptionData, setSubscriptionData] = useState({
+    isActive: true,
+    daysLeft: 45,
+    planName: 'Premium',
+    expiryDate: '2025-05-22',
+  });
 
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['deviceDetails'],
@@ -80,11 +90,6 @@ const DevicesScreen = ({navigation}) => {
   }, []);
 
   const icons = [
-    // {
-    //   component: <AppsIcon />,
-    //   label: appStrings?.device?.apps?.text,
-    //   navigation: () => navigation.navigate('AppScreen'),
-    // },
     {
       component: <AddRemoteIcon />,
       label: 'Manage Devices',
@@ -99,9 +104,7 @@ const DevicesScreen = ({navigation}) => {
       component: <FeaturesIcon />,
       label: 'Features',
       navigation: () => navigation.navigate('FeaturesScreens'),
-      // line: 'no',
     },
-
     {
       component: <SubscriptionIcon />,
       label: 'Subscription',
@@ -125,7 +128,28 @@ const DevicesScreen = ({navigation}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
-  console.log('battery', data?.data?.batteryPer);
+
+  // Function to render subscription status badge
+  const renderSubscriptionBadge = () => {
+    if (subscriptionData.isActive) {
+      return (
+        <View style={[styles.subscriptionBadge, {backgroundColor: '#E8F5E9'}]}>
+          <Text style={[styles.subscriptionBadgeText, {color: '#2E7D32'}]}>
+            Active
+          </Text>
+        </View>
+      );
+    } else {
+      return (
+        <View style={[styles.subscriptionBadge, {backgroundColor: '#FFEBEE'}]}>
+          <Text style={[styles.subscriptionBadgeText, {color: '#C62828'}]}>
+            Expired
+          </Text>
+        </View>
+      );
+    }
+  };
+
   return (
     <MainBackground style={styles.mainBackground}>
       {isLoading ? (
@@ -139,39 +163,75 @@ const DevicesScreen = ({navigation}) => {
             <Spacing height={DimensionConstants.twentyFour} />
             <CustomCard style={styles.deviceCard}>
               <View style={styles.deviceHeader}>
-                <BlackWatchIcon />
-                <Spacing width={DimensionConstants.thirty} />
-                <View>
-                  <View style={styles.deviceRow}>
+                <View style={styles.deviceInfoContainer}>
+                  <BlackWatchIcon width={60} height={60} />
+                  <View style={styles.deviceDetails}>
                     <Text style={styles.deviceName}>
-                      {data?.data?.deviceName || 'Device'}
+                      {data?.data?.deviceName || 'Unnamed Device'}
                     </Text>
-                    <DownArrowIcon marginLeft={DimensionConstants.twelve} />
+                    <View style={styles.deviceStatusRow}>
+                      <View style={styles.statusItem}>
+                        <Text style={styles.label}>
+                          {appStrings?.device?.battery?.text}:
+                        </Text>
+                        <Text style={[styles.value, {color: theme.primary}]}>
+                          {data?.data?.batteryPer || 85}%
+                        </Text>
+                      </View>
+                      {/* <View style={styles.statusItem}>
+                        <Text style={styles.label}>Status:</Text>
+                        <Text style={[styles.value, {color: theme.primary}]}>
+                          {data?.data?.isConnected
+                            ? 'Connected'
+                            : 'Disconnected'}
+                        </Text>
+                      </View> */}
+                    </View>
                   </View>
-                  <View style={styles.deviceRow}>
-                    <Text style={styles.label}>
-                      {appStrings?.device?.battery?.text} :
-                    </Text>
-                    <Text style={[styles.value, {color: theme.primary}]}>
-                      {data?.data?.batteryPer || 85}%
+                </View>
+                <CustomButton
+                  text={appStrings?.device?.sync?.text}
+                  color={'#F4D9DC'}
+                  height={DimensionConstants.thirtyFive}
+                  width={DimensionConstants.ninety}
+                  textColor={'#FE605D'}
+                  onPress={() => refetch()}
+                  style={styles.syncButton}
+                />
+              </View>
+
+              <View style={styles.divider} />
+
+              <View style={styles.subscriptionContainer}>
+                <View style={styles.subscriptionHeader}>
+                  <Text style={styles.sectionTitle}>Subscription Details</Text>
+                  {renderSubscriptionBadge()}
+                </View>
+                <View style={styles.subscriptionDetails}>
+                  <View style={styles.subscriptionInfo}>
+                    <Text style={styles.subscriptionLabel}>Plan:</Text>
+                    <Text style={styles.subscriptionValue}>
+                      {subscriptionData.planName}
                     </Text>
                   </View>
-                  <CustomButton
-                    text={appStrings?.device?.sync?.text}
-                    color={'#F4D9DC'}
-                    height={DimensionConstants.thirtyFive}
-                    width={DimensionConstants.eighty}
-                    textColor={'#FE605D'}
-                    onPress={() => {
-                      refetch();
-                    }}
-                  />
+                  <View style={styles.subscriptionInfo}>
+                    <Text style={styles.subscriptionLabel}>Expires:</Text>
+                    <Text
+                      style={[
+                        styles.subscriptionValue,
+                        {
+                          color:
+                            subscriptionData.daysLeft < 10
+                              ? '#FE605D'
+                              : theme.primary,
+                        },
+                      ]}>
+                      {subscriptionData.daysLeft} days left (
+                      {subscriptionData.expiryDate})
+                    </Text>
+                  </View>
                 </View>
               </View>
-              {/* <CustomButton
-                text={appStrings?.device?.edit?.text}
-                onPress={() => setModalVisible(true)}
-              /> */}
             </CustomCard>
             <Spacing height={DimensionConstants.eighteen} />
             <CustomCard style={styles.featuresCard}>
@@ -208,11 +268,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   deviceCard: {
-    paddingHorizontal: DimensionConstants.fifteen,
+    padding: DimensionConstants.five,
   },
   deviceHeader: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
   },
   deviceRow: {
     flexDirection: 'row',
@@ -259,6 +320,108 @@ const styles = StyleSheet.create({
     width: '90%',
     alignSelf: 'flex-end',
     marginVertical: DimensionConstants.ten,
+  },
+  // New subscription styles
+  deviceCard: {
+    padding: DimensionConstants.fifteen,
+    borderRadius: DimensionConstants.sixteen,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    backgroundColor: '#FFFFFF',
+  },
+  deviceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  deviceInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  deviceDetails: {
+    marginLeft: DimensionConstants.fifteen,
+    flex: 1,
+  },
+  deviceName: {
+    fontSize: DimensionConstants.eighteen,
+    fontWeight: '600',
+    color: '#212121',
+    marginBottom: DimensionConstants.five,
+  },
+  deviceStatusRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  statusItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  label: {
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '400',
+    color: '#666666',
+    marginRight: DimensionConstants.five,
+  },
+  value: {
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '500',
+  },
+  syncButton: {
+    borderRadius: DimensionConstants.eight,
+  },
+  divider: {
+    height: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    marginVertical: DimensionConstants.fifteen,
+  },
+  subscriptionContainer: {
+    backgroundColor: '#FAFAFA',
+    padding: DimensionConstants.ten,
+    borderRadius: DimensionConstants.eight,
+  },
+  subscriptionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: DimensionConstants.ten,
+  },
+  sectionTitle: {
+    fontSize: DimensionConstants.sixteen,
+    fontWeight: '600',
+    color: '#212121',
+  },
+  subscriptionBadge: {
+    paddingHorizontal: DimensionConstants.ten,
+    paddingVertical: DimensionConstants.four,
+    borderRadius: DimensionConstants.twelve,
+  },
+  subscriptionBadgeText: {
+    fontSize: DimensionConstants.twelve,
+    fontWeight: '600',
+  },
+  subscriptionDetails: {
+    flexDirection: 'column',
+    gap: DimensionConstants.eight,
+  },
+  subscriptionInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  subscriptionLabel: {
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '400',
+    color: '#666666',
+    width: DimensionConstants.sixty,
+  },
+  subscriptionValue: {
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '500',
+    color: '#212121',
+    flex: 1,
   },
 });
 
