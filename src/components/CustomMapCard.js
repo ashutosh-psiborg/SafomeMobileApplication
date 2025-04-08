@@ -6,7 +6,6 @@ import MapView, {
   Polygon,
 } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {DimensionConstants} from '../constants/DimensionConstants';
 import {useState, useEffect} from 'react';
@@ -200,6 +199,7 @@ const CustomMapCard = ({
       return (
         <View style={styles.deviceListContainer}>
           <TouchableOpacity
+            onPress={() => navigation.navigate('AddRemoveDeviceScreen')}
             style={{
               flexDirection: 'row',
               gap: 5,
@@ -294,17 +294,40 @@ const CustomMapCard = ({
                   />
                 )}
             </MapView>
-            <View style={styles.floatingButtonsContainer}>
+            {/* <View style={styles.floatingButtonsContainer}>
+              <TouchableOpacity onPress={handleZoomIn}>
+                <LinearGradient
+                  colors={['#007bff', '#0056b3']}
+                  style={styles.floatingButton}>
+                  <Icon name="zoom-in" size={24} color="#fff" />
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={handleZoomOut}>
+                <LinearGradient
+                  colors={['#007bff', '#0056b3']}
+                  style={styles.floatingButton}>
+                  <Icon name="zoom-out" size={24} color="#fff" />
+                </LinearGradient>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={toggleMapType}>
+                <LinearGradient
+                  colors={['#007bff', '#0056b3']}
+                  style={styles.floatingButton}>
+                  <Icon
+                    name={mapType === 'standard' ? 'satellite' : 'map'}
+                    size={24}
+                    color="#fff"
+                  />
+                </LinearGradient>
+              </TouchableOpacity>
               <TouchableOpacity onPress={onLiveLocationPress}>
                 <LinearGradient
                   colors={['#007bff', '#0056b3']}
-                  style={styles.floatingButton}
-                  start={{x: 0, y: 0}}
-                  end={{x: 1, y: 1}}>
+                  style={styles.floatingButton}>
                   <Icon name="my-location" size={24} color="#fff" />
                 </LinearGradient>
               </TouchableOpacity>
-            </View>
+            </View> */}
             <View style={styles.topCardContainer}>
               <CustomCard
                 style={{
@@ -418,9 +441,9 @@ const styles = StyleSheet.create({
     gap: DimensionConstants.ten,
   },
   floatingButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 45,
+    height: 45,
+    borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 5,
@@ -454,7 +477,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: 'row',
     gap: DimensionConstants.ten,
-    marginTop: DimensionConstants.five,
+    marginTop: DimensionConstants.seven,
   },
   iconButton: {
     paddingHorizontal: 20,
@@ -480,15 +503,16 @@ const styles = StyleSheet.create({
     fontSize: DimensionConstants.fifteen,
   },
   zoneListContainer: {
+    marginTop: DimensionConstants.five,
     padding: DimensionConstants.five,
     backgroundColor: 'rgba(255, 255, 255, 0.95)',
     borderRadius: DimensionConstants.ten,
   },
 
   addZoneText: {
-    fontSize: DimensionConstants.fifteen,
+    fontSize: DimensionConstants.fourteen,
     color: 'black',
-    fontWeight: '600',
+    fontWeight: '500',
   },
   zoneList: {
     paddingVertical: DimensionConstants.five,
@@ -504,7 +528,7 @@ const styles = StyleSheet.create({
     paddingVertical: DimensionConstants.one,
   },
   zoneItemText: {
-    fontSize: DimensionConstants.fifteen,
+    fontSize: DimensionConstants.fourteen,
     color: 'black',
     fontWeight: '500',
   },
