@@ -31,6 +31,10 @@ const NotificationScreen = ({navigation}) => {
   const swipeableRefs = useRef({});
   const animatedOpacity = useRef(new Animated.Value(1)).current;
   const queryClient = useQueryClient();
+  const [pendingDelete, setPendingDelete] = useState(null); // stores notification ID
+  const [undoVisible, setUndoVisible] = useState(false);
+  const [countdown, setCountdown] = useState(3);
+  const timerRef = useRef(null);
 
   const buttons = ['All', 'SOS', 'GeoFence', 'Battery'];
 
@@ -87,7 +91,7 @@ const NotificationScreen = ({navigation}) => {
         url: `/notification/deleteAll?deviceId=67ef7864d629a55264d48a56`,
       }),
     onSuccess: () => {
-      // queryClient.invalidateQueries(['notifications', deviceId]);
+      queryClient.invalidateQueries(['notifications', deviceId]);
     },
     onError: err => {
       console.error('Error deleting notification:', err);
@@ -122,15 +126,44 @@ const NotificationScreen = ({navigation}) => {
 
   const unreadCount = notificationData?.filter(n => !n.isRead).length || 0;
 
-  const handleDelete = id => {
+  const finalizeDelete = id => {
+    setUndoVisible(false);
+    setPendingDelete(null);
     deleteNotificationMutation.mutate(id, {
       onSuccess: () => {
         animatedOpacity.setValue(1);
       },
     });
   };
+
+  const handleDelete = id => {
+    setPendingDelete(id);
+    setUndoVisible(true);
+    setCountdown(3);
+
+    timerRef.current = setInterval(() => {
+      setCountdown(prev => {
+        if (prev === 1) {
+          clearInterval(timerRef.current);
+          finalizeDelete(id);
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    // deleteNotificationMutation.mutate(id, {
+    //   onSuccess: () => {
+    //     animatedOpacity.setValue(1);
+    //   },
+    // });
+  };
   const handleDeleteAll = () => {
     deleteAllNotification.mutate();
+  };
+
+  const handleUndo = () => {
+    clearInterval(timerRef.current);
+    setUndoVisible(false);
+    setPendingDelete(null);
   };
 
   const handleSnooze = (id, duration) => {
@@ -152,12 +185,10 @@ const NotificationScreen = ({navigation}) => {
     refetch();
   };
 
-  // Mark a single notification as read
   const handleMarkRead = id => {
     markReadMutation.mutate(id);
   };
 
-  // Mark all visible unread notifications as read
   const handleReadAll = () => {
     const visibleNotificationIds = filteredNotifications
       .filter(n => !n.isRead)
@@ -165,7 +196,6 @@ const NotificationScreen = ({navigation}) => {
 
     if (visibleNotificationIds.length === 0) return;
 
-    // Call markReadMutation for each unread notification
     visibleNotificationIds.forEach(id => {
       markReadMutation.mutate(id);
     });
@@ -386,7 +416,7 @@ const NotificationScreen = ({navigation}) => {
 
             <View style={styles.sectionHeader}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={styles.sectionTitle}>Today</Text>
+                <Text style={styles.sectionTitle}>UnRead</Text>
                 <View style={styles.countBadge}>
                   <Text style={styles.countText}>{unreadCount}</Text>
                 </View>
@@ -396,13 +426,37 @@ const NotificationScreen = ({navigation}) => {
                   <TouchableOpacity
                     onPress={handleReadAll}
                     disabled={!hasUnreadNotifications}
-                    style={{opacity: hasUnreadNotifications ? 1 : 0.5}}>
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'green',
+                      borderRadius: 15,
+                      paddingVertical: DimensionConstants.two,
+                      paddingHorizontal: DimensionConstants.five,
+                      flexDirection: 'row',
+                      gap: DimensionConstants.three,
+                    }}>
+                    <MaterialCommunityIcons
+                      name="check-all"
+                      color="green"
+                      size={18}
+                    />
                     <Text style={[styles.sectionTitleTwo, {color: 'green'}]}>
                       Read All
                     </Text>
                   </TouchableOpacity>
                 )}
-                <TouchableOpacity onPress={handleDeleteAll}>
+                <TouchableOpacity
+                  onPress={handleDeleteAll}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: 'red',
+                    borderRadius: 15,
+                    paddingVertical: DimensionConstants.two,
+                    paddingHorizontal: DimensionConstants.five,
+                    flexDirection: 'row',
+                    gap: DimensionConstants.one,
+                  }}>
+                  <MaterialIcons name="delete" color="red" size={18} />
                   <Text style={[styles.sectionTitleTwo, {color: 'red'}]}>
                     Clear All
                   </Text>
@@ -428,6 +482,13 @@ const NotificationScreen = ({navigation}) => {
             )}
           </View>
         </ScrollView>
+        {undoVisible && (
+          <View style={styles.undoContainer}>
+            <TouchableOpacity onPress={handleUndo} style={styles.undoButton}>
+              <Text style={styles.undoText}>Undo {countdown}</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </MainBackground>
     </GestureHandlerRootView>
   );
@@ -479,7 +540,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   sectionTitle: {
-    fontSize: DimensionConstants.sixteen,
+    fontSize: DimensionConstants.fifteen,
     fontWeight: '600',
     color: '#0279E1',
   },
@@ -503,15 +564,17 @@ const styles = StyleSheet.create({
     borderRadius: DimensionConstants.twelve,
     marginBottom: DimensionConstants.twelve,
     marginHorizontal: DimensionConstants.two,
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 1},
-    shadowOpacity: 0.1,
     height: DimensionConstants.ninety,
     justifyContent: 'center',
-    shadowRadius: 2,
-    elevation: 2,
+    // shadowColor: '#000',
+    // shadowOffset: {width: 0, height: 1},
+    // shadowOpacity: 0.1,
+    // shadowRadius: 2,
+    // elevation: 2,
   },
-  unreadCard: {},
+  unreadCard: {
+    backgroundColor: 'rgba(237, 247, 255 , 1)',
+  },
   readCard: {},
   snoozedCard: {
     opacity: 0.6,
@@ -642,6 +705,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#889CA3',
     fontWeight: '500',
+  },
+  undoContainer: {
+    position: 'absolute',
+    bottom: 20,
+    right: 20,
+    backgroundColor: '#FF310C',
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 24,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  undoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  undoText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
   },
 });
 
