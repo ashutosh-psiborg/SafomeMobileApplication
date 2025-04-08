@@ -87,6 +87,31 @@ const CustomMapCard = ({
       Alert.alert('Error', error.message || 'Failed to delete geofence'),
   });
 
+  const [mapType, setMapType] = useState('standard');
+  const handleZoomIn = () => {
+    if (mapRef.current) {
+      mapRef.current.getCamera().then(camera => {
+        camera.zoom += 1;
+        mapRef.current.animateCamera(camera, {duration: 300});
+      });
+    }
+  };
+
+  // Zoom Out Handler
+  const handleZoomOut = () => {
+    if (mapRef.current) {
+      mapRef.current.getCamera().then(camera => {
+        camera.zoom -= 1;
+        mapRef.current.animateCamera(camera, {duration: 300});
+      });
+    }
+  };
+
+  // Toggle Map Type (Standard/Satellite)
+  const toggleMapType = () => {
+    setMapType(prev => (prev === 'standard' ? 'satellite' : 'standard'));
+  };
+
   const handleZoneClick = () => {
     setIsZoneMode(true);
     setListType('zones');
@@ -259,6 +284,7 @@ const CustomMapCard = ({
                 longitudeDelta: 0.01,
               }}
               region={mapRegion}
+              mapType={mapType}
               ref={mapRef}>
               {location && (
                 <Marker
@@ -294,7 +320,7 @@ const CustomMapCard = ({
                   />
                 )}
             </MapView>
-            {/* <View style={styles.floatingButtonsContainer}>
+            <View style={styles.floatingButtonsContainer}>
               <TouchableOpacity onPress={handleZoomIn}>
                 <LinearGradient
                   colors={['#007bff', '#0056b3']}
@@ -327,7 +353,7 @@ const CustomMapCard = ({
                   <Icon name="my-location" size={24} color="#fff" />
                 </LinearGradient>
               </TouchableOpacity>
-            </View> */}
+            </View>
             <View style={styles.topCardContainer}>
               <CustomCard
                 style={{
