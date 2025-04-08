@@ -6,6 +6,7 @@ import {
   ScrollView,
   StatusBar,
   Animated,
+  Alert,
 } from 'react-native';
 import React, {useState, useRef} from 'react';
 import MainBackground from '../../components/MainBackground';
@@ -19,6 +20,7 @@ import {Swipeable, GestureHandlerRootView} from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 const NotificationScreen = ({navigation}) => {
   const [selectedButton, setSelectedButton] = useState(0);
   const [notifications, setNotifications] = useState([
@@ -30,6 +32,7 @@ const NotificationScreen = ({navigation}) => {
       category: 'Safe zone',
       isRead: false,
       isSnoozed: false,
+      snoozeDuration: null,
       icon: <MaterialIcons name="share-location" size={35} color="black" />,
     },
     {
@@ -40,6 +43,7 @@ const NotificationScreen = ({navigation}) => {
       category: 'Battery',
       isRead: false,
       isSnoozed: false,
+      snoozeDuration: null,
       icon: (
         <MaterialCommunityIcons name="battery-low" size={35} color="black" />
       ),
@@ -52,6 +56,7 @@ const NotificationScreen = ({navigation}) => {
       category: 'Safe zone',
       isRead: true,
       isSnoozed: false,
+      snoozeDuration: null,
       icon: <MaterialIcons name="share-location" size={35} color="black" />,
     },
     {
@@ -62,20 +67,20 @@ const NotificationScreen = ({navigation}) => {
       category: 'SOS',
       isRead: true,
       isSnoozed: false,
+      snoozeDuration: null,
       icon: <MaterialIcons name="crisis-alert" size={35} color="black" />,
     },
   ]);
 
-  // Removed "snoozed" from buttons array
+  // Buttons for filtering notifications
   const buttons = ['All', 'SOS', 'Safe zone', 'Battery'];
   const swipeableRefs = useRef({});
   const animatedOpacity = useRef(new Animated.Value(1)).current;
 
-  // Filter notifications based on selected category, but keep snoozed notifications in their categories
+  // Filter notifications based on selected category
   const filteredNotifications = notifications.filter(notification => {
     // "All" tab (index 0) shows all notifications
     if (selectedButton === 0) return true;
-
     // Category tabs (indices 1-3) show notifications of that category
     return notification.category === buttons[selectedButton];
   });
@@ -83,29 +88,52 @@ const NotificationScreen = ({navigation}) => {
   // Get count of unread notifications
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  // Delete notification with animation
+  // Delete notification with confirmation and animation
   const handleDelete = id => {
-    Animated.timing(animatedOpacity, {
-      toValue: 0,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setNotifications(
-        notifications.filter(notification => notification.id !== id),
-      );
-      animatedOpacity.setValue(1);
-    });
+    // Show confirmation alert before deletion
+    Alert.alert(
+      'Delete Notification',
+      'Are you sure you want to delete this notification?',
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: () => {
+            // Proceed with delete animation after confirmation
+            Animated.timing(animatedOpacity, {
+              toValue: 0,
+              duration: 300,
+              useNativeDriver: true,
+            }).start(() => {
+              setNotifications(
+                notifications.filter(notification => notification.id !== id),
+              );
+              animatedOpacity.setValue(1);
+            });
+          },
+        },
+      ],
+    );
   };
 
-  // Snooze notification
-  const handleSnooze = id => {
+  // Snooze notification with specific duration
+  const handleSnooze = (id, duration) => {
     setNotifications(
       notifications.map(notification =>
         notification.id === id
-          ? {...notification, isSnoozed: true}
+          ? {
+              ...notification,
+              isSnoozed: true,
+              snoozeDuration: duration,
+            }
           : notification,
       ),
     );
+    
     if (swipeableRefs.current[id]) {
       swipeableRefs.current[id].close();
     }
@@ -116,7 +144,7 @@ const NotificationScreen = ({navigation}) => {
     setNotifications(
       notifications.map(notification =>
         notification.id === id
-          ? {...notification, isSnoozed: false}
+          ? {...notification, isSnoozed: false, snoozeDuration: null}
           : notification,
       ),
     );
@@ -142,24 +170,34 @@ const NotificationScreen = ({navigation}) => {
           : notification,
       ),
     );
-
-    // Show toast or feedback (optional)
-    // Toast.show({
-    //   type: 'success',
-    //   text1: 'All notifications marked as read',
-    // });
   };
 
-  // Render left action (Snooze)
+  // Render left action (Snooze options)
   const renderLeftActions = id => (
     <View style={[styles.actionContainer, styles.snoozeAction]}>
-      <TouchableOpacity
-        style={styles.actionButton}
-        onPress={() => handleSnooze(id)}>
-        <Feather name="clock" size={20} color="#fff" />
-        <Text style={styles.actionText}>Snooze</Text>
-        <Text style={styles.actionText}>24 hrs</Text>
-      </TouchableOpacity>
+      <Text style={styles.snoozeTitle}>Snooze for:</Text>
+      <View style={styles.snoozeOptionsContainer}>
+        <TouchableOpacity
+          style={styles.snoozeOption}
+          onPress={() => handleSnooze(id, '1hr')}>
+          <Text style={styles.snoozeOptionText}>1hr</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.snoozeOption}
+          onPress={() => handleSnooze(id, '12hr')}>
+          <Text style={styles.snoozeOptionText}>12hr</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.snoozeOption}
+          onPress={() => handleSnooze(id, '24hr')}>
+          <Text style={styles.snoozeOptionText}>24hr</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.snoozeOption}
+          onPress={() => handleSnooze(id, 'always')}>
+          <Text style={styles.snoozeOptionText}>Always</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 
@@ -199,9 +237,16 @@ const NotificationScreen = ({navigation}) => {
                   {notification.description}
                 </Text>
                 <View style={styles.metaContainer}>
-                  <Text style={styles.notificationTime}>
-                    {notification.time}
-                  </Text>
+                  <View style={styles.timeContainer}>
+                    <Text style={styles.notificationTime}>
+                      {notification.time}
+                    </Text>
+                    {notification.snoozeDuration && (
+                      <Text style={styles.snoozeDuration}>
+                        Snoozed: {notification.snoozeDuration}
+                      </Text>
+                    )}
+                  </View>
                   <TouchableOpacity
                     style={styles.categoryChip}
                     onPress={() => handleUnsnooze(notification.id)}>
@@ -298,11 +343,6 @@ const NotificationScreen = ({navigation}) => {
                 <View style={styles.countBadge}>
                   <Text style={styles.countText}>{unreadCount}</Text>
                 </View>
-                {/* {unreadCount > 0 && (
-                  <Text style={styles.unreadCountText}>
-                    ({unreadCount} unread)
-                  </Text>
-                )} */}
               </View>
               <TouchableOpacity
                 onPress={handleReadAll}
@@ -398,7 +438,6 @@ const styles = StyleSheet.create({
   sectionTitleTwo: {
     fontSize: DimensionConstants.fourteen,
     fontWeight: '500',
-    // color: '#0279E1',
   },
   countBadge: {
     backgroundColor: '#0279E1',
@@ -430,13 +469,8 @@ const styles = StyleSheet.create({
     shadowRadius: 2,
     elevation: 2,
   },
-  unreadCard: {
-    // borderLeftWidth: 3,
-    // borderLeftColor: '#0279E1',
-  },
-  readCard: {
-    // opacity: 0.8,
-  },
+  unreadCard: {},
+  readCard: {},
   snoozedCard: {
     opacity: 0.6,
     backgroundColor: '#f9f9f9',
@@ -445,26 +479,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    // padding: DimensionConstants.five,
   },
   notificationLeft: {
     flexDirection: 'row',
     alignItems: 'center',
     flex: 1,
-  },
-  iconContainer: {
-    backgroundColor: 'rgba(2, 121, 225, 0.1)',
-    padding: 12,
-    borderRadius: 12,
-  },
-  sosIconContainer: {
-    backgroundColor: 'rgba(255, 49, 12, 0.1)',
-  },
-  batteryIconContainer: {
-    backgroundColor: 'rgba(255, 204, 0, 0.1)',
-  },
-  safeZoneIconContainer: {
-    backgroundColor: 'rgba(0, 200, 83, 0.1)',
   },
   textContainer: {
     marginLeft: DimensionConstants.sixteen,
@@ -496,9 +515,18 @@ const styles = StyleSheet.create({
     marginTop: 8,
     justifyContent: 'space-between',
   },
+  timeContainer: {
+    flexDirection: 'column',
+  },
   notificationTime: {
     fontSize: DimensionConstants.twelve,
     color: 'rgba(0, 0, 0, 0.5)',
+  },
+  snoozeDuration: {
+    fontSize: DimensionConstants.ten,
+    color: '#889CA3',
+    fontStyle: 'italic',
+    marginTop: 2,
   },
   categoryChip: {
     backgroundColor: '#0279E1',
@@ -511,21 +539,45 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: '600',
   },
-  swipeIndicator: {
-    marginLeft: 10,
-  },
+  // Enhanced snooze action styles
   actionContainer: {
     justifyContent: 'center',
     alignItems: 'center',
-    width: 100,
     borderRadius: DimensionConstants.sixteen,
     marginBottom: DimensionConstants.twelve,
   },
   snoozeAction: {
-    backgroundColor: '#FFA500', // Orange color for snooze
+    backgroundColor: '#FFA500',
+    width: DimensionConstants.twoHundred, // Wider snooze panel
+    padding: 10,
+  },
+  snoozeTitle: {
+    color: '#fff',
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  snoozeOptionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  snoozeOption: {
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    borderRadius: 8,
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  snoozeOptionText: {
+    color: '#fff',
+    fontSize: DimensionConstants.twelve,
+    fontWeight: '600',
   },
   deleteAction: {
     backgroundColor: '#FF310C',
+    width: 100,
   },
   actionButton: {
     justifyContent: 'center',

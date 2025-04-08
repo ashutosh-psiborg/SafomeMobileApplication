@@ -8,7 +8,7 @@ import MainBackground from '../../../components/MainBackground';
 import {HomeScreenStyles} from './Styles/HomeScreenStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
-
+import { io } from "socket.io-client";
 import CustomMapCard from '../../../components/CustomMapCard';
 
 const HomeScreen = ({navigation, liveLocation}) => {
@@ -22,6 +22,35 @@ const HomeScreen = ({navigation, liveLocation}) => {
   const [selectedGeoFenceId, setSelectedGeoFenceId] = useState(null);
   const locationRef = useRef(null);
   const queryClient = useQueryClient();
+  const [serverDataList, setServerDataList] = useState([]);
+
+  useEffect(() => {
+    const socket = io("ws://52.65.120.67:8001", {
+      transports: ["websocket"],
+    });
+
+    socket.on("connect", () => {
+      console.log("✅ Connected to WebSocket");
+
+      socket.emit("joinRoom", {
+        deviceId: deviceId,
+        commandLetter: "UD_LTE",
+      });
+    });
+
+    socket.on("serverData", (data) => {
+      console.log("📡 Received:", data);
+      setServerDataList((prev) => [...prev, data]);
+    });
+
+    socket.on("errorMessage", (msg) => {
+      console.error("❌ Server error:", msg);
+    });
+
+    return () => socket.disconnect();
+  }, [deviceId]);
+  console.log("________>>>>>>>>>>",deviceId)
+  console.log("________>>>>>>>>>>",serverDataList)
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );

@@ -9,7 +9,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {DimensionConstants} from '../constants/DimensionConstants';
-import {useState} from 'react';
+import {useState, useEffect} from 'react';
 import {useMutation, useQuery} from '@tanstack/react-query';
 import {GestureHandlerRootView, ScrollView} from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
@@ -19,6 +19,7 @@ import CustomCard from './CustomCard';
 import Loader from './Loader';
 import SafomeLogo from '../assets/icons/SafomeLogo';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {io} from 'socket.io-client';
 
 const CustomMapCard = ({
   location,
@@ -37,9 +38,38 @@ const CustomMapCard = ({
   const [isZoneMode, setIsZoneMode] = useState(false);
   const [showList, setShowList] = useState(false);
   const [listType, setListType] = useState(null);
+  const [serverDataList, setServerDataList] = useState([]);
   const [selectedDeviceName, setSelectedDeviceName] = useState(
     deviceData?.data?.deviceName || 'Select Device',
   );
+  console.log('location-----', deviceData?.data?.deviceId);
+  useEffect(() => {
+    const socket = io('ws://52.65.120.67:8001', {
+      transports: ['websocket'],
+    });
+
+    socket.on('connect', () => {
+      console.log('✅ Connected to WebSocket');
+
+      socket.emit('joinRoom', {
+        deviceId: deviceData?.data?.deviceId,
+        commandLetter: 'UD_LTE',
+      });
+    });
+
+    socket.on('serverData', data => {
+      console.log('📡 Received:', data);
+      setServerDataList(data?.data);
+    });
+
+    socket.on('errorMessage', msg => {
+      console.error('❌ Server error:', msg);
+    });
+
+    return () => socket.disconnect();
+  }, [deviceData?.data?.deviceId]);
+  console.log('________>>>>>>>>>>', deviceData?.data?.deviceId);
+  console.log('________>>>>>>>>>>', serverDataList);
 
   const {data: allDevicesData, isLoading: isDevicesLoading} = useQuery({
     queryKey: ['allDevices'],
@@ -223,8 +253,8 @@ const CustomMapCard = ({
               style={styles.map}
               provider={PROVIDER_GOOGLE}
               initialRegion={{
-                latitude: 28.5057,
-                longitude: 77.4014,
+                latitude: location?.latitude,
+                longitude: location?.longitude,
                 latitudeDelta: 0.01,
                 longitudeDelta: 0.01,
               }}
@@ -319,15 +349,29 @@ const CustomMapCard = ({
                         <Text style={styles.deviceName}>
                           {deviceData?.data?.deviceName || 'Select Device'}
                         </Text>
-                        <MaterialIcons
-                          name={
-                            showList
-                              ? 'keyboard-arrow-up'
-                              : 'keyboard-arrow-down'
-                          }
-                          color="white"
-                          size={20}
-                        />
+                        <View
+                          style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                          }}>
+                          <MaterialCommunityIcons
+                            name="battery-medium"
+                            size={24}
+                            color="white"
+                          />
+                          <Text style={styles.deviceName}>
+                            {serverDataList?.battery_status} %
+                          </Text>
+                          <MaterialIcons
+                            name={
+                              showList
+                                ? 'keyboard-arrow-up'
+                                : 'keyboard-arrow-down'
+                            }
+                            color="white"
+                            size={20}
+                          />
+                        </View>
                       </TouchableOpacity>
                     )}
                   </View>
