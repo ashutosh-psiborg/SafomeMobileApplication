@@ -8,171 +8,184 @@ import {
   Animated,
   Alert,
 } from 'react-native';
-import React, {useState, useRef} from 'react';
+import React, {useState, useRef, useCallback} from 'react';
 import MainBackground from '../../components/MainBackground';
 import CustomHeader from '../../components/CustomHeader';
 import BlackSettingsIcon from '../../assets/icons/BlackSettingsIcon';
 import {DimensionConstants} from '../../constants/DimensionConstants';
 import Spacing from '../../components/Spacing';
 import CustomCard from '../../components/CustomCard';
-import BlueBellIcon from '../../assets/icons/BlueBellIcon';
 import {Swipeable, GestureHandlerRootView} from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import {useQuery, useMutation, useQueryClient} from '@tanstack/react-query';
+import fetcher from '../../utils/ApiService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {useFocusEffect} from '@react-navigation/native';
+import Loader from '../../components/Loader';
 
 const NotificationScreen = ({navigation}) => {
   const [selectedButton, setSelectedButton] = useState(0);
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      message: 'Out from geofence',
-      description: 'Pet Bella out from geofence',
-      time: '09:45 am',
-      category: 'Safe zone',
-      isRead: false,
-      isSnoozed: false,
-      snoozeDuration: null,
-      icon: <MaterialIcons name="share-location" size={35} color="black" />,
-    },
-    {
-      id: 2,
-      message: 'Low battery',
-      description: 'Battery level is low',
-      time: '08:30 am',
-      category: 'Battery',
-      isRead: false,
-      isSnoozed: false,
-      snoozeDuration: null,
-      icon: (
-        <MaterialCommunityIcons name="battery-low" size={35} color="black" />
-      ),
-    },
-    {
-      id: 3,
-      message: 'Safe zone alert',
-      description: 'Your pet entered safe zone',
-      time: '07:15 am',
-      category: 'Safe zone',
-      isRead: true,
-      isSnoozed: false,
-      snoozeDuration: null,
-      icon: <MaterialIcons name="share-location" size={35} color="black" />,
-    },
-    {
-      id: 4,
-      message: 'SOS Alert',
-      description: 'Your pet triggered SOS alert',
-      time: '06:20 am',
-      category: 'SOS',
-      isRead: true,
-      isSnoozed: false,
-      snoozeDuration: null,
-      icon: <MaterialIcons name="crisis-alert" size={35} color="black" />,
-    },
-  ]);
-
-  // Buttons for filtering notifications
-  const buttons = ['All', 'SOS', 'Safe zone', 'Battery'];
+  const [deviceId, setDeviceId] = useState('');
   const swipeableRefs = useRef({});
   const animatedOpacity = useRef(new Animated.Value(1)).current;
+  const queryClient = useQueryClient();
 
-  // Filter notifications based on selected category
-  const filteredNotifications = notifications.filter(notification => {
-    // "All" tab (index 0) shows all notifications
-    if (selectedButton === 0) return true;
-    // Category tabs (indices 1-3) show notifications of that category
-    return notification.category === buttons[selectedButton];
+  const buttons = ['All', 'SOS', 'GeoFence', 'Battery'];
+
+  useFocusEffect(
+    useCallback(() => {
+      const getStoredDeviceId = async () => {
+        try {
+          const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+          if (storedDeviceId) {
+            setDeviceId(storedDeviceId);
+          }
+        } catch (error) {
+          console.error('Failed to retrieve device ID:', error);
+        }
+      };
+      getStoredDeviceId();
+    }, []),
+  );
+
+  const {
+    data: notificationData,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
+    queryKey: ['notifications', deviceId],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `/notification/getAll?device=67ef7864d629a55264d48a56`, // Use dynamic deviceId
+      }),
+    enabled: !!deviceId,
+    select: data => data?.data?.results || [],
   });
 
-  // Get count of unread notifications
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const deleteNotificationMutation = useMutation({
+    mutationFn: notificationId =>
+      fetcher({
+        method: 'DELETE',
+        url: `/notification/deleteByID/${notificationId}`,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['notifications', deviceId]);
+    },
+    onError: err => {
+      console.error('Error deleting notification:', err);
+      Alert.alert('Error', 'Failed to delete notification. Please try again.');
+    },
+  });
+  const deleteAllNotification = useMutation({
+    mutationFn: () =>
+      fetcher({
+        method: 'DELETE',
+        url: `/notification/deleteAll?deviceId=67ef7864d629a55264d48a56`,
+      }),
+    onSuccess: () => {
+      // queryClient.invalidateQueries(['notifications', deviceId]);
+    },
+    onError: err => {
+      console.error('Error deleting notification:', err);
+      Alert.alert('Error', 'Failed to delete notification. Please try again.');
+    },
+  });
 
-  // Delete notification with confirmation and animation
+  // Mutation for marking a single notification as read
+  const markReadMutation = useMutation({
+    mutationFn: notificationId =>
+      fetcher({
+        method: 'PATCH',
+        url: `/notification/markRead?id=${notificationId}`,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['notifications', deviceId]);
+    },
+    onError: err => {
+      console.error('Error marking notification as read:', err);
+      Alert.alert(
+        'Error',
+        'Failed to mark notification as read. Please try again.',
+      );
+    },
+  });
+
+  const filteredNotifications =
+    notificationData?.filter(notification => {
+      if (selectedButton === 0) return true;
+      return notification.type === buttons[selectedButton];
+    }) || [];
+
+  const unreadCount = notificationData?.filter(n => !n.isRead).length || 0;
+
   const handleDelete = id => {
-    // Show confirmation alert before deletion
-    Alert.alert(
-      'Delete Notification',
-      'Are you sure you want to delete this notification?',
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: () => {
-            // Proceed with delete animation after confirmation
-            Animated.timing(animatedOpacity, {
-              toValue: 0,
-              duration: 300,
-              useNativeDriver: true,
-            }).start(() => {
-              setNotifications(
-                notifications.filter(notification => notification.id !== id),
-              );
-              animatedOpacity.setValue(1);
-            });
-          },
-        },
-      ],
-    );
+    deleteNotificationMutation.mutate(id, {
+      onSuccess: () => {
+        animatedOpacity.setValue(1);
+      },
+    });
+  };
+  const handleDeleteAll = () => {
+    deleteAllNotification.mutate();
   };
 
-  // Snooze notification with specific duration
   const handleSnooze = (id, duration) => {
-    setNotifications(
-      notifications.map(notification =>
-        notification.id === id
-          ? {
-              ...notification,
-              isSnoozed: true,
-              snoozeDuration: duration,
-            }
-          : notification,
-      ),
-    );
-    
+    notificationData &&
+      notificationData.map(n =>
+        n._id === id ? {...n, snooze: true, snoozeDuration: duration} : n,
+      );
     if (swipeableRefs.current[id]) {
       swipeableRefs.current[id].close();
     }
+    refetch();
   };
 
-  // Unsnooze notification
   const handleUnsnooze = id => {
-    setNotifications(
-      notifications.map(notification =>
-        notification.id === id
-          ? {...notification, isSnoozed: false, snoozeDuration: null}
-          : notification,
-      ),
-    );
+    notificationData &&
+      notificationData.map(n =>
+        n._id === id ? {...n, snooze: false, snoozeDuration: null} : n,
+      );
+    refetch();
   };
 
-  // Mark all currently visible notifications as read
+  // Mark a single notification as read
+  const handleMarkRead = id => {
+    markReadMutation.mutate(id);
+  };
+
+  // Mark all visible unread notifications as read
   const handleReadAll = () => {
-    // Get IDs of all currently visible notifications based on filter
     const visibleNotificationIds = filteredNotifications
       .filter(n => !n.isRead)
-      .map(n => n.id);
+      .map(n => n._id);
 
-    if (visibleNotificationIds.length === 0) {
-      // No unread notifications to mark as read
-      return;
-    }
+    if (visibleNotificationIds.length === 0) return;
 
-    // Mark all visible notifications as read
-    setNotifications(
-      notifications.map(notification =>
-        visibleNotificationIds.includes(notification.id)
-          ? {...notification, isRead: true}
-          : notification,
-      ),
-    );
+    // Call markReadMutation for each unread notification
+    visibleNotificationIds.forEach(id => {
+      markReadMutation.mutate(id);
+    });
   };
 
-  // Render left action (Snooze options)
+  const getNotificationIcon = type => {
+    switch (type) {
+      case 'Battery':
+        return (
+          <MaterialCommunityIcons name="battery-low" size={35} color="black" />
+        );
+      case 'GeoFence':
+        return <MaterialIcons name="share-location" size={35} color="black" />;
+      case 'SOS':
+        return <MaterialIcons name="crisis-alert" size={35} color="black" />;
+      default:
+        return <Feather name="bell" size={35} color="black" />;
+    }
+  };
+
   const renderLeftActions = id => (
     <View style={[styles.actionContainer, styles.snoozeAction]}>
       <Text style={styles.snoozeTitle}>Snooze for:</Text>
@@ -201,7 +214,6 @@ const NotificationScreen = ({navigation}) => {
     </View>
   );
 
-  // Render right action (Delete)
   const renderRightActions = id => (
     <View style={[styles.actionContainer, styles.deleteAction]}>
       <TouchableOpacity
@@ -213,33 +225,32 @@ const NotificationScreen = ({navigation}) => {
     </View>
   );
 
-  // Check if there are any unread notifications in the current filter
   const hasUnreadNotifications = filteredNotifications.some(n => !n.isRead);
 
-  // Render notification card based on whether it's snoozed or not
   const renderNotificationCard = notification => {
-    if (notification.isSnoozed) {
-      // Snoozed notification card style
+    const icon = getNotificationIcon(notification.type);
+    if (notification.snooze) {
       return (
         <CustomCard
-          key={notification.id}
+          key={notification._id}
           style={[styles.card, styles.snoozedCard]}>
           <View style={styles.notificationContent}>
             <View style={styles.notificationLeft}>
-              {notification?.icon}
+              {icon}
               <View style={styles.textContainer}>
                 <Text style={styles.notificationTitle}>
-                  {notification.message}
-                  <Spacing width={DimensionConstants.ten} />
-                  <Feather name="clock" size={14} color="#889CA3" />
+                  {notification.title}
                 </Text>
                 <Text style={styles.notificationDescription}>
-                  {notification.description}
+                  {notification.message}
                 </Text>
                 <View style={styles.metaContainer}>
                   <View style={styles.timeContainer}>
                     <Text style={styles.notificationTime}>
-                      {notification.time}
+                      {new Date(notification.createdAt).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </Text>
                     {notification.snoozeDuration && (
                       <Text style={styles.snoozeDuration}>
@@ -249,7 +260,7 @@ const NotificationScreen = ({navigation}) => {
                   </View>
                   <TouchableOpacity
                     style={styles.categoryChip}
-                    onPress={() => handleUnsnooze(notification.id)}>
+                    onPress={() => handleUnsnooze(notification._id)}>
                     <Text style={styles.categoryText}>Unsnooze</Text>
                   </TouchableOpacity>
                 </View>
@@ -259,23 +270,26 @@ const NotificationScreen = ({navigation}) => {
         </CustomCard>
       );
     } else {
-      // Regular notification card with swipe actions
       return (
         <Swipeable
-          ref={ref => (swipeableRefs.current[notification.id] = ref)}
-          renderLeftActions={() => renderLeftActions(notification.id)}
-          renderRightActions={() => renderRightActions(notification.id)}>
+          ref={ref => (swipeableRefs.current[notification._id] = ref)}
+          renderLeftActions={() => renderLeftActions(notification._id)}
+          renderRightActions={() => renderRightActions(notification._id)}>
           <CustomCard
             style={[
               styles.card,
               notification.isRead ? styles.readCard : styles.unreadCard,
             ]}>
-            <View style={styles.notificationContent}>
+            <TouchableOpacity
+              onPress={() =>
+                !notification.isRead && handleMarkRead(notification._id)
+              }
+              style={styles.notificationContent}>
               <View style={styles.notificationLeft}>
-                {notification.icon}
+                {icon}
                 <View style={styles.textContainer}>
                   <Text style={styles.notificationTitle}>
-                    {notification.message}
+                    {notification.title}
                     {!notification.isRead && (
                       <>
                         <Spacing width={DimensionConstants.ten} />
@@ -284,21 +298,55 @@ const NotificationScreen = ({navigation}) => {
                     )}
                   </Text>
                   <Text style={styles.notificationDescription}>
-                    {notification.description}
+                    {notification.message}
                   </Text>
                   <View style={styles.metaContainer}>
                     <Text style={styles.notificationTime}>
-                      {notification.time}
+                      {new Date(notification.createdAt).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
                     </Text>
                   </View>
                 </View>
               </View>
-            </View>
+            </TouchableOpacity>
           </CustomCard>
         </Swipeable>
       );
     }
   };
+
+  if (
+    isLoading ||
+    deleteNotificationMutation.isLoading ||
+    markReadMutation.isLoading
+  ) {
+    return (
+      <MainBackground noPadding style={styles.background}>
+        <Loader />
+      </MainBackground>
+    );
+  }
+
+  if (error) {
+    return (
+      <MainBackground noPadding style={styles.background}>
+        <CustomHeader
+          title={'Notifications'}
+          backPress={() => navigation.goBack()}
+          backgroundColor={'#fff'}
+          onIconPress={() =>
+            navigation.navigate('MainApp', {screen: 'Settings'})
+          }
+          icon={<BlackSettingsIcon marginRight={DimensionConstants.ten} />}
+        />
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>Failed to load notifications</Text>
+        </View>
+      </MainBackground>
+    );
+  }
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
@@ -336,7 +384,6 @@ const NotificationScreen = ({navigation}) => {
 
             <Spacing height={DimensionConstants.twentyFour} />
 
-            {/* Section header with count */}
             <View style={styles.sectionHeader}>
               <View style={{flexDirection: 'row', alignItems: 'center'}}>
                 <Text style={styles.sectionTitle}>Today</Text>
@@ -344,18 +391,23 @@ const NotificationScreen = ({navigation}) => {
                   <Text style={styles.countText}>{unreadCount}</Text>
                 </View>
               </View>
-              <TouchableOpacity
-                onPress={handleReadAll}
-                disabled={!hasUnreadNotifications}
-                style={{opacity: hasUnreadNotifications ? 1 : 0.5}}>
-                <Text
-                  style={[
-                    styles.sectionTitleTwo,
-                    {color: hasUnreadNotifications ? '#000' : '#889CA3'},
-                  ]}>
-                  Read All
-                </Text>
-              </TouchableOpacity>
+              <View style={{flexDirection: 'row', gap: 10}}>
+                {hasUnreadNotifications && (
+                  <TouchableOpacity
+                    onPress={handleReadAll}
+                    disabled={!hasUnreadNotifications}
+                    style={{opacity: hasUnreadNotifications ? 1 : 0.5}}>
+                    <Text style={[styles.sectionTitleTwo, {color: 'green'}]}>
+                      Read All
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity onPress={handleDeleteAll}>
+                  <Text style={[styles.sectionTitleTwo, {color: 'red'}]}>
+                    Clear All
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
             <Spacing height={DimensionConstants.fourteen} />
@@ -368,7 +420,7 @@ const NotificationScreen = ({navigation}) => {
             ) : (
               filteredNotifications.map(notification => (
                 <Animated.View
-                  key={notification.id}
+                  key={notification._id}
                   style={{opacity: animatedOpacity}}>
                   {renderNotificationCard(notification)}
                 </Animated.View>
@@ -426,10 +478,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  sectionHeaderTwo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
   sectionTitle: {
     fontSize: DimensionConstants.sixteen,
     fontWeight: '600',
@@ -450,12 +498,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 12,
     fontWeight: '600',
-  },
-  unreadCountText: {
-    fontSize: 14,
-    color: '#FF310C',
-    fontWeight: '500',
-    marginLeft: 8,
   },
   card: {
     borderRadius: DimensionConstants.twelve,
@@ -539,7 +581,6 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: '600',
   },
-  // Enhanced snooze action styles
   actionContainer: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -548,7 +589,7 @@ const styles = StyleSheet.create({
   },
   snoozeAction: {
     backgroundColor: '#FFA500',
-    width: DimensionConstants.twoHundred, // Wider snooze panel
+    width: DimensionConstants.twoHundred,
     padding: 10,
   },
   snoozeTitle: {
