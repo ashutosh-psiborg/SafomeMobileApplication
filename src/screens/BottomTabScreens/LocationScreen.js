@@ -26,7 +26,7 @@ import moment from 'moment';
 import FilterContainer from '../../components/FilterContainer';
 
 const LocationScreen = ({navigation}) => {
-  const snapPoints = ['40%', '50%'];
+  const snapPoints = ['50%'];
   const bottomSheetRef = useRef(null);
   const [deviceId, setDeviceId] = useState('');
   const [location, setLocation] = useState(null);
@@ -257,7 +257,7 @@ const LocationScreen = ({navigation}) => {
                           </View>
                         </TouchableOpacity>
                       ))}
-                    </CustomCard>{' '}
+                    </CustomCard>
                   </ScrollView>
                 )}
               </View>

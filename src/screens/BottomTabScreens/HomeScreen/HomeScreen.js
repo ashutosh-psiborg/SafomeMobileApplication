@@ -5,7 +5,6 @@ import {useQuery, useQueryClient} from '@tanstack/react-query';
 import fetcher from '../../../utils/ApiService';
 import Loader from '../../../components/Loader';
 import MainBackground from '../../../components/MainBackground';
-import {HomeScreenStyles} from './Styles/HomeScreenStyles';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
 
@@ -53,13 +52,10 @@ const HomeScreen = ({navigation, liveLocation}) => {
 
       refetchLocation();
       refetchGeoFence();
+      setSelectedGeoFence(null);
       deviceDataRefetch();
     }, [deviceId, devId]),
   );
-
-  useEffect(() => {
-    getSelectedDevice();
-  }, []);
 
   const {
     data: deviceData,
@@ -204,7 +200,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
     isLoading: isGeoFenceLoading,
     refetch: refetchGeoFence,
   } = useQuery({
-    queryKey: ['geoFence', devId],
+    queryKey: ['geoFence', devId, deviceId],
     queryFn: async () => {
       const response = await fetcher({
         method: 'GET',
