@@ -346,13 +346,13 @@ const CustomMapCard = ({
                   />
                 </LinearGradient>
               </TouchableOpacity>
-              <TouchableOpacity onPress={onLiveLocationPress}>
+              {/* <TouchableOpacity onPress={onLiveLocationPress}>
                 <LinearGradient
                   colors={['#007bff', '#0056b3']}
                   style={styles.floatingButton}>
                   <Icon name="my-location" size={24} color="#fff" />
                 </LinearGradient>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
             <View style={styles.topCardContainer}>
               <CustomCard
