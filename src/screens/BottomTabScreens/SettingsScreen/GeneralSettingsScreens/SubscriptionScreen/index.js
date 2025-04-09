@@ -11,38 +11,11 @@ import {useQuery} from '@tanstack/react-query';
 import fetcher from '../../../../../utils/ApiService';
 import Loader from '../../../../../components/Loader';
 
-const plans = [
-  {id: 1, price: '₹ 199', duration: 'Monthly', description: 'Billed monthly'},
-  {
-    id: 2,
-    price: '₹ 299',
-    save: 'SAVE 33%',
-    duration: 'Quarterly',
-    description: 'Billed every 3 months',
-  },
-  {
-    id: 3,
-    price: '₹ 499',
-    save: 'SAVE 33%',
-    duration: 'Half-Yearly',
-    description: 'Billed every 6 months',
-  },
-  {
-    id: 4,
-    price: '₹ 699',
-    save: 'SAVE 33%',
-    duration: 'Annually',
-    description: 'Billed annually',
-    last: 'yes',
-  },
-];
-
 const SubscriptionScreen = ({navigation}) => {
   const [selectedPlan, setSelectedPlan] = useState(1);
   const [modalSelectedPlan, setModalSelectedPlan] = useState(1); // For modal selection
   const [modalVisible, setModalVisible] = useState(false);
-
-  const modalPlans = plans.slice(0, 2); // Show only first 2 plans in modal
+  const [plan, setPlan] = useState('');
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['subscription'],
     queryFn: () =>
@@ -51,11 +24,10 @@ const SubscriptionScreen = ({navigation}) => {
         url: `/Subscription/get-PlanDetails`,
       }),
   });
-  console.log(data);
   return (
     <MainBackground noPadding style={styles.mainBackground}>
       <CustomHeader
-        title={'Plans'}
+        title={'Subscription'}
         backgroundColor="#ffffff"
         backPress={() => navigation.goBack()}
       />
@@ -70,7 +42,11 @@ const SubscriptionScreen = ({navigation}) => {
               return (
                 <TouchableOpacity
                   key={plan._id}
-                  onPress={() => setSelectedPlan(plan._id)}
+                  onPress={() => {
+                    setPlan(plan);
+                    setSelectedPlan(plan._id);
+                    setModalVisible(true);
+                  }}
                   style={[
                     styles.planContainer,
                     {
@@ -142,9 +118,10 @@ const SubscriptionScreen = ({navigation}) => {
       <SubscriptionModal
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
-        modalPlans={modalPlans}
+        modalPlans={plan}
         modalSelectedPlan={modalSelectedPlan}
         setModalSelectedPlan={setModalSelectedPlan}
+        navigation={navigation}
       />
     </MainBackground>
   );

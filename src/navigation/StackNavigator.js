@@ -20,6 +20,7 @@ import TrackingFrequencyScreen from '../screens/DeviceScreens/SystemScreen/Track
 import ProfileInformationScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/ProfileInformationScreen/index';
 import LanguageScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/LanguageScreen/index';
 import SubscriptionScreen from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/SubscriptionScreen/index';
+import BuySubscription from '../screens/BottomTabScreens/SettingsScreen/GeneralSettingsScreens/BuySubscription';
 import NotificationsScreen from '../screens/BottomTabScreens/SettingsScreen/PreferenceScreens/NotificationsScreen/index';
 import {ActivityIndicator, View} from 'react-native';
 import PauseNotificationScreen from '../screens/BottomTabScreens/SettingsScreen/PreferenceScreens/NotificationsScreen/PauseNotificationScreen';
@@ -188,6 +189,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="SubscriptionScreen"
         component={SubscriptionScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="BuySubscription"
+        component={BuySubscription}
       />
       <Stack.Screen
         options={{headerShown: false}}
