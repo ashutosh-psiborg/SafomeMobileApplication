@@ -15,13 +15,7 @@ import {DimensionConstants} from '../../../../../constants/DimensionConstants';
 import Spacing from '../../../../../components/Spacing';
 import CustomButton from '../../../../../components/CustomButton';
 
-const SubscriptionModal = ({
-  visible,
-  onClose,
-  modalPlans,
-  modalSelectedPlan,
-  setModalSelectedPlan,
-}) => {
+const SubscriptionModal = ({visible, onClose, modalPlans, navigation}) => {
   return (
     <Modal
       visible={visible}
@@ -43,99 +37,55 @@ const SubscriptionModal = ({
               <CrossIcon />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Subscribe to premium</Text>
-
-            {modalPlans.map(plan => {
-              const isSelected = modalSelectedPlan === plan.id;
-              return (
-                <TouchableOpacity
-                  key={plan.id}
-                  onPress={() => setModalSelectedPlan(plan.id)}
-                  style={[
-                    styles.planContainer,
-                    {
-                      backgroundColor: isSelected ? '#0279E1' : null,
-                      borderColor: '#0279E1',
-                      marginBottom:
-                        plan?.last === 'yes' ? 0 : DimensionConstants.sixteen,
-                    },
-                  ]}>
-                  <View style={styles.planHeader}>
-                    <Text
-                      style={[
-                        styles.priceText,
-                        {color: isSelected ? '#ffffff' : '#0279E1'},
-                      ]}>
-                      {plan?.price}
-                    </Text>
-                    <View
-                      style={[
-                        styles.durationContainer,
-                        {
-                          backgroundColor: isSelected ? '#ffffff' : '#FE605D',
-                        },
-                      ]}>
-                      <Text
-                        style={[
-                          styles.durationText,
-                          {
-                            color: isSelected ? '#0279E1' : '#ffffff',
-                          },
-                        ]}>
-                        {plan?.duration}
-                      </Text>
-                    </View>
-                  </View>
-                  {plan?.save && (
-                    <View
-                      style={[
-                        styles.saveContainer,
-                        {
-                          backgroundColor: isSelected ? '#ffffff' : '#0279E1',
-                        },
-                      ]}>
-                      <Text
-                        style={[
-                          styles.saveText,
-                          {
-                            color: isSelected ? '#0279E1' : '#ffffff',
-                          },
-                        ]}>
-                        {plan?.save}
-                      </Text>
-                    </View>
-                  )}
-                  <Spacing height={DimensionConstants.sixteen} />
-                  <Text
+            <View style={styles.cardContainer}>
+              <TouchableOpacity
+                style={[
+                  styles.planContainer,
+                  {
+                    backgroundColor: '#0279E1',
+                    borderColor: '#0279E1',
+                  },
+                ]}>
+                <View style={styles.planHeader}>
+                  <Text style={[styles.priceText, {color: '#ffffff'}]}>
+                    ₹ {modalPlans?.price}
+                  </Text>
+                  <View
                     style={[
-                      styles.descriptionText,
+                      styles.durationContainer,
                       {
-                        color: isSelected ? '#ffffff' : '#0279E1',
+                        backgroundColor: '#ffffff',
                       },
                     ]}>
-                    {plan?.description}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-
-            {[0, 1, 2].map(index => (
-              <View key={index}>
-                <View style={{flexDirection: 'row'}}>
-                  <TickIcon />
-                  <Text
-                    style={{
-                      flex: 1,
-                      flexWrap: 'wrap',
-                      marginLeft: DimensionConstants.ten,
-                      color: '#FFFFFF',
-                    }}>
-                    Lorem ipsum dolor sit amet, sfvbfdcfh adipiscing elit
-                  </Text>
+                    <Text
+                      style={[
+                        styles.durationText,
+                        {
+                          color: '#0279E1',
+                        },
+                      ]}>
+                      {modalPlans?.durationInMonths} months
+                    </Text>
+                  </View>
                 </View>
-                <Spacing height={DimensionConstants.twelve} />
-              </View>
-            ))}
-            <CustomButton text={'Subscribe now'} />
+                <Spacing height={DimensionConstants.sixteen} />
+                <Text
+                  style={[
+                    styles.descriptionText,
+                    {
+                      color: '#ffffff',
+                    },
+                  ]}>
+                  {modalPlans?.planName}
+                </Text>
+              </TouchableOpacity>
+            </View>
+            <CustomButton
+              text={`Subscribe Now ₹ ${modalPlans?.price}`}
+              onPress={() =>
+                navigation.replace('BuySubscription', {plan: modalPlans})
+              }
+            />
             <CustomButton
               onPress={onClose}
               text={'See all plans'}
@@ -170,6 +120,9 @@ const styles = StyleSheet.create({
     fontSize: DimensionConstants.thirtyTwo,
     fontWeight: '600',
     marginBottom: DimensionConstants.sixteen,
+  },
+  cardContainer: {
+    flex: 1,
   },
   planContainer: {
     padding: DimensionConstants.twelve,
