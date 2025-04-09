@@ -427,10 +427,6 @@ const NotificationScreen = ({navigation}) => {
           title={'Notifications'}
           backPress={() => navigation.goBack()}
           backgroundColor={'#fff'}
-          onIconPress={() =>
-            navigation.navigate('MainApp', {screen: 'Settings'})
-          }
-          icon={<BlackSettingsIcon marginRight={DimensionConstants.ten} />}
         />
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Failed to load notifications</Text>
@@ -446,10 +442,6 @@ const NotificationScreen = ({navigation}) => {
           title={'Notifications'}
           backPress={() => navigation.goBack()}
           backgroundColor={'#fff'}
-          onIconPress={() =>
-            navigation.navigate('MainApp', {screen: 'Settings'})
-          }
-          icon={<BlackSettingsIcon marginRight={DimensionConstants.ten} />}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
