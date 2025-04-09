@@ -26,7 +26,6 @@ import {launchImageLibrary} from 'react-native-image-picker';
 const ProfileInformationScreen = ({navigation}) => {
   const [isEditing, setIsEditing] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
-
   const {data, isLoading, error} = useQuery({
     queryKey: ['userProfile'],
     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
@@ -63,8 +62,8 @@ const ProfileInformationScreen = ({navigation}) => {
         address: data?.data?.user?.address || '',
         gender: data?.data?.user?.gender || '',
       });
-      if (data?.user?.profileImage) {
-        setProfileImage(data?.user?.profileImage);
+      if (data?.data?.user?.avatarUrl) {
+        setProfileImage(data?.data?.user?.avatarUrl);
       }
     }
   }, [data, reset]);
