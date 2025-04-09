@@ -8,7 +8,7 @@ import {
   Animated,
   Alert,
 } from 'react-native';
-import React, {useState, useRef, useCallback} from 'react';
+import React, {useState, useRef, useCallback, useEffect} from 'react';
 import MainBackground from '../../components/MainBackground';
 import CustomHeader from '../../components/CustomHeader';
 import BlackSettingsIcon from '../../assets/icons/BlackSettingsIcon';
@@ -31,10 +31,11 @@ const NotificationScreen = ({navigation}) => {
   const swipeableRefs = useRef({});
   const animatedOpacity = useRef(new Animated.Value(1)).current;
   const queryClient = useQueryClient();
-  const [pendingDelete, setPendingDelete] = useState(null); // stores notification ID
+  const [pendingDelete, setPendingDelete] = useState(null);
   const [undoVisible, setUndoVisible] = useState(false);
   const [countdown, setCountdown] = useState(3);
   const timerRef = useRef(null);
+  const [isSnoozed, setIsSnoozed] = useState({});
 
   const buttons = ['All', 'SOS', 'GeoFence', 'Battery'];
 
@@ -42,7 +43,9 @@ const NotificationScreen = ({navigation}) => {
     useCallback(() => {
       const getStoredDeviceId = async () => {
         try {
-          const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
+          const storedDeviceId = await AsyncStorage.getItem(
+            'selectedDeviceMongoId',
+          );
           if (storedDeviceId) {
             setDeviceId(storedDeviceId);
           }
@@ -64,11 +67,36 @@ const NotificationScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `/notification/getAll?device=67ef7864d629a55264d48a56`, // Use dynamic deviceId
+        url: `/notification/getAll?device=${deviceId}`,
       }),
     enabled: !!deviceId,
     select: data => data?.data?.results || [],
   });
+
+  const {
+    data: getSnooze,
+    isLoading: getSnoozeLoading,
+    error: getSnoozeError,
+    refetch: getSnoozeRefetch,
+  } = useQuery({
+    queryKey: ['getSnooze', deviceId],
+    queryFn: () =>
+      fetcher({
+        method: 'GET',
+        url: `/notification/getSnooze/${deviceId}`,
+      }),
+    enabled: !!deviceId,
+    select: data => data?.data || [],
+  });
+
+  useEffect(() => {
+    const result = {};
+    getSnooze?.forEach(item => {
+      const type = item.notificationType;
+      result[type] = item.value; // Store the snooze duration (value) for each type
+    });
+    setIsSnoozed(result);
+  }, [getSnooze]);
 
   const deleteNotificationMutation = useMutation({
     mutationFn: notificationId =>
@@ -78,20 +106,7 @@ const NotificationScreen = ({navigation}) => {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['notifications', deviceId]);
-    },
-    onError: err => {
-      console.error('Error deleting notification:', err);
-      Alert.alert('Error', 'Failed to delete notification. Please try again.');
-    },
-  });
-  const deleteAllNotification = useMutation({
-    mutationFn: () =>
-      fetcher({
-        method: 'DELETE',
-        url: `/notification/deleteAll?deviceId=67ef7864d629a55264d48a56`,
-      }),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['notifications', deviceId]);
+      getSnoozeRefetch();
     },
     onError: err => {
       console.error('Error deleting notification:', err);
@@ -99,7 +114,22 @@ const NotificationScreen = ({navigation}) => {
     },
   });
 
-  // Mutation for marking a single notification as read
+  const deleteAllNotification = useMutation({
+    mutationFn: () =>
+      fetcher({
+        method: 'DELETE',
+        url: `/notification/deleteAll?deviceId=${deviceId}`,
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['notifications', deviceId]);
+      getSnoozeRefetch();
+    },
+    onError: err => {
+      console.error('Error deleting notification:', err);
+      Alert.alert('Error', 'Failed to delete notification. Please try again.');
+    },
+  });
+
   const markReadMutation = useMutation({
     mutationFn: notificationId =>
       fetcher({
@@ -114,6 +144,58 @@ const NotificationScreen = ({navigation}) => {
       Alert.alert(
         'Error',
         'Failed to mark notification as read. Please try again.',
+      );
+    },
+  });
+
+  const snoozeNotificationMutation = useMutation({
+    mutationFn: ({notificationId, duration, type}) => {
+      const hours = {
+        '1hr': 1,
+        '12hr': 12,
+        '24hr': 24,
+        always: 24 * 7,
+      };
+      return fetcher({
+        method: 'PATCH',
+        url: '/notification/snooze',
+        data: {
+          deviceId: deviceId,
+          notificationType: type,
+          value: hours[duration],
+        },
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(['notifications', deviceId]);
+      getSnoozeRefetch();
+    },
+    onError: err => {
+      console.error('Error snoozing notification:', err);
+      Alert.alert('Error', 'Failed to snooze notification. Please try again.');
+    },
+  });
+
+  const unsnoozeNotificationMutation = useMutation({
+    mutationFn: ({type}) =>
+      fetcher({
+        method: 'PATCH',
+        url: '/notification/snooze',
+        data: {
+          deviceId: deviceId,
+          notificationType: type,
+          value: 0, // Set to 0 to unsnooze
+        },
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['notifications', deviceId]);
+      getSnoozeRefetch();
+    },
+    onError: err => {
+      console.error('Error unsnoozing notification:', err);
+      Alert.alert(
+        'Error',
+        'Failed to unsnooze notification. Please try again.',
       );
     },
   });
@@ -145,17 +227,13 @@ const NotificationScreen = ({navigation}) => {
       setCountdown(prev => {
         if (prev === 1) {
           clearInterval(timerRef.current);
-          finalizeDelete(id);
+          // finalizeDelete(id);
         }
         return prev - 1;
       });
     }, 1000);
-    // deleteNotificationMutation.mutate(id, {
-    //   onSuccess: () => {
-    //     animatedOpacity.setValue(1);
-    //   },
-    // });
   };
+
   const handleDeleteAll = () => {
     deleteAllNotification.mutate();
   };
@@ -166,23 +244,18 @@ const NotificationScreen = ({navigation}) => {
     setPendingDelete(null);
   };
 
-  const handleSnooze = (id, duration) => {
-    notificationData &&
-      notificationData.map(n =>
-        n._id === id ? {...n, snooze: true, snoozeDuration: duration} : n,
-      );
+  const handleSnooze = (id, duration, type) => {
     if (swipeableRefs.current[id]) {
       swipeableRefs.current[id].close();
     }
-    refetch();
+    snoozeNotificationMutation.mutate({notificationId: id, duration, type});
   };
 
-  const handleUnsnooze = id => {
-    notificationData &&
-      notificationData.map(n =>
-        n._id === id ? {...n, snooze: false, snoozeDuration: null} : n,
-      );
-    refetch();
+  const handleUnsnooze = (id, type) => {
+    if (swipeableRefs.current[id]) {
+      swipeableRefs.current[id].close();
+    }
+    unsnoozeNotificationMutation.mutate({type});
   };
 
   const handleMarkRead = id => {
@@ -216,42 +289,67 @@ const NotificationScreen = ({navigation}) => {
     }
   };
 
-  const renderLeftActions = id => (
-    <View style={[styles.actionContainer, styles.snoozeAction]}>
-      <Text style={styles.snoozeTitle}>Snooze for:</Text>
-      <View style={styles.snoozeOptionsContainer}>
-        <TouchableOpacity
-          style={styles.snoozeOption}
-          onPress={() => handleSnooze(id, '1hr')}>
-          <Text style={styles.snoozeOptionText}>1hr</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.snoozeOption}
-          onPress={() => handleSnooze(id, '12hr')}>
-          <Text style={styles.snoozeOptionText}>12hr</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.snoozeOption}
-          onPress={() => handleSnooze(id, '24hr')}>
-          <Text style={styles.snoozeOptionText}>24hr</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.snoozeOption}
-          onPress={() => handleSnooze(id, 'always')}>
-          <Text style={styles.snoozeOptionText}>Always</Text>
-        </TouchableOpacity>
+  const renderLeftActions = (id, type) => {
+    const snoozeValue = isSnoozed[type];
+    if (snoozeValue) {
+      const timeText =
+        snoozeValue === 24 * 7
+          ? 'Always'
+          : `${snoozeValue}hr${snoozeValue > 1 ? 's' : ''}`;
+      return (
+        <View style={[styles.actionContainer, styles.snoozeAction]}>
+          <Text style={styles.snoozeTitle}>Snoozed: {timeText}</Text>
+          <TouchableOpacity
+            style={styles.unsnoozeButton}
+            onPress={() => handleUnsnooze(id, type)}>
+            <Text style={styles.unsnoozeText}>Unsnooze</Text>
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    return (
+      <View style={[styles.actionContainer, styles.snoozeAction]}>
+        <Text style={styles.snoozeTitle}>Snooze for:</Text>
+        <View style={styles.snoozeOptionsContainer}>
+          <TouchableOpacity
+            style={styles.snoozeOption}
+            onPress={() => handleSnooze(id, '1hr', type)}>
+            <Text style={styles.snoozeOptionText}>1hr</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.snoozeOption}
+            onPress={() => handleSnooze(id, '12hr', type)}>
+            <Text style={styles.snoozeOptionText}>12hr</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.snoozeOption}
+            onPress={() => handleSnooze(id, '24hr', type)}>
+            <Text style={styles.snoozeOptionText}>24hr</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.snoozeOption}
+            onPress={() => handleSnooze(id, 'always', type)}>
+            <Text style={styles.snoozeOptionText}>Always</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
-  );
+    );
+  };
 
   const renderRightActions = id => (
     <View style={[styles.actionContainer, styles.deleteAction]}>
-      <TouchableOpacity
-        style={styles.actionButton}
-        onPress={() => handleDelete(id)}>
-        <Feather name="trash-2" size={20} color="#fff" />
-        <Text style={styles.actionText}>Delete</Text>
-      </TouchableOpacity>
+      {undoVisible ? (
+        <TouchableOpacity onPress={handleUndo} style={styles.undoButton}>
+          <Text style={styles.undoText}>Undo {countdown}</Text>
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          style={styles.actionButton}
+          onPress={() => handleDelete(id)}>
+          <Feather name="trash-2" size={20} color="#fff" />
+          <Text style={styles.actionText}>Delete</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 
@@ -259,98 +357,61 @@ const NotificationScreen = ({navigation}) => {
 
   const renderNotificationCard = notification => {
     const icon = getNotificationIcon(notification.type);
-    if (notification.snooze) {
-      return (
+    return (
+      <Swipeable
+        ref={ref => (swipeableRefs.current[notification._id] = ref)}
+        renderLeftActions={() =>
+          renderLeftActions(notification._id, notification.type)
+        }
+        renderRightActions={() => renderRightActions(notification._id)}>
         <CustomCard
-          key={notification._id}
-          style={[styles.card, styles.snoozedCard]}>
-          <View style={styles.notificationContent}>
+          style={[
+            styles.card,
+            notification.isRead ? styles.readCard : styles.unreadCard,
+          ]}>
+          <TouchableOpacity
+            onPress={() =>
+              !notification.isRead && handleMarkRead(notification._id)
+            }
+            style={styles.notificationContent}>
             <View style={styles.notificationLeft}>
               {icon}
               <View style={styles.textContainer}>
                 <Text style={styles.notificationTitle}>
                   {notification.title}
+                  {!notification.isRead && (
+                    <>
+                      <Spacing width={DimensionConstants.ten} />
+                      <View style={styles.unreadDot} />
+                    </>
+                  )}
                 </Text>
                 <Text style={styles.notificationDescription}>
                   {notification.message}
                 </Text>
                 <View style={styles.metaContainer}>
-                  <View style={styles.timeContainer}>
-                    <Text style={styles.notificationTime}>
-                      {new Date(notification.createdAt).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </Text>
-                    {notification.snoozeDuration && (
-                      <Text style={styles.snoozeDuration}>
-                        Snoozed: {notification.snoozeDuration}
-                      </Text>
-                    )}
-                  </View>
-                  <TouchableOpacity
-                    style={styles.categoryChip}
-                    onPress={() => handleUnsnooze(notification._id)}>
-                    <Text style={styles.categoryText}>Unsnooze</Text>
-                  </TouchableOpacity>
+                  <Text style={styles.notificationTime}>
+                    {new Date(notification.createdAt).toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </Text>
                 </View>
               </View>
             </View>
-          </View>
+          </TouchableOpacity>
         </CustomCard>
-      );
-    } else {
-      return (
-        <Swipeable
-          ref={ref => (swipeableRefs.current[notification._id] = ref)}
-          renderLeftActions={() => renderLeftActions(notification._id)}
-          renderRightActions={() => renderRightActions(notification._id)}>
-          <CustomCard
-            style={[
-              styles.card,
-              notification.isRead ? styles.readCard : styles.unreadCard,
-            ]}>
-            <TouchableOpacity
-              onPress={() =>
-                !notification.isRead && handleMarkRead(notification._id)
-              }
-              style={styles.notificationContent}>
-              <View style={styles.notificationLeft}>
-                {icon}
-                <View style={styles.textContainer}>
-                  <Text style={styles.notificationTitle}>
-                    {notification.title}
-                    {!notification.isRead && (
-                      <>
-                        <Spacing width={DimensionConstants.ten} />
-                        <View style={styles.unreadDot} />
-                      </>
-                    )}
-                  </Text>
-                  <Text style={styles.notificationDescription}>
-                    {notification.message}
-                  </Text>
-                  <View style={styles.metaContainer}>
-                    <Text style={styles.notificationTime}>
-                      {new Date(notification.createdAt).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-          </CustomCard>
-        </Swipeable>
-      );
-    }
+      </Swipeable>
+    );
   };
 
   if (
     isLoading ||
+    getSnoozeLoading ||
     deleteNotificationMutation.isLoading ||
-    markReadMutation.isLoading
+    markReadMutation.isLoading ||
+    snoozeNotificationMutation.isLoading ||
+    unsnoozeNotificationMutation.isLoading
   ) {
     return (
       <MainBackground noPadding style={styles.background}>
@@ -359,17 +420,13 @@ const NotificationScreen = ({navigation}) => {
     );
   }
 
-  if (error) {
+  if (error || getSnoozeError) {
     return (
       <MainBackground noPadding style={styles.background}>
         <CustomHeader
           title={'Notifications'}
           backPress={() => navigation.goBack()}
           backgroundColor={'#fff'}
-          onIconPress={() =>
-            navigation.navigate('MainApp', {screen: 'Settings'})
-          }
-          icon={<BlackSettingsIcon marginRight={DimensionConstants.ten} />}
         />
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Failed to load notifications</Text>
@@ -385,10 +442,6 @@ const NotificationScreen = ({navigation}) => {
           title={'Notifications'}
           backPress={() => navigation.goBack()}
           backgroundColor={'#fff'}
-          onIconPress={() =>
-            navigation.navigate('MainApp', {screen: 'Settings'})
-          }
-          icon={<BlackSettingsIcon marginRight={DimensionConstants.ten} />}
         />
         <ScrollView showsVerticalScrollIndicator={false}>
           <View style={styles.container}>
@@ -482,13 +535,6 @@ const NotificationScreen = ({navigation}) => {
             )}
           </View>
         </ScrollView>
-        {undoVisible && (
-          <View style={styles.undoContainer}>
-            <TouchableOpacity onPress={handleUndo} style={styles.undoButton}>
-              <Text style={styles.undoText}>Undo {countdown}</Text>
-            </TouchableOpacity>
-          </View>
-        )}
       </MainBackground>
     </GestureHandlerRootView>
   );
@@ -566,14 +612,9 @@ const styles = StyleSheet.create({
     marginHorizontal: DimensionConstants.two,
     height: DimensionConstants.ninety,
     justifyContent: 'center',
-    // shadowColor: '#000',
-    // shadowOffset: {width: 0, height: 1},
-    // shadowOpacity: 0.1,
-    // shadowRadius: 2,
-    // elevation: 2,
   },
   unreadCard: {
-    backgroundColor: 'rgba(237, 247, 255 , 1)',
+    backgroundColor: 'rgba(237, 247, 255, 1)',
   },
   readCard: {},
   snoozedCard: {
@@ -679,6 +720,18 @@ const styles = StyleSheet.create({
     fontSize: DimensionConstants.twelve,
     fontWeight: '600',
   },
+  unsnoozeButton: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    marginTop: 6,
+  },
+  unsnoozeText: {
+    color: '#FFA500',
+    fontSize: DimensionConstants.twelve,
+    fontWeight: '600',
+  },
   deleteAction: {
     backgroundColor: '#FF310C',
     width: 100,
@@ -721,6 +774,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 4,
     elevation: 5,
+    zIndex: 99,
   },
   undoButton: {
     flexDirection: 'row',

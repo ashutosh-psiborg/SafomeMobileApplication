@@ -240,6 +240,12 @@ const DevicesScreen = ({navigation}) => {
                         {/* {subscriptionData.expiryDate}) */}
                       </Text>
                     </View>
+                    <TouchableOpacity
+                      style={styles.viewMoreButton}
+                      onPress={() => navigation.navigate('PlanDetail')}>
+                      <Text style={styles.viewMoreText}>View More</Text>
+                      <RightArrowIcon color="#fff" width={16} height={16} />
+                    </TouchableOpacity>
                   </View>
                 </View>
               </LinearGradient>
@@ -427,8 +433,19 @@ const styles = StyleSheet.create({
     fontSize: DimensionConstants.fourteen,
     fontWeight: '500',
     color: 'yellow',
-    // color: '#212121',
     flex: 1,
+  },
+  viewMoreButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    marginTop: DimensionConstants.ten,
+  },
+  viewMoreText: {
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '500',
+    color: '#fff',
+    marginRight: DimensionConstants.five,
   },
 });
 
