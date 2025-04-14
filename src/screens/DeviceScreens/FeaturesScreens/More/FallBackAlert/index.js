@@ -13,7 +13,6 @@ import Loader from '../../../../../components/Loader';
 const FallBackAlert = ({navigation}) => {
   const [deviceId, setDeviceId] = useState('');
 
-  // Fetch Device ID from AsyncStorage
   const getStoredDeviceId = async () => {
     try {
       const storedDeviceId = await AsyncStorage.getItem('selectedDeviceId');
@@ -28,7 +27,7 @@ const FallBackAlert = ({navigation}) => {
   useEffect(() => {
     getStoredDeviceId();
   }, []);
-  console.log('Device===PPP', deviceId);
+
   const [switches, setSwitches] = useState({
     fallAlert: false,
     emergencyCall: false,
@@ -69,17 +68,39 @@ const FallBackAlert = ({navigation}) => {
     },
   });
 
+  // const handleToggle = key => {
+  //   const newState = !switches[key];
+  //   setSwitches(prev => ({...prev, [key]: newState}));
+
+  //   const commandMap = {
+  //     fallAlert: newState ? '[FALLDOWN,1,0]' : '[FALLDOWN,0,0]',
+  //     emergencyCall: newState ? '[FALLDOWN,1,1]' : '[FALLDOWN,1,0]',
+  //   };
+
+  //   mutation.mutate(commandMap[key]);
+  // };
   const handleToggle = key => {
     const newState = !switches[key];
+    const otherState =
+      switches[key === 'fallAlert' ? 'emergencyCall' : 'fallAlert'];
+
+    const fallAlertValue =
+      key === 'fallAlert' ? (newState ? '1' : '0') : otherState ? '1' : '0';
+    const emergencyCallValue =
+      key === 'emergencyCall'
+        ? newState
+          ? '1'
+          : '0'
+        : switches.emergencyCall
+        ? '1'
+        : '0';
+
+    const command = `[FALLDOWN,${fallAlertValue},${emergencyCallValue}]`;
+
     setSwitches(prev => ({...prev, [key]: newState}));
-
-    const commandMap = {
-      fallAlert: newState ? '[FALLDOWN,1,0]' : '[FALLDOWN,0,0]',
-      emergencyCall: newState ? '[FALLDOWN,1,1]' : '[FALLDOWN,1,0]',
-    };
-
-    mutation.mutate(commandMap[key]);
+    mutation.mutate(command);
   };
+
   useFocusEffect(
     useCallback(() => {
       refetch();

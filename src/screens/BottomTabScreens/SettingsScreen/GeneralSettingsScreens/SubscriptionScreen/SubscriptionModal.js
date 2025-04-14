@@ -36,7 +36,9 @@ const SubscriptionModal = ({visible, onClose, modalPlans, navigation}) => {
               style={{alignItems: 'flex-end'}}>
               <CrossIcon />
             </TouchableOpacity>
-            <Text style={styles.modalTitle}>Subscribe to premium</Text>
+            <Text style={styles.modalTitle}>
+              Subscribe to {modalPlans?.planName}
+            </Text>
             <View style={styles.cardContainer}>
               <TouchableOpacity
                 style={[
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
     padding: DimensionConstants.sixteen,
   },
   modalTitle: {
-    fontSize: DimensionConstants.thirtyTwo,
+    fontSize: DimensionConstants.thirty,
     fontWeight: '600',
     marginBottom: DimensionConstants.sixteen,
   },
