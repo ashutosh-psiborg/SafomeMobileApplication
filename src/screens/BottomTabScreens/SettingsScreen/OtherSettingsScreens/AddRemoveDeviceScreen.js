@@ -111,7 +111,7 @@ const AddRemoveDeviceScreen = ({navigation}) => {
     onError: error => {
       Alert.alert(
         'Error',
-        error?.response?.data?.message || 'Failed to add device.',
+        error?.response.data.message || 'Failed to add device.',
       );
     },
   });

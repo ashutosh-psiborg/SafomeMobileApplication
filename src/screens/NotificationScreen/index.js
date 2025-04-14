@@ -227,7 +227,7 @@ const NotificationScreen = ({navigation}) => {
       setCountdown(prev => {
         if (prev === 1) {
           clearInterval(timerRef.current);
-          // finalizeDelete(id);
+          finalizeDelete(id);
         }
         return prev - 1;
       });
@@ -468,12 +468,16 @@ const NotificationScreen = ({navigation}) => {
             <Spacing height={DimensionConstants.twentyFour} />
 
             <View style={styles.sectionHeader}>
-              <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                <Text style={styles.sectionTitle}>UnRead</Text>
-                <View style={styles.countBadge}>
-                  <Text style={styles.countText}>{unreadCount}</Text>
+              {hasUnreadNotifications ? (
+                <View style={{flexDirection: 'row', alignItems: 'center'}}>
+                  <Text style={styles.sectionTitle}>UnRead</Text>
+                  <View style={styles.countBadge}>
+                    <Text style={styles.countText}>{unreadCount}</Text>
+                  </View>
                 </View>
-              </View>
+              ) : (
+                <View style={{width: 10}} />
+              )}
               <View style={{flexDirection: 'row', gap: 10}}>
                 {hasUnreadNotifications && (
                   <TouchableOpacity
@@ -498,22 +502,24 @@ const NotificationScreen = ({navigation}) => {
                     </Text>
                   </TouchableOpacity>
                 )}
-                <TouchableOpacity
-                  onPress={handleDeleteAll}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: 'red',
-                    borderRadius: 15,
-                    paddingVertical: DimensionConstants.two,
-                    paddingHorizontal: DimensionConstants.five,
-                    flexDirection: 'row',
-                    gap: DimensionConstants.one,
-                  }}>
-                  <MaterialIcons name="delete" color="red" size={18} />
-                  <Text style={[styles.sectionTitleTwo, {color: 'red'}]}>
-                    Clear All
-                  </Text>
-                </TouchableOpacity>
+                {!filteredNotifications.length === 0 && (
+                  <TouchableOpacity
+                    onPress={handleDeleteAll}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: 'red',
+                      borderRadius: 15,
+                      paddingVertical: DimensionConstants.two,
+                      paddingHorizontal: DimensionConstants.five,
+                      flexDirection: 'row',
+                      gap: DimensionConstants.one,
+                    }}>
+                    <MaterialIcons name="delete" color="red" size={18} />
+                    <Text style={[styles.sectionTitleTwo, {color: 'red'}]}>
+                      Clear All
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
 
@@ -749,6 +755,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   emptyContainer: {
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     padding: 40,

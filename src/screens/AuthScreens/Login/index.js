@@ -132,7 +132,7 @@ const LoginScreen = ({navigation}) => {
       }
     },
     onError: error => {
-      const errorMessage = error?.message;
+      const errorMessage = error?.response?.data?.message;
       Alert.alert('Error', errorMessage);
     },
   });
