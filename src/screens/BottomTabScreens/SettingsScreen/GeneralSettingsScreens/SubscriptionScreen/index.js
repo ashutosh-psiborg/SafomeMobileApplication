@@ -24,6 +24,7 @@ const SubscriptionScreen = ({navigation}) => {
         url: `/Subscription/get-PlanDetails`,
       }),
   });
+  console.log('Subscription data:', data);
   return (
     <MainBackground noPadding style={styles.mainBackground}>
       <CustomHeader
@@ -36,82 +37,100 @@ const SubscriptionScreen = ({navigation}) => {
         <Loader />
       ) : (
         <View style={styles.container}>
-          <CustomCard style={styles.card}>
-            {data?.planDetails?.map(plan => {
-              const isSelected = selectedPlan === plan._id;
-              return (
-                <TouchableOpacity
-                  key={plan._id}
-                  onPress={() => {
-                    setPlan(plan);
-                    setSelectedPlan(plan._id);
-                    setModalVisible(true);
-                  }}
-                  style={[
-                    styles.planContainer,
-                    {
-                      backgroundColor: isSelected ? '#0279E1' : '#ffffff',
-                      borderColor: isSelected ? '#0279E1' : '#F4D9DC',
-                      marginBottom:
-                        plan?.uid === 'SUBS-03'
-                          ? 0
-                          : DimensionConstants.sixteen,
-                    },
-                  ]}>
-                  <View style={styles.planHeader}>
-                    <Text
+          {data?.planDetails?.length > 0 ? (
+            <>
+              <CustomCard style={styles.card}>
+                {data?.planDetails?.map(plan => {
+                  const isSelected = selectedPlan === plan._id;
+                  return (
+                    <TouchableOpacity
+                      key={plan._id}
+                      onPress={() => {
+                        setPlan(plan);
+                        setSelectedPlan(plan._id);
+                        setModalVisible(true);
+                      }}
                       style={[
-                        styles.priceText,
-                        {color: isSelected ? '#ffffff' : '#000000'},
+                        styles.planContainer,
+                        {
+                          backgroundColor: isSelected ? '#0279E1' : '#ffffff',
+                          borderColor: isSelected ? '#0279E1' : '#F4D9DC',
+                          marginBottom:
+                            plan?.uid === 'SUBS-03'
+                              ? 0
+                              : DimensionConstants.sixteen,
+                        },
                       ]}>
-                      ₹ {plan?.price}
-                    </Text>
-                    <View
-                      style={[
-                        styles.durationContainer,
-                        {backgroundColor: isSelected ? '#ffffff' : '#FE605D'},
-                      ]}>
+                      <View style={styles.planHeader}>
+                        <Text
+                          style={[
+                            styles.priceText,
+                            {color: isSelected ? '#ffffff' : '#000000'},
+                          ]}>
+                          ₹ {plan?.price}
+                        </Text>
+                        <View
+                          style={[
+                            styles.durationContainer,
+                            {
+                              backgroundColor: isSelected
+                                ? '#ffffff'
+                                : '#FE605D',
+                            },
+                          ]}>
+                          <Text
+                            style={[
+                              styles.durationText,
+                              {color: isSelected ? '#0279E1' : '#ffffff'},
+                            ]}>
+                            {plan?.durationInMonths} months
+                          </Text>
+                        </View>
+                      </View>
+
+                      <View
+                        style={[
+                          styles.saveContainer,
+                          {backgroundColor: isSelected ? '#ffffff' : '#0279E1'},
+                        ]}>
+                        <Text
+                          style={[
+                            styles.saveText,
+                            {color: isSelected ? '#0279E1' : '#ffffff'},
+                          ]}>
+                          SAVE 33%
+                        </Text>
+                      </View>
+
+                      <Spacing height={DimensionConstants.fourteen} />
                       <Text
                         style={[
-                          styles.durationText,
-                          {color: isSelected ? '#0279E1' : '#ffffff'},
+                          styles.descriptionText,
+                          {color: isSelected ? '#ffffff' : '#000000'},
                         ]}>
-                        {plan?.durationInMonths} months
+                        {plan?.planName}
                       </Text>
-                    </View>
-                  </View>
-
-                  <View
-                    style={[
-                      styles.saveContainer,
-                      {backgroundColor: isSelected ? '#ffffff' : '#0279E1'},
-                    ]}>
-                    <Text
-                      style={[
-                        styles.saveText,
-                        {color: isSelected ? '#0279E1' : '#ffffff'},
-                      ]}>
-                      SAVE 33%
-                    </Text>
-                  </View>
-
-                  <Spacing height={DimensionConstants.fourteen} />
-                  <Text
-                    style={[
-                      styles.descriptionText,
-                      {color: isSelected ? '#ffffff' : '#000000'},
-                    ]}>
-                    {plan?.planName}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </CustomCard>
-
-          <CustomButton
-            text={'Have a coupon code'}
-            onPress={() => setModalVisible(true)}
-          />
+                    </TouchableOpacity>
+                  );
+                })}
+              </CustomCard>
+              {/* <CustomButton
+                text={'Have a coupon code'}
+                onPress={() => setModalVisible(true)}
+              /> */}
+            </>
+          ) : (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <Text style={{fontSize: 20, fontWeight: '600', color: 'grey'}}>
+                {data?.message}
+              </Text>
+            </View>
+          )}
         </View>
       )}
 
