@@ -1,12 +1,49 @@
 import React, {useState, useMemo} from 'react';
-import {View, Text, Dimensions, StyleSheet} from 'react-native';
+import {
+  View,
+  Text,
+  Dimensions,
+  StyleSheet,
+  TouchableOpacity,
+  Animated,
+} from 'react-native';
 import {LineChart} from 'react-native-gifted-charts';
 import CustomCard from './CustomCard';
 import moment from 'moment';
 import {DimensionConstants} from '../constants/DimensionConstants';
 import Spacing from './Spacing';
+import Icon from 'react-native-vector-icons/MaterialIcons'; // Assuming you use react-native-vector-icons
 
 const screenWidth = Dimensions.get('window').width;
+
+const NoData = ({message, subMessage, iconName}) => {
+  const fadeAnim = React.useRef(new Animated.Value(0)).current;
+
+  React.useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
+  return (
+    <Animated.View style={[styles.noDataContainer, {opacity: fadeAnim}]}>
+      <Icon
+        name={iconName}
+        size={40}
+        color="#888"
+        accessibilityLabel="No data icon"
+      />
+      <Text style={styles.noDataText}>{message}</Text>
+      {subMessage && <Text style={styles.noDataSubText}>{subMessage}</Text>}
+      {/* Optional CTA button */}
+      {/* <TouchableOpacity style={styles.addDataButton}>
+        <Text style={styles.addDataButtonText}>Add Data</Text>
+      </TouchableOpacity> */}
+    </Animated.View>
+  );
+};
 
 const HealthGraph = ({data}) => {
   const [focusedHeartRate, setFocusedHeartRate] = useState(null);
@@ -121,7 +158,11 @@ const HealthGraph = ({data}) => {
         )}
       </>
     ) : (
-      <Text style={styles.noData}>No heart rate data available.</Text>
+      <NoData
+        message="No heart rate data available"
+        subMessage="Add heart rate data to see your trends."
+        iconName="favorite-border"
+      />
     );
   };
 
@@ -177,7 +218,11 @@ const HealthGraph = ({data}) => {
         {focusedBP && <Text style={styles.focusText}>{focusedBP}</Text>}
       </>
     ) : (
-      <Text style={styles.noData}>No blood pressure data available.</Text>
+      <NoData
+        message="No blood pressure data available"
+        subMessage="Add blood pressure data to track your health."
+        iconName="opacity" // Material icon for blood drop
+      />
     );
   };
 
@@ -209,7 +254,11 @@ const HealthGraph = ({data}) => {
         {focusedSPO2 && <Text style={styles.focusText}>{focusedSPO2}</Text>}
       </>
     ) : (
-      <Text style={styles.noData}>No SPO2 data available.</Text>
+      <NoData
+        message="No SPO2 data available"
+        subMessage="Add SPO2 data to monitor your oxygen levels."
+        iconName="bubble-chart" // Material icon for oxygen
+      />
     );
   };
 
@@ -243,10 +292,39 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginBottom: DimensionConstants.ten,
   },
-  noData: {
-    color: '#888',
-    fontStyle: 'italic',
+  noDataContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: DimensionConstants.twenty,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 8,
+    marginVertical: DimensionConstants.ten,
+  },
+  noDataText: {
+    color: '#666',
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '500',
+    marginTop: DimensionConstants.ten,
     textAlign: 'center',
+  },
+  noDataSubText: {
+    color: '#999',
+    fontSize: DimensionConstants.twelve,
+    marginTop: DimensionConstants.five,
+    textAlign: 'center',
+    paddingHorizontal: DimensionConstants.twenty,
+  },
+  addDataButton: {
+    marginTop: DimensionConstants.fifteen,
+    backgroundColor: '#FF310C',
+    paddingVertical: DimensionConstants.eight,
+    paddingHorizontal: DimensionConstants.fifteen,
+    borderRadius: 6,
+  },
+  addDataButtonText: {
+    color: '#fff',
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '600',
   },
   focusText: {
     marginTop: DimensionConstants.ten,

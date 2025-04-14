@@ -132,7 +132,7 @@ const LoginScreen = ({navigation}) => {
       }
     },
     onError: error => {
-      const errorMessage = error?.message;
+      const errorMessage = error?.response?.data?.message;
       Alert.alert('Error', errorMessage);
     },
   });
@@ -166,7 +166,11 @@ const LoginScreen = ({navigation}) => {
 
   const onSubmit = async data => {
     console.log('🚀 Submitting Data:', data);
-    mutation.mutate(data);
+    const payload = {
+      ...data,
+      role: 'USER',
+    };
+    mutation.mutate(payload);
   };
 
   return (

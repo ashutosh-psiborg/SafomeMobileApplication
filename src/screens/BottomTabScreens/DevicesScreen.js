@@ -10,10 +10,8 @@ import MainBackground from '../../components/MainBackground';
 import LogoHeader from '../../components/LogoHeader';
 import BlackWatchIcon from '../../assets/icons/BlackWatchIcon';
 import CustomCard from '../../components/CustomCard';
-import CustomButton from '../../components/CustomButton';
 import Spacing from '../../components/Spacing';
 import {DimensionConstants} from '../../constants/DimensionConstants';
-import DownArrowIcon from '../../assets/icons/DownArrowIcon';
 import {useSelector} from 'react-redux';
 import SystemIcon from '../../assets/icons/SystemIcon';
 import {useQuery} from '@tanstack/react-query';
@@ -26,19 +24,12 @@ import FeaturesIcon from '../../assets/icons/FeaturesIcon';
 import AddRemoteIcon from '../../assets/icons/AddRemoteIcon';
 import AboutDeviceIcon from '../../assets/icons/AboutDeviceIcon';
 import SubscriptionIcon from '../../assets/icons/SubscriptionIcon';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import LinearGradient from 'react-native-linear-gradient';
 
 const DevicesScreen = ({navigation}) => {
   const [deviceId, setDeviceId] = useState('');
 
   // Static subscription data - replace with actual data from API when available
-  const [subscriptionData, setSubscriptionData] = useState({
-    isActive: true,
-    daysLeft: 45,
-    planName: 'Premium',
-    expiryDate: '2025-05-22',
-  });
 
   const {data, isLoading, error, refetch} = useQuery({
     queryKey: ['deviceDetails', deviceId],
@@ -132,7 +123,7 @@ const DevicesScreen = ({navigation}) => {
 
   // Function to render subscription status badge
   const renderSubscriptionBadge = () => {
-    if (subscriptionData.isActive) {
+    if (data?.data?.subscription?.ActiveStatus?.status === 'active') {
       return (
         <View style={[styles.subscriptionBadge, {backgroundColor: '#E8F5E9'}]}>
           <Text style={[styles.subscriptionBadgeText, {color: '#2E7D32'}]}>
@@ -221,7 +212,8 @@ const DevicesScreen = ({navigation}) => {
                     <View style={styles.subscriptionInfo}>
                       <Text style={styles.subscriptionLabel}>Plan:</Text>
                       <Text style={styles.subscriptionValue}>
-                        {subscriptionData.planName}
+                        {data?.data?.subscription?.subscriptionPlan?.planName ||
+                          'N/A'}
                       </Text>
                     </View>
                     <View style={styles.subscriptionInfo}>
@@ -231,13 +223,14 @@ const DevicesScreen = ({navigation}) => {
                           styles.subscriptionValue,
                           {
                             color:
-                              subscriptionData.daysLeft < 10
+                              data?.data?.subscription?.ActiveStatus?.daysLeft <
+                              10
                                 ? '#FE605D'
                                 : 'white',
                           },
                         ]}>
-                        {subscriptionData.daysLeft} days left
-                        {/* {subscriptionData.expiryDate}) */}
+                        {data?.data?.subscription?.ActiveStatus?.daysLeft || 0}{' '}
+                        days left
                       </Text>
                     </View>
                     <TouchableOpacity

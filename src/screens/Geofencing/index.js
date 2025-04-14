@@ -17,10 +17,8 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import axios from 'axios';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../utils/ApiService';
-import MapViewClustering from 'react-native-map-clustering';
 import {DimensionConstants} from '../../constants/DimensionConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomHeader from '../../components/CustomHeader';
 
 const API_KEY = 'AIzaSyBwDaERJWZV7h28D67mRXG-dIBYSEPQMgQ'; // Your Google Maps API key
 
@@ -379,7 +377,7 @@ const FloatingActions = ({geofence, setGeofence, undo, redo, saveGeofence}) => {
             <View style={styles.sliderRange}>
               <Text style={styles.sliderLabel}>Radius</Text>
               <Text style={styles.sliderRangeText}>
-                {Math.floor(circleRadius)}
+                {Math.floor(circleRadius) + ' Meter'}
               </Text>
             </View>
             <Slider
