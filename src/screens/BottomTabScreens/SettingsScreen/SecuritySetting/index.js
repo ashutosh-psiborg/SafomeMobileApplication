@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {View, Text, ScrollView, Switch, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {useForm} from 'react-hook-form';
+import {useMutation} from '@tanstack/react-query';
 import MainBackground from '../../../../components/MainBackground';
 import CustomHeader from '../../../../components/CustomHeader';
 import Spacing from '../../../../components/Spacing';
@@ -12,6 +13,7 @@ import {useSelector} from 'react-redux';
 import {SecurityScreenStyles} from './style';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import CommonForm from '../../../../utils/CommonForm';
+import fetcher from '../../../../utils/ApiService'; // Assuming fetcher is your API utility
 
 const SecurityScreen = () => {
   const navigation = useNavigation();
@@ -28,11 +30,44 @@ const SecurityScreen = () => {
     control,
     handleSubmit,
     formState: {errors},
+    reset,
   } = useForm({
     defaultValues: {
       currentPassword: '',
       newPassword: '',
       confirmPassword: '',
+    },
+  });
+
+  // Password change mutation
+  const changePasswordMutation = useMutation({
+    mutationFn: payload =>
+      fetcher({
+        method: 'PATCH',
+        url: '/user/createPassword',
+        data: payload,
+      }),
+    onSuccess: () => {
+      Alert.alert(
+        'Success',
+        'Password changed successfully!',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              reset(); // Clear form fields
+              navigation.goBack();
+            },
+          },
+        ],
+        {cancelable: false},
+      );
+    },
+    onError: error => {
+      Alert.alert(
+        'Error',
+        error.response?.data?.message || 'Failed to change password.',
+      );
     },
   });
 
@@ -112,23 +147,29 @@ const SecurityScreen = () => {
     };
 
     if (data.currentPassword && data.newPassword && data.confirmPassword) {
-      settingsData.currentPassword = data.currentPassword;
-      settingsData.newPassword = data.newPassword;
+      // Prepare payload for password change API
+      const passwordPayload = {
+        oldPassword: data.currentPassword,
+        newPassword: data.newPassword,
+      };
+
+      // Trigger the password change mutation
+      changePasswordMutation.mutate(passwordPayload);
+    } else {
+      // Handle non-password settings save (if any)
+      console.log('Saving settings:', settingsData);
+      Alert.alert(
+        'Success',
+        'Settings saved successfully!',
+        [
+          {
+            text: 'OK',
+            onPress: () => navigation.goBack(),
+          },
+        ],
+        {cancelable: false},
+      );
     }
-
-    console.log('Saving settings:', settingsData);
-
-    Alert.alert(
-      'Success',
-      'Settings saved successfully!',
-      [
-        {
-          text: 'OK',
-          onPress: () => navigation.goBack(),
-        },
-      ],
-      {cancelable: false},
-    );
   };
 
   return (
@@ -198,9 +239,14 @@ const SecurityScreen = () => {
 
         <View style={styles.footerContainer}>
           <CustomButton
-            text={appStrings?.settings?.save || 'Save Changes'}
+            text={
+              changePasswordMutation.isLoading
+                ? 'Saving...'
+                : appStrings?.settings?.save || 'Save Changes'
+            }
             onPress={handleSubmit(onSubmit)}
             style={styles.saveButton}
+            disabled={changePasswordMutation.isLoading}
           />
         </View>
       </View>

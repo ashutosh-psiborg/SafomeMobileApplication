@@ -166,7 +166,11 @@ const LoginScreen = ({navigation}) => {
 
   const onSubmit = async data => {
     console.log('🚀 Submitting Data:', data);
-    mutation.mutate(data);
+    const payload = {
+      ...data,
+      role: 'USER',
+    };
+    mutation.mutate(payload);
   };
 
   return (
