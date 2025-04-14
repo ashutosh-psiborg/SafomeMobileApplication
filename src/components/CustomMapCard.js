@@ -67,7 +67,7 @@ const CustomMapCard = ({
 
     return () => socket.disconnect();
   }, [deviceData?.data?.deviceId]);
-  console.log('________>>>>>>>>>>', deviceData?.data?.deviceId);
+  console.log('________>>>>>>>>>>', deviceData?.data);
   console.log('________>>>>>>>>>>', serverDataList);
 
   const {data: allDevicesData, isLoading: isDevicesLoading} = useQuery({
@@ -409,7 +409,10 @@ const CustomMapCard = ({
                             color="white"
                           />
                           <Text style={styles.deviceName}>
-                            {serverDataList?.battery_status} %
+                            {serverDataList?.battery_status
+                              ? serverDataList?.battery_status
+                              : deviceData?.data?.batteryPer}
+                            %
                           </Text>
                           <MaterialIcons
                             name={

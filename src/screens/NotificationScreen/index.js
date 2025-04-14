@@ -502,7 +502,7 @@ const NotificationScreen = ({navigation}) => {
                     </Text>
                   </TouchableOpacity>
                 )}
-                {!filteredNotifications.length === 0 && (
+                {filteredNotifications.length > 0 && (
                   <TouchableOpacity
                     onPress={handleDeleteAll}
                     style={{

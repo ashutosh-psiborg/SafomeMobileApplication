@@ -7,7 +7,7 @@ import Loader from '../../../components/Loader';
 import MainBackground from '../../../components/MainBackground';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
-import { io } from "socket.io-client";
+import {io} from 'socket.io-client';
 import CustomMapCard from '../../../components/CustomMapCard';
 
 const HomeScreen = ({navigation, liveLocation}) => {
@@ -24,32 +24,32 @@ const HomeScreen = ({navigation, liveLocation}) => {
   const [serverDataList, setServerDataList] = useState([]);
 
   useEffect(() => {
-    const socket = io("ws://52.65.120.67:8001", {
-      transports: ["websocket"],
+    const socket = io('ws://52.65.120.67:8001', {
+      transports: ['websocket'],
     });
 
-    socket.on("connect", () => {
-      console.log("✅ Connected to WebSocket");
+    socket.on('connect', () => {
+      console.log('✅ Connected to WebSocket');
 
-      socket.emit("joinRoom", {
+      socket.emit('joinRoom', {
         deviceId: deviceId,
-        commandLetter: "UD_LTE",
+        commandLetter: 'UD_LTE',
       });
     });
 
-    socket.on("serverData", (data) => {
-      console.log("📡 Received:", data);
-      setServerDataList((prev) => [...prev, data]);
+    socket.on('serverData', data => {
+      console.log('📡 Received:', data);
+      setServerDataList(prev => [...prev, data]);
     });
 
-    socket.on("errorMessage", (msg) => {
-      console.error("❌ Server error:", msg);
+    socket.on('errorMessage', msg => {
+      console.error('❌ Server error:', msg);
     });
 
     return () => socket.disconnect();
   }, [deviceId]);
-  console.log("________>>>>>>>>>>",deviceId)
-  console.log("________>>>>>>>>>>",serverDataList)
+  console.log('________>>>>>>>>>>', deviceId);
+  console.log('________>>>>>>>>>>', serverDataList);
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
