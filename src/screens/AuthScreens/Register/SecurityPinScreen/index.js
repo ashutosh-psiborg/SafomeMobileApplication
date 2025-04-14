@@ -10,7 +10,7 @@ import {useNavigation} from '@react-navigation/native';
 import {BioMetricStyles} from '../BioMetricScreen/Styles/BioMetricStyles';
 import fetcher from '../../../../utils/ApiService';
 
-const SecurityPinScreen = () => {
+const SecurityPinScreen = ({route}) => {
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -28,7 +28,7 @@ const SecurityPinScreen = () => {
         try {
           const payload = {
             mPin: text,
-            email :user.email
+            email: user.email || route.params.email,
           };
 
           const response = await fetcher({

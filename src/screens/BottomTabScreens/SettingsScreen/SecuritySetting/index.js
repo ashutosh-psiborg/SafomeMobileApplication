@@ -15,7 +15,7 @@ import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import CommonForm from '../../../../utils/CommonForm';
 import fetcher from '../../../../utils/ApiService'; // Assuming fetcher is your API utility
 
-const SecurityScreen = () => {
+const SecurityScreen = ({route}) => {
   const navigation = useNavigation();
   const {appStrings} = useSelector(state => state.language);
   const theme = useSelector(
@@ -77,7 +77,8 @@ const SecurityScreen = () => {
         appStrings?.settings?.security?.biometric || 'Biometric Authentication',
       description: 'Use fingerprint or face recognition',
       value: isBiometricEnabled,
-      onValueChange: setIsBiometricEnabled,
+      onValueChange: () =>
+        navigation.navigate('BioMetricScreen', {email: route.params.email}),
     },
   ];
 

@@ -39,7 +39,7 @@ const CreatePasswordScreen = ({navigation}) => {
         url: '/user/generateUserUId',
       }),
   });
-  console.log('uidData',uidData)
+  console.log('uidData', uidData);
   const {
     control,
     handleSubmit,

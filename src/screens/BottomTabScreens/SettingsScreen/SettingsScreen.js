@@ -88,7 +88,8 @@ const SettingsScreen = () => {
     {
       title: appStrings?.settings?.security?.text,
       icon: <SecurityIcon />,
-      navigation: () => navigation.navigate('SecurityScreen'),
+      navigation: () =>
+        navigation.navigate('SecurityScreen', {email: data?.data?.user?.email}),
     },
     {
       title: appStrings?.settings?.faq?.text,

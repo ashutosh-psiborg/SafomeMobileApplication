@@ -9,11 +9,12 @@ import CustomButton from '../../../../components/CustomButton';
 import {BioMetricStyles} from './Styles/BioMetricStyles';
 import {ImageConstants} from '../../../../constants/ImageConstants';
 import SecurityTickIcon from '../../../../assets/icons/SecurityTickIcon';
-import ReactNativeBiometrics from 'react-native-biometrics';
+import ReactNativeBiometrics, {BiometryTypes} from 'react-native-biometrics';
 import {DimensionConstants} from '../../../../constants/DimensionConstants';
 import fetcher from '../../../../utils/ApiService';
 
 const BioMetricScreen = ({route, navigation}) => {
+  console.log(route.params.email);
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -65,7 +66,7 @@ const BioMetricScreen = ({route, navigation}) => {
         method: 'POST',
         url: 'auth/bioMetric',
         data: {
-          email: user.email,
+          email: user.email || route.params.email,
           bioMetricToken: signature,
         },
       });
@@ -74,10 +75,10 @@ const BioMetricScreen = ({route, navigation}) => {
       console.log('Biometric login successful:', response);
       Alert.alert('Success', 'Biometric authentication successful!');
       setTimeout(() => {
-        navigation.navigate('SecurityPinScreen');
+        navigation.navigate('SecurityPinScreen', {email: route.params.email});
       }, 1500);
     } catch (error) {
-      console.error('Biometric authentication error:', error);
+      console.error('Biometric authentication error:', error.message);
       Alert.alert(
         'Error',
         'An error occurred during biometric authentication.',
@@ -95,7 +96,7 @@ const BioMetricScreen = ({route, navigation}) => {
         },
         {
           text: 'Enable',
-          onPress: authenticateAndSendBiometric, // Call the function only if the user agrees
+          onPress: authenticateAndSendBiometric,
         },
       ],
     );
