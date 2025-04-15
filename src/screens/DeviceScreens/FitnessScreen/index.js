@@ -6,6 +6,7 @@ import {
   ScrollView,
 } from 'react-native';
 import React, {useState, useEffect, useMemo, useCallback} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
 import {
@@ -40,56 +41,64 @@ const FitnessScreen = ({navigation}) => {
   );
   const [modalVisible, setModalVisible] = useState(false);
   const [deviceId, setDeviceId] = useState('');
+  const [devId, setDevId] = useState('');
   const [isStepReady, setIsStepReady] = useState(false);
   const [selected, setSelected] = useState('Today');
 
   // Memoized options and fields to prevent re-creation
-  const options = useMemo(() => ['Today', 'Week', 'Month', 'Custom'], []);
-  const fields = useMemo(
-    () => [
-      {
-        name: 'weight',
-        placeholder: 'Weight(in kg)',
-        keyboardType: 'phone-pad',
-        maxLength: 3,
-      },
-      {
-        name: 'baseGoal',
-        placeholder: 'Base Goal',
-        maxLength: 6,
-        keyboardType: 'phone-pad',
-      },
-      {
-        name: 'stepLength',
-        placeholder: 'Step Length(in cm)',
-        maxLength: 10,
-        keyboardType: 'phone-pad',
-      },
-      {
-        name: 'speed',
-        placeholder: 'Select speed',
-        options: [
-          {label: 'Slow Walk (< 3.2 km/h)', value: 2},
-          {label: 'Moderate Walk (3.2 - 5.5 km/h)', value: 3.5},
-          {label: 'Fast Walk (5.5 - 8.0 km/h)', value: 5},
-          {label: 'Running (> 8.0 km/h)', value: 8},
-        ],
-      },
-    ],
-    [],
-  );
+  const options = ['Today', 'Week', 'Month', 'Custom'];
+  const fields = [
+    {
+      name: 'weight',
+      placeholder: 'Weight(in kg)',
+      keyboardType: 'phone-pad',
+      maxLength: 3,
+    },
+    {
+      name: 'baseGoal',
+      placeholder: 'Base Goal',
+      maxLength: 6,
+      keyboardType: 'phone-pad',
+    },
+    {
+      name: 'stepLength',
+      placeholder: 'Step Length(in cm)',
+      maxLength: 10,
+      keyboardType: 'phone-pad',
+    },
+    {
+      name: 'speed',
+      placeholder: 'Select speed',
+      options: [
+        {label: 'Slow Walk (< 3.2 km/h)', value: 2},
+        {label: 'Moderate Walk (3.2 - 5.5 km/h)', value: 3.5},
+        {label: 'Fast Walk (5.5 - 8.0 km/h)', value: 5},
+        {label: 'Running (> 8.0 km/h)', value: 8},
+      ],
+    },
+  ];
 
-  // Fetch device ID once on mount
-  useEffect(() => {
-    AsyncStorage.getItem('selectedDeviceMongoId')
-      .then(storedMongoId => {
-        setDeviceId(storedMongoId || '67db981e5b0168be809f4edd');
-        console.log('Stored Mongo _id:', storedMongoId);
-      })
-      .catch(error =>
-        console.error('Failed to retrieve stored device data:', error),
-      );
-  }, []);
+  const getSelectedDevice = async () => {
+    try {
+      const devId = await AsyncStorage.getItem('selectedDeviceId');
+      const storedMongoId = await AsyncStorage.getItem('selectedDeviceMongoId');
+      setDevId(devId || '');
+      setDeviceId(storedMongoId || '');
+      console.log('Stored Mongo _id:', storedMongoId, 'Device ID:', devId);
+    } catch (error) {
+      console.error('Error retrieving device IDs:', error);
+    }
+  };
+
+  // Use useFocusEffect to refresh data when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      getSelectedDevice();
+      refetchProfileData();
+      refetchFitnessData();
+      refetchStepData();
+    }, [refetchProfileData, refetchFitnessData, refetchStepData]),
+  );
 
   const {
     control,
@@ -100,7 +109,11 @@ const FitnessScreen = ({navigation}) => {
     defaultValues: {weight: '', stepLength: '', speed: '', baseGoal: ''},
   });
 
-  const {data: profileData, isLoading: profileLoading} = useQuery({
+  const {
+    data: profileData,
+    isLoading: profileLoading,
+    refetch: refetchProfileData,
+  } = useQuery({
     queryKey: ['userProfile', deviceId],
     queryFn: () =>
       fetcher({method: 'GET', url: `/devices/deviceDetails/${deviceId}`}),
@@ -110,10 +123,10 @@ const FitnessScreen = ({navigation}) => {
   useEffect(() => {
     if (profileData?.data) {
       const {weight, stepLength, speed, baseGoal} = profileData.data;
-      setValue('weight', weight || 0);
-      setValue('stepLength', stepLength || 0);
-      setValue('speed', speed || 0);
-      setValue('baseGoal', baseGoal || 0);
+      setValue('weight', weight?.toString() || '');
+      setValue('stepLength', stepLength?.toString() || '');
+      setValue('speed', speed?.toString() || '');
+      setValue('baseGoal', baseGoal?.toString() || '');
     }
   }, [profileData, setValue]);
 
@@ -181,12 +194,13 @@ const FitnessScreen = ({navigation}) => {
     isLoading: fitnessLoading,
     refetch: refetchFitnessData,
   } = useQuery({
-    queryKey: ['fitness', startDate, endDate],
+    queryKey: ['fitness', startDate, endDate, devId],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/healthData/6907390711?startDate=${startDate}&endDate=${endDate}`,
+        url: `deviceDataResponse/healthData/${devId}?startDate=${startDate}&endDate=${endDate}`,
       }),
+    enabled: !!devId,
   });
 
   const {
@@ -194,12 +208,13 @@ const FitnessScreen = ({navigation}) => {
     isLoading: stepLoading,
     refetch: refetchStepData,
   } = useQuery({
-    queryKey: ['steps', startDate, endDate],
+    queryKey: ['steps', startDate, endDate, devId],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `deviceDataResponse/getStepData/6907390711?startDate=${startDate}&endDate=${endDate}`,
+        url: `deviceDataResponse/getStepData/${devId}?startDate=${startDate}&endDate=${endDate}`,
       }),
+    enabled: !!devId,
   });
 
   useEffect(() => {
@@ -329,7 +344,7 @@ const FitnessScreen = ({navigation}) => {
                 </View>
               </LinearGradient>
             </CustomCard>
-            <Spacing height={DimensionConstants.ten} />
+            {/* <Spacing height={DimensionConstants.five} /> */}
           </CustomCard>
           <Spacing height={DimensionConstants.twentyFour} />
           <HomeMidHeader title="Statistics" showViewAll={false} />
@@ -337,38 +352,42 @@ const FitnessScreen = ({navigation}) => {
           <HealthGraph data={fitnessData} />
         </View>
       </ScrollView>
-      <CustomModal
-        isVisible={modalVisible}
-        modalHeight={height / 1.7}
-        onClose={() => setModalVisible(false)}>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.modalContent}>
-          <Text style={styles.modalTitle}>Personalize Your Fitness Goals</Text>
-          <Text>
-            Enter your weight, step length, speed, and step goal to personalize
-            your fitness tracking.
-          </Text>
-          <Spacing height={DimensionConstants.ten} />
-          <CommonForm control={control} fields={fields} errors={errors} />
-          <Spacing height={DimensionConstants.twentyFour} />
-          <View style={styles.modalButtons}>
-            <CustomButton
-              text="Cancel"
-              width="48%"
-              color="white"
-              textColor="#000"
-              borderColor="#C4C4C4"
-              onPress={() => setModalVisible(false)}
-            />
-            <CustomButton
-              text="Add"
-              width="48%"
-              onPress={handleSubmit(onSubmit)}
-            />
-          </View>
-        </ScrollView>
-      </CustomModal>
+      <View>
+        <CustomModal
+          isVisible={modalVisible}
+          modalHeight={height / 1.7}
+          onClose={() => setModalVisible(false)}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.modalContent}>
+            <Text style={styles.modalTitle}>
+              Personalize Your Fitness Goals
+            </Text>
+            <Text>
+              Enter your weight, step length, speed, and step goal to
+              personalize your fitness tracking.
+            </Text>
+            <Spacing height={DimensionConstants.ten} />
+            <CommonForm control={control} fields={fields} errors={errors} />
+            <Spacing height={DimensionConstants.twentyFour} />
+            <View style={styles.modalButtons}>
+              <CustomButton
+                text="Cancel"
+                width="48%"
+                color="white"
+                textColor="#000"
+                borderColor="#C4C4C4"
+                onPress={() => setModalVisible(false)}
+              />
+              <CustomButton
+                text="Add"
+                width="48%"
+                onPress={handleSubmit(onSubmit)}
+              />
+            </View>
+          </ScrollView>
+        </CustomModal>
+      </View>
     </MainBackground>
   );
 };

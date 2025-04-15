@@ -2,23 +2,20 @@ import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import React from 'react';
 import MainBackground from '../../../components/MainBackground';
 import CustomHeader from '../../../components/CustomHeader';
-import SleepIcon from '../../../assets/icons/SleepIcon';
 import TrackingIcon from '../../../assets/icons/TrackingIcon';
 import DisableIcon from '../../../assets/icons/DisableIcon';
 import WifiIcon from '../../../assets/icons/WifiIcon';
 import DNDIcon from '../../../assets/icons/DNDIcon';
 import {DimensionConstants} from '../../../constants/DimensionConstants';
-import ScheduleIcon from '../../../assets/icons/ScheduleIcon';
 import RemoteIcon from '../../../assets/icons/RemoteIcon';
-import TimeZoneIcon from '../../../assets/icons/TimeZoneIcon';
 import ResetIcon from '../../../assets/icons/ResetIcon';
 import CustomCard from '../../../components/CustomCard';
 import RightArrowIcon from '../../../assets/icons/RightArrowIcon';
-import SystemLocation from '../../../assets/icons/SystemLocation';
 import SystemCallIcon from '../../../assets/icons/SystemCallIcon';
 import Spacing from '../../../components/Spacing';
 import {useSelector} from 'react-redux';
 import AlarmIcon from '../../../assets/icons/AlarmIcon';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 const SystemScreen = ({navigation}) => {
   const {appStrings} = useSelector(state => state.language);
 
@@ -42,6 +39,18 @@ const SystemScreen = ({navigation}) => {
       component: <TrackingIcon />,
       label: 'Tracking frequency',
       navigation: () => navigation.navigate('TrackingFrequencyScreen'),
+    },
+    {
+      component: (
+        <FontAwesome5
+          name="heartbeat"
+          size={22}
+          marginLeft={6}
+          marginRight={5}
+        />
+      ),
+      label: 'Heart Rate frequency',
+      navigation: () => navigation.navigate('HeartRateFrequencyScreen'),
     },
     {
       component: <DisableIcon />,
