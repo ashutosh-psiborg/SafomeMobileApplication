@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useRef, useCallback} from 'react';
-import {View, Alert} from 'react-native';
+import {View, Alert, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {useSelector} from 'react-redux';
 import {useQuery, useQueryClient} from '@tanstack/react-query';
 import fetcher from '../../../utils/ApiService';
@@ -9,6 +9,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useFocusEffect} from '@react-navigation/native';
 import {io} from 'socket.io-client';
 import CustomMapCard from '../../../components/CustomMapCard';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const HomeScreen = ({navigation, liveLocation}) => {
   const [deviceId, setDeviceId] = useState('');
@@ -253,13 +254,49 @@ const HomeScreen = ({navigation, liveLocation}) => {
     }
   }, [locationData]);
 
-  if (isLocationLoading) {
+  if (!devId && !deviceId) {
     return (
       <MainBackground style={{backgroundColor: theme.otpBox}}>
-        <Loader />
+        <View style={styles.emptyStateContainer}>
+          <Icon
+            name="devices" // Or "smartwatch" or "watch" depending on your device type
+            size={80}
+            color={theme.primaryLight || '#888'}
+            style={styles.emptyStateIcon}
+          />
+          <Text style={[styles.emptyStateTitle, {color: theme.text}]}>
+            No Device Selected
+          </Text>
+          <Text
+            style={[
+              styles.emptyStateDescription,
+              {color: theme.textSecondary},
+            ]}>
+            Please select a device to view its location and information on the
+            map.
+          </Text>
+          <TouchableOpacity
+            style={[styles.addDeviceButton, {backgroundColor: theme.primary}]}
+            onPress={() => navigation.navigate('AddRemoveDeviceScreen')}>
+            <Icon
+              name="plus-circle-outline"
+              size={20}
+              color="white"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.addDeviceButtonText}>Select Device</Text>
+          </TouchableOpacity>
+        </View>
       </MainBackground>
     );
   }
+  // if (isLocationLoading) {
+  //   return (
+  //     <MainBackground style={{backgroundColor: theme.otpBox}}>
+  //       <Loader />
+  //     </MainBackground>
+  //   );
+  // }
 
   // if (
   //   !locationData?.data.results ||
@@ -302,3 +339,43 @@ const HomeScreen = ({navigation, liveLocation}) => {
 };
 
 export default HomeScreen;
+const styles = StyleSheet.create({
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyStateIcon: {
+    marginBottom: 20,
+  },
+  emptyStateTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  emptyStateDescription: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 30,
+    lineHeight: 22,
+    paddingHorizontal: 20,
+  },
+  addDeviceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    elevation: 3,
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  addDeviceButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+});

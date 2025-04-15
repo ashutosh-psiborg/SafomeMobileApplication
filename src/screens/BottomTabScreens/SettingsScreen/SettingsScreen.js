@@ -65,6 +65,7 @@ const SettingsScreen = () => {
           onPress: async () => {
             try {
               await AsyncStorage.removeItem('authToken');
+              await AsyncStorage.clear();
               navigation.reset({
                 index: 0,
                 routes: [{name: 'OnboardingScreen'}],

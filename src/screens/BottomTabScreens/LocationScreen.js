@@ -24,6 +24,7 @@ import fetcher from '../../utils/ApiService';
 import Loader from '../../components/Loader';
 import moment from 'moment';
 import FilterContainer from '../../components/FilterContainer';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const LocationScreen = ({navigation}) => {
   const snapPoints = ['50%'];
@@ -140,6 +141,44 @@ const LocationScreen = ({navigation}) => {
       );
     }
   };
+
+  if (!deviceId) {
+    return (
+      <MainBackground style={{backgroundColor: theme.otpBox}}>
+        <View style={styles.emptyStateContainer}>
+          <Icon
+            name="devices" // Or "smartwatch" or "watch" depending on your device type
+            size={80}
+            color={theme.primaryLight || '#888'}
+            style={styles.emptyStateIcon}
+          />
+          <Text style={[styles.emptyStateTitle, {color: theme.text}]}>
+            No Device Selected
+          </Text>
+          <Text
+            style={[
+              styles.emptyStateDescription,
+              {color: theme.textSecondary},
+            ]}>
+            Please select a device to view its location and information on the
+            map.
+          </Text>
+          <TouchableOpacity
+            style={[styles.addDeviceButton, {backgroundColor: theme.primary}]}
+            onPress={() => navigation.navigate('AddRemoveDeviceScreen')}>
+            <Icon
+              name="plus-circle-outline"
+              size={20}
+              color="white"
+              style={styles.buttonIcon}
+            />
+            <Text style={styles.addDeviceButtonText}>Select Device</Text>
+          </TouchableOpacity>
+        </View>
+      </MainBackground>
+    );
+  }
+
   return (
     <MainBackground noPadding>
       <GestureHandlerRootView>
@@ -298,6 +337,44 @@ const styles = StyleSheet.create({
     paddingHorizontal: DimensionConstants.fifteen,
     paddingTop: DimensionConstants.fifteen,
     flex: 1,
+  },
+  emptyStateContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  emptyStateIcon: {
+    marginBottom: 20,
+  },
+  emptyStateTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  emptyStateDescription: {
+    fontSize: 16,
+    textAlign: 'center',
+    marginBottom: 30,
+    lineHeight: 22,
+    paddingHorizontal: 20,
+  },
+  addDeviceButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    elevation: 3,
+  },
+  buttonIcon: {
+    marginRight: 8,
+  },
+  addDeviceButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
