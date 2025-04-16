@@ -245,7 +245,7 @@ const CustomMapCard = ({
           </TouchableOpacity>
           <ScrollView contentContainerStyle={styles.deviceList}>
             {allDevicesData?.data?.results?.length > 0 ? (
-              allDevicesData.data.results.map(item => (
+              allDevicesData.data.results.slice(0, 2).map(item => (
                 <TouchableOpacity
                   key={item._id}
                   style={styles.deviceItem}

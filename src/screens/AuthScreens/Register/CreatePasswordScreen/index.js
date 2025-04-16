@@ -76,7 +76,7 @@ const CreatePasswordScreen = ({navigation}) => {
     },
     onSuccess: () => {
       Alert.alert('Success', 'Password created successfully!');
-      navigation.navigate('BioMetricScreen');
+      navigation.navigate('LoginScreen');
     },
     onError: error => {
       const errorMessage =

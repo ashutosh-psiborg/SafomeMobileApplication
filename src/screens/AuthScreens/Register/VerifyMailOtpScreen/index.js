@@ -53,17 +53,13 @@ const VerifyMailOtpScreen = ({route, navigation}) => {
 
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
-      const data = {
-        contact: user?.email,
-        purpose: 'REGISTRATION',
-        otp: code,
-      };
       return fetcher({
-        method: 'POST                                                    ',
+        method: 'POST',
         url: 'auth/verifyOTP',
-        data,
+        data: {contact: user.email, purpose: 'REGISTRATION', otp: code},
       });
     },
+
     onSuccess: data => {
       console.log('Email verification successful:', data);
       Alert.alert('Success', 'Email verified successfully!');

@@ -11,6 +11,18 @@ import {VerifyMailOtpStyles} from '../VerifyMailOtpScreen/Styles/VerifyMailOtpSt
 import {useSelector} from 'react-redux';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
+
+// Utility function to extract country code (e.g., "+91" from "India (+91)")
+const extractCountryCode = countryCodeStr => {
+  const match = countryCodeStr.match(/\(([^)]+)\)/); // Extract text inside parentheses
+  return match ? match[1] : '+91'; // Fallback to '+91' if extraction fails
+};
+
+// Utility function to remove '+' from country code for verification
+const stripPlusFromCountryCode = countryCode => {
+  return countryCode.replace(/^\+/, ''); // Remove leading '+' if present
+};
+
 const VerifyPhoneOtpScreen = ({navigation}) => {
   const user = useSelector(state => state.user);
   const theme = useSelector(
@@ -20,18 +32,21 @@ const VerifyPhoneOtpScreen = ({navigation}) => {
   const {t} = useTranslation();
   const styles = VerifyMailOtpStyles(theme);
 
+  // Extract country code from user.countryCode
+  const countryCode = extractCountryCode(user.countryCode);
+  const countryCodeWithoutPlus = stripPlusFromCountryCode(countryCode);
+
+  console.log('_+_+_+_+_+__+_', user);
+
   const handleChange = value => {
     setCode(value);
   };
+
   const sendOtpMutation = useMutation({
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: 'auth/sendOtp',
-        data: {
-          contact: user.phoneNumber,
-          purpose: 'REGISTRATION',
-        },
+        url: `sms/send-sms?number=${countryCode}${user.phoneNumber}&purpose=REGISTRATION&type=PHONE`,
       });
     },
     onSuccess: data => {
@@ -43,37 +58,48 @@ const VerifyPhoneOtpScreen = ({navigation}) => {
   });
 
   useEffect(() => {
-    if (user.phoneNumber) {
+    if (user.phoneNumber && user.countryCode) {
       sendOtpMutation.mutate();
     }
-  }, [user.phoneNumber]);
+  }, [user.phoneNumber, user.countryCode]);
 
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
+      console.log(
+        '=======',
+        code,
+        '----',
+        `${countryCodeWithoutPlus}${user.phoneNumber}`,
+      );
       return fetcher({
         method: 'POST',
         url: 'auth/verifyOTP',
-        data: {contact: user.phoneNumber, purpose: 'REGISTRATION', otp: code},
+        data: {
+          contact: `${countryCodeWithoutPlus}${user.phoneNumber}`, // Use country code without '+'
+          purpose: 'REGISTRATION',
+          otp: code,
+        },
       });
     },
     onSuccess: data => {
-      console.log('Email verification successful:', data);
-      Alert.alert('Success', 'Email verified successfully!');
+      console.log('Phone verification successful:', data);
+      Alert.alert('Success', 'Phone verified successfully!');
       navigation.navigate('CreatePasswordScreen');
     },
     onError: error => {
-      console.error('Email verification failed:', error);
+      console.error('Phone verification failed:', error);
       Alert.alert('Error', 'Invalid OTP. Please try again.');
     },
   });
 
   const handleVerify = () => {
     if (code.length < 4) {
-      Alert.alert('Error', 'Please enter a valid 6-digit OTP.');
+      Alert.alert('Error', 'Please enter a valid 4-digit OTP.');
       return;
     }
     verifyOtpMutation.mutate();
   };
+
   return (
     <MainBackground>
       <CustomHeader
@@ -86,7 +112,10 @@ const VerifyPhoneOtpScreen = ({navigation}) => {
       <View style={{maxWidth: '80%'}}>
         <Text style={styles.infoText}>{t('We have sent OTP to')} </Text>
         <View style={{alignItems: 'center', flexDirection: 'row'}}>
-          <Text style={styles.emailText}>{`+91 ${user.phoneNumber}`} </Text>
+          <Text
+            style={
+              styles.emailText
+            }>{`${countryCode} ${user.phoneNumber}`}</Text>
           <TouchableOpacity>
             <Text style={styles.edit}>Edit</Text>
           </TouchableOpacity>
@@ -110,7 +139,7 @@ const VerifyPhoneOtpScreen = ({navigation}) => {
       <CustomButton onPress={handleVerify} text={t('Continue')} />
       <Spacing height={DimensionConstants.sixteen} />
       <View style={styles.footerContainer}>
-        <Text style={styles.footerText}>{t('OTP not recieved?')}</Text>
+        <Text style={styles.footerText}>{t('OTP not received?')}</Text>
         <TouchableOpacity onPress={() => sendOtpMutation.mutate()}>
           <Text style={styles.resendText}> {t('Resend OTP')}</Text>
         </TouchableOpacity>

@@ -61,7 +61,7 @@ const NotificationScreen = ({navigation}) => {
     data: notificationData,
     isLoading,
     error,
-    refetch,
+    refetch: allNotificationRefetch,
   } = useQuery({
     queryKey: ['notifications', deviceId],
     queryFn: () =>
@@ -106,6 +106,7 @@ const NotificationScreen = ({navigation}) => {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['notifications', deviceId]);
+      allNotificationRefetch();
       getSnoozeRefetch();
     },
     onError: err => {
