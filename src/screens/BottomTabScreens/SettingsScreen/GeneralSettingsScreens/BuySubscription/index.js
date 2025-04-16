@@ -1,3 +1,316 @@
+// import {
+//   View,
+//   Text,
+//   StyleSheet,
+//   TextInput,
+//   TouchableOpacity,
+//   ScrollView,
+//   Alert,
+// } from 'react-native';
+// import React, {useState} from 'react';
+// import CustomHeader from '../../../../../components/CustomHeader';
+// import {DimensionConstants} from '../../../../../constants/DimensionConstants';
+// import {useMutation, useQuery} from '@tanstack/react-query';
+// import fetcher from '../../../../../utils/ApiService';
+// import {useRoute} from '@react-navigation/native';
+// import CustomButton from '../../../../../components/CustomButton';
+// import LinearGradient from 'react-native-linear-gradient';
+// import AntDesign from 'react-native-vector-icons/AntDesign';
+// import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+
+// const BuySubscription = ({navigation}) => {
+//   const route = useRoute();
+//   const {plan} = route.params;
+//   const [selectedCouponCode, setSelectedCouponCode] = useState('');
+//   const [applied, setApplied] = useState(false);
+//   const [appliedDetails, setAppliedDetails] = useState(null);
+
+//   const {data} = useQuery({
+//     queryKey: ['coupons'],
+//     queryFn: () =>
+//       fetcher({
+//         method: 'GET',
+//         url: `/coupon/fetchAllCoupons?status=active`,
+//       }),
+//   });
+
+//   const {data: data1} = useQuery({
+//     queryKey: ['userProfile'],
+//     queryFn: () => fetcher({method: 'GET', url: 'auth/profile'}),
+//   });
+
+//   const applyCouponMutation = useMutation({
+//     mutationFn: () =>
+//       fetcher({
+//         method: 'POST',
+//         url: '/coupon/apply',
+//         data: {
+//           couponCode: selectedCouponCode,
+//           userId: data1?.data?.user?._id,
+//           orderAmount: plan?.price,
+//           planId: plan?._id,
+//         },
+//       }),
+
+//     onSuccess: response => {
+//       setAppliedDetails(response?.couponDetails);
+//       setApplied(true);
+//       Alert.alert('Success', 'Coupon applied successfully!');
+//     },
+//     onError: error => {
+//       Alert.alert(
+//         `${selectedCouponCode}`,
+//         error?.response?.data?.message || 'Failed to apply coupon.',
+//       );
+//     },
+//   });
+
+//   const paymentRedirect = () =>{
+//     const api = `https://safome.co/wp-json/payment/create/?amount=${amount}`
+//   }
+
+//   return (
+//     <View style={styles.mainBackground}>
+//       <CustomHeader
+//         title={'Buy Subscription'}
+//         backPress={() => navigation.goBack()}
+//         backgroundColor={'#fff'}
+//         titleColor="#FFFFFF"
+//       />
+//       <ScrollView
+//         style={styles.scrollView}
+//         showsVerticalScrollIndicator={false}>
+//         <View style={styles.mainCard}>
+//           <Text style={styles.sectionTitle}>Plan Details</Text>
+//           <View style={styles.planDetailsCard}>
+//             <View style={styles.planIconRow}>
+//               <View style={styles.planIconContainer}>
+//                 <Text style={styles.planInitial}>
+//                   {plan?.planName?.[0] || 'P'}
+//                 </Text>
+//               </View>
+//               <View>
+//                 <Text style={styles.planName}>{plan?.planName}</Text>
+//                 <Text style={styles.planDuration}>
+//                   {plan?.durationInMonths} months
+//                 </Text>
+//               </View>
+//             </View>
+//             <Text style={styles.planPrice}>₹{plan?.price}</Text>
+//           </View>
+
+//           <Text style={[styles.sectionTitle, {marginTop: 20}]}>
+//             Apply Coupon
+//           </Text>
+//           <View style={styles.couponContainer}>
+//             <TextInput
+//               style={styles.textInput}
+//               placeholder={'Enter coupon code'}
+//               placeholderTextColor="#9EA3B8"
+//               value={selectedCouponCode}
+//               onChangeText={text => setSelectedCouponCode(text.toUpperCase())}
+//               autoCapitalize={'characters'}
+//               editable={!applied}
+//             />
+//             <View
+//               style={[
+//                 styles.applyButton,
+//                 applied && styles.appliedButton,
+//                 (!selectedCouponCode || applyCouponMutation.isLoading) &&
+//                   styles.disabledButton,
+//               ]}
+//               disabled={
+//                 !selectedCouponCode || applyCouponMutation.isLoading || applied
+//               }
+//               onPress={() => applyCouponMutation.mutate()}>
+//               <Text style={styles.applyText}>
+//                 {applyCouponMutation.isLoading
+//                   ? 'Applying...'
+//                   : applied
+//                   ? 'Applied'
+//                   : 'Apply'}
+//               </Text>
+//               {applied && (
+//                 <MaterialCommunityIcons
+//                   name="check-decagram"
+//                   size={20}
+//                   color={'white'}
+//                   style={{marginLeft: 5}}
+//                 />
+//               )}
+//             </View>
+//           </View>
+
+//           {data?.coupons?.length > 0 ? (
+//             <>
+//               <Text style={styles.sectionTitle}>
+//                 Available Coupons ({data?.coupons?.length})
+//               </Text>
+//               <View>
+//                 {data?.coupons?.map((item, index) => {
+//                   const isSelected = selectedCouponCode === item.couponCode;
+
+//                   return isSelected && applied ? (
+//                     <View key={index}>
+//                       <LinearGradient
+//                         colors={['#ECF1FF', '#F2F8FF', '#E8F4FF']}
+//                         start={{x: 0, y: 0}}
+//                         end={{x: 1, y: 1}}
+//                         style={[styles.couponCard, styles.selectedCouponCard]}>
+//                         <View style={styles.couponHeader}>
+//                           <Text style={styles.couponCode}>
+//                             {item.couponCode}
+//                           </Text>
+//                           <View style={styles.discountBadge}>
+//                             <Text style={styles.discountText}>
+//                               {item.discountValue}% OFF
+//                             </Text>
+//                           </View>
+//                         </View>
+//                         <Text style={styles.couponName}>{item.couponName}</Text>
+//                         <Text style={styles.couponDescription}>
+//                           {item.description}
+//                         </Text>
+//                         <View style={styles.couponDetailRow}>
+//                           <View style={styles.couponDetailRow}>
+//                             <Text style={styles.couponDetailLabel}>
+//                               Min spend:{' '}
+//                             </Text>
+//                             <Text style={styles.couponDetailValue}>
+//                               ₹{item.minSpend}
+//                             </Text>
+//                           </View>
+//                           <View style={styles.couponDetailRow}>
+//                             <Text style={styles.couponDetailLabel}>
+//                               Max spend:{' '}
+//                             </Text>
+//                             <Text style={styles.couponDetailValue}>
+//                               ₹{item.maxSpend}
+//                             </Text>
+//                           </View>
+//                         </View>
+//                         {applied && (
+//                           <View style={styles.savingsContainer}>
+//                             <Text style={styles.savingsText}>
+//                               You save: ₹{appliedDetails?.discountAmount}
+//                             </Text>
+//                           </View>
+//                         )}
+//                       </LinearGradient>
+//                     </View>
+//                   ) : (
+//                     <TouchableOpacity
+//                       key={index}
+//                       disabled={applied}
+//                       onPress={() => setSelectedCouponCode(item.couponCode)}
+//                       style={[
+//                         styles.couponCard,
+//                         isSelected && !applied && styles.selectedCouponCard,
+//                       ]}>
+//                       <View style={styles.couponHeader}>
+//                         <View
+//                           style={{flexDirection: 'row', alignItems: 'center'}}>
+//                           <AntDesign name="tag" color={'green'} size={20} />
+//                           <Text style={styles.couponCode}>
+//                             {item.couponCode}
+//                           </Text>
+//                         </View>
+//                         <View style={styles.discountBadge}>
+//                           <Text style={styles.discountText}>
+//                             {item.discountValue}% OFF
+//                           </Text>
+//                         </View>
+//                       </View>
+//                       <Text style={styles.couponName}>{item.couponName}</Text>
+//                       <Text style={styles.couponDescription}>
+//                         {item.description}
+//                       </Text>
+//                       <View style={styles.couponDetailRow}>
+//                         <View style={styles.couponDetailRow}>
+//                           <Text style={styles.couponDetailLabel}>
+//                             Min spend:{' '}
+//                           </Text>
+//                           <Text style={styles.couponDetailValue}>
+//                             ₹{item.minSpend}
+//                           </Text>
+//                         </View>
+//                         <View style={styles.couponDetailRow}>
+//                           <Text style={styles.couponDetailLabel}>
+//                             Max spend:{' '}
+//                           </Text>
+//                           <Text style={styles.couponDetailValue}>
+//                             ₹{item.maxSpend}
+//                           </Text>
+//                         </View>
+//                       </View>
+//                     </TouchableOpacity>
+//                   );
+//                 })}
+//               </View>
+//             </>
+//           ) : (
+//             <View style={styles.noCouponsContainer}>
+//               <Text style={styles.noCouponsText}>No coupons available</Text>
+//             </View>
+//           )}
+//         </View>
+//       </ScrollView>
+//       <View style={styles.summaryContainer}>
+//         <View style={styles.summaryCard}>
+//           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+//             <Text>Duration</Text>
+//             <Text>{plan?.durationInMonths} months</Text>
+//           </View>
+//           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+//             <Text>Plan</Text>
+//             <Text>{plan?.planName}</Text>
+//           </View>
+
+//           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+//             <Text>Plan Price</Text>
+//             <Text>₹ {plan?.price}</Text>
+//           </View>
+
+//           {applied && (
+//             <View style={styles.summaryRow}>
+//               <Text>Discount</Text>
+//               <Text style={[styles.summaryValue, styles.discountValue]}>
+//                 - ₹ {appliedDetails?.discountAmount}
+//               </Text>
+//             </View>
+//           )}
+
+//           <View style={styles.totalRow}>
+//             <Text style={styles.totalLabel}>Total</Text>93288
+//             <Text style={styles.totalValue}>
+//               ₹
+//               {applied
+//                 ? appliedDetails?.originalAmount -
+//                   appliedDetails?.discountAmount
+//                 : plan?.price}
+//             </Text>
+//           </View>
+//         </View>
+//         {/* <View
+//           style={
+//             {
+//               // marginHorizontal: DimensionConstants.twenty,
+//               // marginBottom: DimensionConstants.ten,
+//             }
+//           }> */}
+//         <CustomButton
+//           text={'Proceed to Payment'}
+//           style={styles.paymentButton}
+//           textStyle={styles.paymentButtonText}
+//         />
+//         {/* </View> */}
+//       </View>
+//     </View>
+//   );
+// };
+
+// export default BuySubscription;
+
 import {
   View,
   Text,
@@ -6,6 +319,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Alert,
+  Linking,
 } from 'react-native';
 import React, {useState} from 'react';
 import CustomHeader from '../../../../../components/CustomHeader';
@@ -30,7 +344,7 @@ const BuySubscription = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `/coupon/fetchAllCoupons`,
+        url: `/coupon/fetchAllCoupons?status=active`,
       }),
   });
 
@@ -51,7 +365,6 @@ const BuySubscription = ({navigation}) => {
           planId: plan?._id,
         },
       }),
-
     onSuccess: response => {
       setAppliedDetails(response?.couponDetails);
       setApplied(true);
@@ -64,6 +377,30 @@ const BuySubscription = ({navigation}) => {
       );
     },
   });
+
+  const paymentRedirect = async () => {
+    try {
+      const amount = applied
+        ? appliedDetails?.originalAmount - appliedDetails?.discountAmount
+        : plan?.price;
+
+      if (!amount || amount <= 0) {
+        Alert.alert('Error', 'Invalid amount for payment.');
+        return;
+      }
+
+      const url = `https://safome.co/wp-json/payment/create/?amount=${amount}`;
+      Linking.openURL(url).catch(err =>
+        console.error('An error occurred', err),
+      );
+    } catch (error) {
+      console.error('Payment error:', error);
+      Alert.alert(
+        'Error',
+        error?.response?.data?.message || 'Failed to initiate payment.',
+      );
+    }
+  };
 
   return (
     <View style={styles.mainBackground}>
@@ -108,7 +445,7 @@ const BuySubscription = ({navigation}) => {
               autoCapitalize={'characters'}
               editable={!applied}
             />
-            <View
+            <TouchableOpacity
               style={[
                 styles.applyButton,
                 applied && styles.appliedButton,
@@ -134,7 +471,7 @@ const BuySubscription = ({navigation}) => {
                   style={{marginLeft: 5}}
                 />
               )}
-            </View>
+            </TouchableOpacity>
           </View>
 
           {data?.coupons?.length > 0 ? (
@@ -147,53 +484,50 @@ const BuySubscription = ({navigation}) => {
                   const isSelected = selectedCouponCode === item.couponCode;
 
                   return isSelected && applied ? (
-                    <View key={index}>
-                      <LinearGradient
-                        colors={['#ECF1FF', '#F2F8FF', '#E8F4FF']}
-                        start={{x: 0, y: 0}}
-                        end={{x: 1, y: 1}}
-                        style={[styles.couponCard, styles.selectedCouponCard]}>
-                        <View style={styles.couponHeader}>
-                          <Text style={styles.couponCode}>
-                            {item.couponCode}
+                    <LinearGradient
+                      key={index}
+                      colors={['#ECF1FF', '#F2F8FF', '#E8F4FF']}
+                      start={{x: 0, y: 0}}
+                      end={{x: 1, y: 1}}
+                      style={[styles.couponCard, styles.selectedCouponCard]}>
+                      <View style={styles.couponHeader}>
+                        <Text style={styles.couponCode}>{item.couponCode}</Text>
+                        <View style={styles.discountBadge}>
+                          <Text style={styles.discountText}>
+                            {item.discountValue}% OFF
                           </Text>
-                          <View style={styles.discountBadge}>
-                            <Text style={styles.discountText}>
-                              {item.discountValue}% OFF
-                            </Text>
-                          </View>
                         </View>
-                        <Text style={styles.couponName}>{item.couponName}</Text>
-                        <Text style={styles.couponDescription}>
-                          {item.description}
-                        </Text>
+                      </View>
+                      <Text style={styles.couponName}>{item.couponName}</Text>
+                      <Text style={styles.couponDescription}>
+                        {item.description}
+                      </Text>
+                      <View style={styles.couponDetailRow}>
                         <View style={styles.couponDetailRow}>
-                          <View style={styles.couponDetailRow}>
-                            <Text style={styles.couponDetailLabel}>
-                              Min spend:{' '}
-                            </Text>
-                            <Text style={styles.couponDetailValue}>
-                              ₹{item.minSpend}
-                            </Text>
-                          </View>
-                          <View style={styles.couponDetailRow}>
-                            <Text style={styles.couponDetailLabel}>
-                              Max spend:{' '}
-                            </Text>
-                            <Text style={styles.couponDetailValue}>
-                              ₹{item.maxSpend}
-                            </Text>
-                          </View>
+                          <Text style={styles.couponDetailLabel}>
+                            Min spend:{' '}
+                          </Text>
+                          <Text style={styles.couponDetailValue}>
+                            ₹{item.minSpend}
+                          </Text>
                         </View>
-                        {applied && (
-                          <View style={styles.savingsContainer}>
-                            <Text style={styles.savingsText}>
-                              You save: ₹{appliedDetails?.discountAmount}
-                            </Text>
-                          </View>
-                        )}
-                      </LinearGradient>
-                    </View>
+                        <View style={styles.couponDetailRow}>
+                          <Text style={styles.couponDetailLabel}>
+                            Max spend:{' '}
+                          </Text>
+                          <Text style={styles.couponDetailValue}>
+                            ₹{item.maxSpend}
+                          </Text>
+                        </View>
+                      </View>
+                      {applied && (
+                        <View style={styles.savingsContainer}>
+                          <Text style={styles.savingsText}>
+                            You save: ₹{appliedDetails?.discountAmount}
+                          </Text>
+                        </View>
+                      )}
+                    </LinearGradient>
                   ) : (
                     <TouchableOpacity
                       key={index}
@@ -261,23 +595,21 @@ const BuySubscription = ({navigation}) => {
             <Text>Plan</Text>
             <Text>{plan?.planName}</Text>
           </View>
-
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text>Plan Price</Text>
             <Text>₹ {plan?.price}</Text>
           </View>
-
           {applied && (
-            <View style={styles.summaryRow}>
+            <View
+              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
               <Text>Discount</Text>
               <Text style={[styles.summaryValue, styles.discountValue]}>
                 - ₹ {appliedDetails?.discountAmount}
               </Text>
             </View>
           )}
-
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total</Text>93288
+            <Text style={styles.totalLabel}>Total</Text>
             <Text style={styles.totalValue}>
               ₹
               {applied
@@ -287,19 +619,12 @@ const BuySubscription = ({navigation}) => {
             </Text>
           </View>
         </View>
-        {/* <View
-          style={
-            {
-              // marginHorizontal: DimensionConstants.twenty,
-              // marginBottom: DimensionConstants.ten,
-            }
-          }> */}
         <CustomButton
           text={'Proceed to Payment'}
           style={styles.paymentButton}
           textStyle={styles.paymentButtonText}
+          onPress={paymentRedirect}
         />
-        {/* </View> */}
       </View>
     </View>
   );
