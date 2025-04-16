@@ -59,6 +59,7 @@ import SecurityScreen from '../screens/BottomTabScreens/SettingsScreen/SecurityS
 import FAQScreen from '../screens/BottomTabScreens/SettingsScreen/FAQ';
 import GeofenceScreen from '../screens/Geofencing';
 import PlanDetail from '../screens/PlanDetails';
+import HeartRateFrequencyScreen from '../screens/DeviceScreens/SystemScreen/HeartRateFrequency';
 
 const Stack = createNativeStackNavigator();
 
@@ -175,6 +176,11 @@ const StackNavigator = () => {
         options={{headerShown: false}}
         name="TrackingFrequencyScreen"
         component={TrackingFrequencyScreen}
+      />
+      <Stack.Screen
+        options={{headerShown: false}}
+        name="HeartRateFrequencyScreen"
+        component={HeartRateFrequencyScreen}
       />
       <Stack.Screen
         options={{headerShown: false}}
