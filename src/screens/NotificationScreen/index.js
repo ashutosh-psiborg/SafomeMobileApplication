@@ -42,6 +42,7 @@ const NotificationScreen = ({navigation}) => {
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [isDataProcessed, setIsDataProcessed] = useState(false);
   const limit = 25;
+  const scrollTimeoutRef = useRef(null);
 
   const buttons = ['All', 'SOS', 'GeoFence', 'Battery'];
 
@@ -55,8 +56,11 @@ const NotificationScreen = ({navigation}) => {
           if (storedDeviceId) {
             setDeviceId(storedDeviceId);
             setCurrentPage(1);
-            setNotifications([]); // Clear notifications on device change
-            setIsDataProcessed(false); // Reset processing state
+            setNotifications([]);
+            setIsDataProcessed(false);
+            setIsFetchingMore(false);
+            setTotalPages(1);
+            console.log('Device ID set:', storedDeviceId);
           }
         } catch (error) {
           console.error('Failed to retrieve device ID:', error);
@@ -76,7 +80,9 @@ const NotificationScreen = ({navigation}) => {
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `/notification/getAll?page=${currentPage}&limit=${limit}&device=${deviceId}`,
+        url: `/notification/getAll?page=${currentPage}&limit=${limit}&device=${deviceId}&type=${
+          selectedButton === 0 ? '' : buttons[selectedButton]
+        }`,
       }),
     enabled: !!deviceId,
     select: data => ({
@@ -91,6 +97,7 @@ const NotificationScreen = ({navigation}) => {
         currentPage,
         totalPages: data.totalPages,
         resultsLength: data.results.length,
+        selectedButton: buttons[selectedButton],
       });
       setTotalPages(data.totalPages);
       if (currentPage === 1) {
@@ -98,8 +105,14 @@ const NotificationScreen = ({navigation}) => {
       } else {
         setNotifications(prev => [...prev, ...data.results]);
       }
+      setIsDataProcessed(true);
+    } else if (!isLoading && !error) {
+      // Handle empty response
+      setNotifications([]);
+      setTotalPages(1);
+      setIsDataProcessed(true);
     }
-  }, [data, currentPage]);
+  }, [data, currentPage, selectedButton, isLoading, error]);
 
   const {
     data: getSnooze,
@@ -118,21 +131,25 @@ const NotificationScreen = ({navigation}) => {
   });
 
   useEffect(() => {
-    const result = {};
-    getSnooze?.forEach(item => {
-      result[item.notificationType] = item.value;
-    });
-    setIsSnoozed(result);
+    if (getSnooze) {
+      const result = {};
+      getSnooze.forEach(item => {
+        result[item.notificationType] = item.value;
+      });
+      setIsSnoozed(result);
+      console.log('Snooze data processed:', result);
+    }
   }, [getSnooze]);
 
-  // Set isDataProcessed when both notifications and snooze data are fully processed
   useEffect(() => {
-    if (!isLoading && !getSnoozeLoading && data && getSnooze && deviceId) {
-      setIsDataProcessed(true);
-    } else {
-      setIsDataProcessed(false);
-    }
-  }, [isLoading, getSnoozeLoading, data, getSnooze, deviceId]);
+    console.log('isDataProcessed:', isDataProcessed, {
+      isLoading,
+      getSnoozeLoading,
+      hasData: !!data,
+      hasSnooze: !!getSnooze,
+      deviceId,
+    });
+  }, [isDataProcessed, isLoading, getSnoozeLoading, data, getSnooze, deviceId]);
 
   const deleteNotificationMutation = useMutation({
     mutationFn: notificationId =>
@@ -162,7 +179,7 @@ const NotificationScreen = ({navigation}) => {
       getSnoozeRefetch();
       setCurrentPage(1);
       setNotifications([]);
-      setIsDataProcessed(true); // Ensure loader doesn't reappear
+      setIsDataProcessed(true);
     },
     onError: err => {
       console.error('Error deleting all notifications:', err);
@@ -425,9 +442,14 @@ const NotificationScreen = ({navigation}) => {
       layoutMeasurement.height + contentOffset.y >= contentSize.height - 100;
 
     if (isCloseToBottom && currentPage < totalPages && !isFetchingMore) {
-      console.log('Triggering next page:', currentPage + 1);
-      setIsFetchingMore(true);
-      setCurrentPage(prev => prev + 1);
+      console.log('Scroll triggered next page:', currentPage + 1);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        setIsFetchingMore(true);
+        setCurrentPage(prev => prev + 1);
+      }, 500);
     }
   };
 
@@ -438,14 +460,9 @@ const NotificationScreen = ({navigation}) => {
         console.log('Fetch complete for page:', currentPage);
       });
     }
-  }, [isFetchingMore, allNotificationRefetch, isLoading]);
+  }, [isFetchingMore, allNotificationRefetch, isLoading, currentPage]);
 
-  // Show full-screen loader only for initial data fetch or when data is not processed
-  if (
-    !isDataProcessed ||
-    (isLoading && !isFetchingMore) ||
-    (getSnoozeLoading && !isFetchingMore)
-  ) {
+  if (!isDataProcessed || isLoading || getSnoozeLoading) {
     return (
       <MainBackground noPadding style={styles.background}>
         <CustomHeader
@@ -458,7 +475,6 @@ const NotificationScreen = ({navigation}) => {
     );
   }
 
-  // Handle errors after loading
   if (error || getSnoozeError) {
     return (
       <MainBackground noPadding style={styles.background}>
@@ -469,6 +485,14 @@ const NotificationScreen = ({navigation}) => {
         />
         <View style={styles.emptyContainer}>
           <Text style={styles.emptyText}>Failed to load notifications</Text>
+          <TouchableOpacity
+            style={styles.retryButton}
+            onPress={() => {
+              allNotificationRefetch();
+              getSnoozeRefetch();
+            }}>
+            <Text style={styles.retryButtonText}>Retry</Text>
+          </TouchableOpacity>
         </View>
       </MainBackground>
     );
@@ -496,10 +520,13 @@ const NotificationScreen = ({navigation}) => {
                     selectedButton === index && styles.selectedButton,
                   ]}
                   onPress={() => {
+                    queryClient.invalidateQueries(['notifications', deviceId]);
                     setSelectedButton(index);
                     setCurrentPage(1);
                     setNotifications([]);
-                    setIsDataProcessed(false); // Reset for new filter
+                    setIsDataProcessed(false);
+                    setIsFetchingMore(false);
+                    setTotalPages(1);
                     console.log('Filter changed to:', button);
                   }}>
                   <Text
@@ -794,6 +821,18 @@ const styles = StyleSheet.create({
     padding: DimensionConstants.ten,
   },
   endOfListText: {fontSize: DimensionConstants.fourteen, color: '#889CA3'},
+  retryButton: {
+    marginTop: DimensionConstants.twenty,
+    backgroundColor: '#0279E1',
+    paddingVertical: DimensionConstants.ten,
+    paddingHorizontal: DimensionConstants.twenty,
+    borderRadius: DimensionConstants.eight,
+  },
+  retryButtonText: {
+    color: '#fff',
+    fontSize: DimensionConstants.sixteen,
+    fontWeight: '600',
+  },
 });
 
 export default NotificationScreen;

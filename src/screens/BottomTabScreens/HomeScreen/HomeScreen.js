@@ -23,6 +23,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
   const locationRef = useRef(null);
   const queryClient = useQueryClient();
   const [serverDataList, setServerDataList] = useState([]);
+  const [lastLocation, setLastLocation] = useState(null);
 
   useEffect(() => {
     const socket = io('ws://52.65.120.67:8001', {
@@ -49,8 +50,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
 
     return () => socket.disconnect();
   }, [deviceId]);
-  console.log('________>>>>>>>>>>', deviceId);
-  console.log('________>>>>>>>>>>', serverDataList);
+
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -89,8 +89,8 @@ const HomeScreen = ({navigation, liveLocation}) => {
 
   const {
     data: deviceData,
-    isLoading,
-    error,
+    isLoading: isDeviceLoading,
+    error: deviceError,
     refetch: deviceDataRefetch,
   } = useQuery({
     queryKey: ['deviceData', devId, deviceId],
@@ -99,6 +99,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
         method: 'GET',
         url: `/devices/deviceDetails/${devId}`,
       }),
+    enabled: !!devId,
   });
 
   const handleGeoFenceSelect = item => {
@@ -145,9 +146,31 @@ const HomeScreen = ({navigation, liveLocation}) => {
   };
 
   const handleLiveLocationPress = () => {
-    if (liveLocation && liveLocation.latitude && liveLocation.longitude) {
-      const {latitude, longitude} = liveLocation;
-      setLocation({latitude, longitude});
+    if (location && location.latitude && location.longitude) {
+      const {latitude, longitude} = location;
+      setMapRegion({
+        latitude,
+        longitude,
+        latitudeDelta: 0.01,
+        longitudeDelta: 0.01,
+      });
+      if (mapRef.current) {
+        mapRef.current.animateToRegion(
+          {
+            latitude,
+            longitude,
+            latitudeDelta: 0.01,
+            longitudeDelta: 0.01,
+          },
+          1000,
+        );
+      }
+    } else if (
+      lastLocation &&
+      lastLocation.latitude &&
+      lastLocation.longitude
+    ) {
+      const {latitude, longitude} = lastLocation;
       setMapRegion({
         latitude,
         longitude,
@@ -166,15 +189,16 @@ const HomeScreen = ({navigation, liveLocation}) => {
         );
       }
     } else {
-      Alert.alert('Error', 'Live location data is not available.');
+      Alert.alert('Error', 'No location data available.');
     }
   };
+
   const handleDeviceSelect = async device => {
     console.log('0&&&&&&&&&&&&&&&&&', device.deviceId);
 
     setDeviceId(device.deviceId);
     setDevId(device._id);
-    setSelectedGeoFence(null); // Reset selected geofence
+    setSelectedGeoFence(null);
     setSelectedGeoFenceId(null);
     try {
       await AsyncStorage.setItem('selectedDeviceId', device.deviceId);
@@ -188,18 +212,17 @@ const HomeScreen = ({navigation, liveLocation}) => {
   };
 
   const handleGeoFenceDelete = () => {
-    // Refetch all data after geofence deletion
-    setSelectedGeoFence(null); // Reset selected geofence
-    setSelectedGeoFenceId(null); // Reset geofence ID
+    setSelectedGeoFence(null);
+    setSelectedGeoFenceId(null);
     refetchGeoFence();
     refetchLocation();
-    // Optionally refetch device data if needed
     queryClient.invalidateQueries(['deviceDetails']);
   };
 
   const {
     data: locationData,
     isLoading: isLocationLoading,
+    error: locationError,
     refetch: refetchLocation,
   } = useQuery({
     queryKey: ['location', devId, deviceId],
@@ -210,11 +233,12 @@ const HomeScreen = ({navigation, liveLocation}) => {
       });
       return response;
     },
+    enabled: !!deviceId,
     onSuccess: data => {
-      const latestLocation = data?.data?.[0];
+      const latestLocation = data?.data?.results?.[0];
       if (latestLocation?.latitude && latestLocation?.longitude) {
-        const lat = parseFloat(latestLocation?.latitude);
-        const long = parseFloat(latestLocation?.longitude);
+        const lat = parseFloat(latestLocation.latitude);
+        const long = parseFloat(latestLocation.longitude);
         if (!isNaN(lat) && !isNaN(long)) {
           const newLocation = {latitude: lat, longitude: long};
           locationRef.current = newLocation;
@@ -224,10 +248,11 @@ const HomeScreen = ({navigation, liveLocation}) => {
       }
     },
   });
-  console.log('++++++++++++++++++++++++++++++++++++', locationData);
+
   const {
     data: geoFenceData,
     isLoading: isGeoFenceLoading,
+    error: geoFenceError,
     refetch: refetchGeoFence,
   } = useQuery({
     queryKey: ['geoFence', devId, deviceId],
@@ -238,28 +263,32 @@ const HomeScreen = ({navigation, liveLocation}) => {
       });
       return response;
     },
+    enabled: !!devId,
   });
 
   useEffect(() => {
     const latestLocation = locationData?.data?.results?.[0];
     if (latestLocation?.latitude && latestLocation?.longitude) {
-      const lat = parseFloat(latestLocation?.latitude);
-      const long = parseFloat(latestLocation?.longitude);
+      const lat = parseFloat(latestLocation.latitude);
+      const long = parseFloat(latestLocation.longitude);
       if (!isNaN(lat) && !isNaN(long)) {
         const newLocation = {latitude: lat, longitude: long};
         locationRef.current = newLocation;
-        setLocation(newLocation);
-        setMapKey(prevKey => prevKey + 1);
+        setLastLocation(newLocation);
+        if (!location) {
+          setLocation(newLocation);
+          setMapKey(prevKey => prevKey + 1);
+        }
       }
     }
-  }, [locationData]);
+  }, [locationData, location]);
 
   if (!devId && !deviceId) {
     return (
       <MainBackground style={{backgroundColor: theme.otpBox}}>
         <View style={styles.emptyStateContainer}>
           <Icon
-            name="devices" // Or "smartwatch" or "watch" depending on your device type
+            name="devices"
             size={80}
             color={theme.primaryLight || '#888'}
             style={styles.emptyStateIcon}
@@ -290,7 +319,8 @@ const HomeScreen = ({navigation, liveLocation}) => {
       </MainBackground>
     );
   }
-  // if (isLocationLoading) {
+
+  // if (isLocationLoading || isDeviceLoading || isGeoFenceLoading) {
   //   return (
   //     <MainBackground style={{backgroundColor: theme.otpBox}}>
   //       <Loader />
@@ -298,18 +328,29 @@ const HomeScreen = ({navigation, liveLocation}) => {
   //   );
   // }
 
-  // if (
-  //   !locationData?.data.results ||
-  //   !Array.isArray(locationData?.data.results) ||
-  //   locationData?.data?.results?.length === 0
-  // ) {
+  // if (locationError || deviceError || geoFenceError) {
   //   return (
   //     <MainBackground style={{backgroundColor: theme.otpBox}}>
-  //       <LogoHeader onPress={() => navigation.navigate('NotificationScreen')} />
-  //       <View style={{alignItems: 'center'}}>
-  //         <Text style={{color: theme.text, fontSize: 16}}>
-  //           No Data Found, Please Select Device in settings
+  //       <View style={styles.emptyStateContainer}>
+  //         <Text style={[styles.emptyStateTitle, {color: theme.text}]}>
+  //           Failed to Load Data
   //         </Text>
+  //         <Text
+  //           style={[
+  //             styles.emptyStateDescription,
+  //             {color: theme.textSecondary},
+  //           ]}>
+  //           Unable to fetch device or location data. Please try again.
+  //         </Text>
+  //         <TouchableOpacity
+  //           style={[styles.addDeviceButton, {backgroundColor: theme.primary}]}
+  //           onPress={() => {
+  //             refetchLocation();
+  //             deviceDataRefetch();
+  //             refetchGeoFence();
+  //           }}>
+  //           <Text style={styles.addDeviceButtonText}>Retry</Text>
+  //         </TouchableOpacity>
   //       </View>
   //     </MainBackground>
   //   );
@@ -320,7 +361,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
       <View style={{flex: 1}}>
         <CustomMapCard
           deviceData={deviceData}
-          location={location}
+          location={location || lastLocation}
           isGeoFenceLoading={isGeoFenceLoading}
           geoFenceData={geoFenceData}
           selectedGeoFence={selectedGeoFence}
@@ -338,7 +379,6 @@ const HomeScreen = ({navigation, liveLocation}) => {
   );
 };
 
-export default HomeScreen;
 const styles = StyleSheet.create({
   emptyStateContainer: {
     flex: 1,
@@ -379,3 +419,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export default HomeScreen;
