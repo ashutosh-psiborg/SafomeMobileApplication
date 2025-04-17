@@ -26,6 +26,13 @@ import CustomModal from '../../../../components/CustomModal';
 import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Dropdown} from 'react-native-element-dropdown';
+
+// Utility function to extract numeric country code (e.g., "+91" from "India (+91)")
+const extractCountryCode = countryCodeStr => {
+  const match = countryCodeStr.match(/\(([^)]+)\)/); // Extract text inside parentheses
+  return match ? match[1] : '+91'; // Fallback to '+91' if extraction fails
+};
 
 // Utility function to remove '+' from country code for verification
 const stripPlusFromCountryCode = countryCode => {
@@ -38,22 +45,25 @@ const LoginWithMobileScreen = ({navigation}) => {
     state => state.theme.themes[state.theme.currentTheme],
   );
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [countryCode, setCountryCode] = useState('India (+91)');
   const [isModalVisible, setModalVisible] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']);
   const num = otp.join('');
   const styles = loginStyles(theme);
 
-  // Default country code (can be replaced with a selector if needed)
-  const countryCode = '+91';
-  const countryCodeWithoutPlus = stripPlusFromCountryCode(countryCode);
+  const countryCodes = [
+    {label: 'India (+91)', value: 'India (+91)'},
+    {label: 'Australia (+61)', value: 'Australia (+61)'},
+  ];
 
   const otpRefs = useRef([]);
 
   const sendOtpMutation = useMutation({
     mutationFn: async () => {
+      const numericCountryCode = extractCountryCode(countryCode); // e.g., "+91"
       return fetcher({
         method: 'POST',
-        url: `/sms/send-sms?number=${countryCode}${phoneNumber}&purpose=LOGIN&type=PHONE`,
+        url: `/sms/send-sms?number=${numericCountryCode}${phoneNumber}&purpose=LOGIN&type=PHONE`,
       });
     },
     onSuccess: data => {
@@ -68,6 +78,9 @@ const LoginWithMobileScreen = ({navigation}) => {
 
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
+      const numericCountryCode = extractCountryCode(countryCode); // e.g., "+91"
+      const countryCodeWithoutPlus =
+        stripPlusFromCountryCode(numericCountryCode); // e.g., "91"
       console.log(
         'Verifying OTP:',
         num,
@@ -78,7 +91,7 @@ const LoginWithMobileScreen = ({navigation}) => {
         method: 'POST',
         url: 'auth/verifyOTP',
         data: {
-          contact: `${countryCodeWithoutPlus}${phoneNumber}`, // Use country code without '+'
+          contact: `${countryCodeWithoutPlus}${phoneNumber}`,
           otp: num,
           purpose: 'LOGIN',
         },
@@ -162,9 +175,18 @@ const LoginWithMobileScreen = ({navigation}) => {
             </Text>
             <Spacing height={DimensionConstants.twentyFour} />
             <View style={styles.textInputView}>
-              <Text style={styles.countryCodeText}>{countryCode}</Text>
+              <Dropdown
+                style={styles.countryCodeDropdown}
+                data={countryCodes}
+                labelField="label"
+                valueField="value"
+                value={countryCode}
+                onChange={item => setCountryCode(item.value)}
+                placeholder=""
+                selectedTextStyle={styles.countryCodeText}
+              />
               <TextInput
-                style={{flex: 1}}
+                style={styles.phoneInput}
                 placeholder={t('Phone number')}
                 keyboardType="phone-pad"
                 value={phoneNumber}
@@ -215,7 +237,8 @@ const LoginWithMobileScreen = ({navigation}) => {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>{t('Verify Phone Number')}</Text>
               <Text style={styles.enterMailText}>
-                {t('Enter the OTP sent to')} {countryCode} {phoneNumber}
+                {t('Enter the OTP sent to')} {extractCountryCode(countryCode)}{' '}
+                {phoneNumber}
               </Text>
               <Spacing height={DimensionConstants.sixteen} />
               <View style={styles.otpContainer}>
@@ -232,7 +255,6 @@ const LoginWithMobileScreen = ({navigation}) => {
                   />
                 ))}
               </View>
-              {/* <Spacing height={DimensionConstants.sixteen} /> */}
               <Text style={styles.enterMailText}>
                 {t('OTP not received?')}{' '}
                 <Text style={styles.resetWord} onPress={handleResendOtp}>

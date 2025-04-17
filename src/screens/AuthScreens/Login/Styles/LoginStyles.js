@@ -84,4 +84,36 @@ export const loginStyles = theme =>
       fontWeight: '500',
       textAlign: 'center',
     },
+    textInputView: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      borderWidth: DimensionConstants.one,
+      borderColor: 'rgba(107, 115, 122, 0.1)',
+      borderRadius: DimensionConstants.thirty,
+      paddingHorizontal: DimensionConstants.ten,
+      height: DimensionConstants.fortyEight,
+    },
+    countryCodeDropdown: {
+      width: DimensionConstants.oneHundredThirty,
+      height: DimensionConstants.forty,
+      justifyContent: 'center',
+      paddingLeft: DimensionConstants.ten,
+    },
+    countryCodeText: {
+      fontSize: DimensionConstants.fourteen,
+      color: theme.blackText,
+    },
+    phoneInput: {
+      flex: 1,
+      height: DimensionConstants.forty,
+      paddingHorizontal: DimensionConstants.eight,
+      fontSize: DimensionConstants.fourteen,
+      color: theme.blackText,
+    },
+    loginWithPhone: {
+      fontSize: DimensionConstants.fourteen,
+      fontWeight: '500',
+      color: theme.blue,
+      alignSelf: 'center',
+    },
   });
