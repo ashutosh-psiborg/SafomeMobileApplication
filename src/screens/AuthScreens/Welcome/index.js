@@ -1,4 +1,4 @@
-import {View, Text, Image, StyleSheet} from 'react-native';
+import {View, Text, Image, StyleSheet, ScrollView} from 'react-native';
 import React from 'react';
 import MainBackground from '../../../components/MainBackground';
 import {ImageConstants} from '../../../constants/ImageConstants';
@@ -18,10 +18,11 @@ const WelcomeScreen = ({navigation}) => {
     <MainBackground>
       <Spacing height={DimensionConstants.fourteen} />
       <Text style={styles.titleText}>{t('Welcome')}</Text>
-      <View style={styles.container}>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <Spacing height={DimensionConstants.fortyTwo} />
 
         <Image source={ImageConstants.welcomeImage} style={styles.image} />
+        <Spacing height={DimensionConstants.fortyTwo} />
         <View style={styles.textContainer}>
           <Text style={[styles.headerText, {color: theme.secondary}]}>
             {t('Be Ready Anytime')}
@@ -37,20 +38,20 @@ const WelcomeScreen = ({navigation}) => {
             {t('ready anytime.')}
           </Text>
         </View>
-      </View>
-      <Spacing height={DimensionConstants.thirtyTwo} />
+        <Spacing height={DimensionConstants.thirtyTwo} />
 
-      <CustomButton
-        text={t('Sign in')}
-        onPress={() => navigation.navigate('LoginScreen')}
-      />
-      <CustomButton
-        borderColor={theme.borderColor}
-        onPress={() => navigation.navigate('RegisterScreen')}
-        color={'#fff'}
-        textColor={'#000'}
-        text={t('Create account')}
-      />
+        <CustomButton
+          text={t('Sign in')}
+          onPress={() => navigation.navigate('LoginScreen')}
+        />
+        <CustomButton
+          borderColor={theme.borderColor}
+          onPress={() => navigation.navigate('RegisterScreen')}
+          color={'#fff'}
+          textColor={'#000'}
+          text={t('Create account')}
+        />
+      </ScrollView>
     </MainBackground>
   );
 };

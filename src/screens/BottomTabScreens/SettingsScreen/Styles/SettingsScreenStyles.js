@@ -116,7 +116,7 @@ export const SettingsScreenStyles = theme =>
     featureRow: {
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between',
+      // justifyContent: 'space-between',
     },
     featureContent: {
       flexDirection: 'row',

@@ -410,7 +410,7 @@ const styles = StyleSheet.create({
   innerCard: {
     backgroundColor: '#F7FAFF',
     borderRadius: 16,
-    padding: 10,
+    padding: 16,
     shadowColor: '#3B41AC',
     shadowOffset: {width: 0, height: 4},
     shadowOpacity: 0.1,
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
   statsContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 16,
+    // padding: 16,
     borderRadius: 12,
   },
   statItem: {
