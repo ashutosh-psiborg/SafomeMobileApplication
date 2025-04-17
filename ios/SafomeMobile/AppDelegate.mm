@@ -7,7 +7,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-  [GMSServices provideAPIKey:@"AIzaSyAxb4hP9TQxiq5QDtRG_HqNuJdeJVmiLcw"];
+  [GMSServices provideAPIKey:@"AIzaSyDwUD-uT6baReOJKVy-6kPFxfZdIpJIzfM"];
 
   self.moduleName = @"SafomeMobile";
   // You can add your custom initial props in the dictionary below.
