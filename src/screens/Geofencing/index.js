@@ -1,14 +1,15 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
   View,
+  Text,
   TextInput,
   TouchableOpacity,
   FlatList,
   ActivityIndicator,
   StyleSheet,
   Alert,
-  Text,
 } from 'react-native';
+import MapView, {Circle, Marker, Polygon} from 'react-native-maps';
 import {Slider} from '@miblanchard/react-native-slider';
 import {Portal, Modal} from 'react-native-paper';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -18,10 +19,11 @@ import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../utils/ApiService';
 import {DimensionConstants} from '../../constants/DimensionConstants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import GeofenceMap from '../../components/GeofenceMap';
+
 const API_KEY = 'AIzaSyBwDaERJWZV7h28D67mRXG-dIBYSEPQMgQ'; // Your Google Maps API key
 
-const GeofenceScreen = ({navigation}) => {
+const GeofenceScreen = ({navigation, route}) => {
+  console.log('==-=-==-=-==-=', route?.params?.intial);
   const [nameZoneModal, setNameZoneModal] = useState(false);
   const [deviceId, setDeviceId] = useState(false);
   const [searchedLocation, setSearchedLocation] = useState('');
@@ -48,7 +50,19 @@ const GeofenceScreen = ({navigation}) => {
 
     getStoredDeviceId();
   }, []);
-
+  const initialRegion = {
+    latitude: 28.502291,
+    longitude: 77.401863,
+    latitudeDelta: 0.015,
+    longitudeDelta: 0.015,
+  };
+  const initialRegion2 = {
+    ...route?.params?.intial,
+    latitudeDelta: 0.015,
+    longitudeDelta: 0.015,
+  };
+  console.log('-=0-=00=00=0-0=', initialRegion2);
+  const mapRef = useRef(null);
   const mutation = useMutation({
     mutationFn: async payload =>
       await fetcher({
@@ -64,6 +78,31 @@ const GeofenceScreen = ({navigation}) => {
       Alert.alert('Error', error.message || 'Failed to add device.');
     },
   });
+
+  const mapPressHandler = e => {
+    const {latitude, longitude} = e.nativeEvent.coordinate;
+    console.log('Map pressed at:', latitude, longitude);
+    if (geofence.type === 'Polygon') {
+      setUndoStack([...undoStack, geofence.polygon]);
+      setRedoStack([]);
+      setGeofence({
+        type: 'Polygon',
+        polygon: [...geofence.polygon, {latitude, longitude}],
+      });
+      console.log('Updated geofence:', geofence);
+    } else if (geofence.type === 'Circle') {
+      const newCircle = {
+        type: 'Circle',
+        circle: {
+          latitude,
+          longitude,
+          radius: geofence.circle.radius || 500,
+        },
+      };
+      setGeofence(newCircle);
+      console.log('Updated geofence:', newCircle);
+    }
+  };
 
   const undo = () => {
     if (undoStack.length > 0) {
@@ -129,14 +168,137 @@ const GeofenceScreen = ({navigation}) => {
     }
   };
 
+  useEffect(() => {
+    if (searchedLocation) {
+      const coords = searchedLocation.geometry.location;
+      mapRef.current.animateToRegion(
+        {
+          latitude: coords.lat,
+          longitude: coords.lng,
+          latitudeDelta: 0.015,
+          longitudeDelta: 0.015,
+        },
+        1000,
+      );
+    }
+  }, [searchedLocation]);
+
   return (
     <View style={styles.container}>
-      {/* Replace MapView with GeofenceMap */}
-      <GeofenceMap
-        geofence={geofence}
-        setGeofence={setGeofence}
-        searchedLocation={searchedLocation}
-      />
+      {/* <CustomHeader title='Geofence' /> */}
+      <MapView
+        ref={mapRef}
+        provider="google"
+        onDoublePress={() => console.log('double press')}
+        onPress={mapPressHandler}
+        mapType="satellite"
+        zoomTapEnabled={!geofence.type}
+        toolbarEnabled={true}
+        initialRegion={initialRegion2}
+        style={styles.map}>
+        {!searchedLocation && (
+          <Marker coordinate={initialRegion2} pinColor="red" />
+        )}
+        {searchedLocation && (
+          <Marker
+            coordinate={{
+              latitude: searchedLocation.geometry.location.lat,
+              longitude: searchedLocation.geometry.location.lng,
+            }}
+            pinColor="blue"
+          />
+        )}
+        {geofence.type === 'Polygon' && geofence.polygon.length > 0 && (
+          <Polygon
+            coordinates={geofence.polygon}
+            strokeColor="green"
+            fillColor="rgba(0, 255, 0, 0.2)"
+            strokeWidth={DimensionConstants.two}
+          />
+        )}
+        {geofence.type === 'Circle' &&
+          geofence.circle.latitude &&
+          geofence.circle.longitude && (
+            <>
+              <Circle
+                center={{
+                  latitude: geofence.circle.latitude,
+                  longitude: geofence.circle.longitude,
+                }}
+                radius={geofence.circle.radius}
+                strokeColor="green"
+                fillColor="rgba(0, 255, 0, 0.2)"
+                strokeWidth={DimensionConstants.two}
+              />
+              <Marker
+                pinColor="green"
+                coordinate={{
+                  latitude: geofence.circle.latitude,
+                  longitude: geofence.circle.longitude,
+                }}
+                draggable
+                onDragEnd={e =>
+                  setGeofence({
+                    ...geofence,
+                    circle: {
+                      ...geofence.circle,
+                      latitude: e.nativeEvent.coordinate.latitude,
+                      longitude: e.nativeEvent.coordinate.longitude,
+                    },
+                  })
+                }
+              />
+              <Marker
+                style={{display: 'none'}}
+                pinColor="green"
+                coordinate={{
+                  latitude: geofence.circle.latitude,
+                  longitude:
+                    geofence.circle.longitude + geofence.circle.radius / 87999,
+                }}
+                draggable
+                onDrag={e => {
+                  const newRadius =
+                    Math.sqrt(
+                      Math.pow(
+                        e.nativeEvent.coordinate.latitude -
+                          geofence.circle.latitude,
+                        2,
+                      ) +
+                        Math.pow(
+                          e.nativeEvent.coordinate.longitude -
+                            geofence.circle.longitude,
+                          2,
+                        ),
+                    ) * 111320;
+                  setGeofence({
+                    ...geofence,
+                    circle: {...geofence.circle, radius: newRadius},
+                  });
+                }}>
+                <MaterialCommunityIcons
+                  name="chevron-right"
+                  size={DimensionConstants.thirty}
+                  color="green"
+                />
+              </Marker>
+            </>
+          )}
+        {geofence.type === 'Polygon' &&
+          geofence.polygon.map((item, index) => (
+            <Marker
+              key={index}
+              pinColor="green"
+              coordinate={item}
+              draggable
+              onDragEnd={e => {
+                const newPolygon = [...geofence.polygon];
+                newPolygon[index] = e.nativeEvent.coordinate;
+                setGeofence({...geofence, polygon: newPolygon});
+              }}
+            />
+          ))}
+      </MapView>
       <View style={styles.searchContainer}>
         <GooglePlacesInput onLocationSelect={setSearchedLocation} />
       </View>
@@ -156,7 +318,6 @@ const GeofenceScreen = ({navigation}) => {
   );
 };
 
-// The rest of the components (FloatingActions, NameZoneModal, GooglePlacesInput, and styles) remain unchanged
 const FloatingActions = ({geofence, setGeofence, undo, redo, saveGeofence}) => {
   const [circleRadius, setCircleRadius] = useState(500);
 
@@ -419,6 +580,7 @@ const GooglePlacesInput = ({onLocationSelect}) => {
 
 const styles = StyleSheet.create({
   container: {flex: 1},
+  map: {height: '100%', width: '100%', position: 'relative'},
   searchContainer: {
     position: 'absolute',
     top: DimensionConstants.ten,
@@ -557,6 +719,11 @@ const styles = StyleSheet.create({
     borderRadius: DimensionConstants.ten,
     alignItems: 'center',
     gap: DimensionConstants.fifteen,
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: DimensionConstants.fifteen,
+    right: DimensionConstants.fifteen,
   },
   modalIconContainer: {
     padding: DimensionConstants.fifteen,

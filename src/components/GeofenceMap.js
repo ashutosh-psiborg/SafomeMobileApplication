@@ -4,7 +4,7 @@ import MapView, {Circle, Marker, Polygon} from 'react-native-maps';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import {DimensionConstants} from '../constants/DimensionConstants';
 
-const GeofenceMap = ({geofence, setGeofence, searchedLocation}) => {
+const GeofenceMap = ({geofence, setGeofence, searchedLocation, route}) => {
   const initialRegion = {
     latitude: 28.502291,
     longitude: 77.401863,

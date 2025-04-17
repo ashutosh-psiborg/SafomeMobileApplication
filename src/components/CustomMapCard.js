@@ -163,7 +163,10 @@ const CustomMapCard = ({
       );
     }
     return (
-      <TouchableOpacity onPress={() => navigation.navigate('GeofenceScreen')}>
+      <TouchableOpacity
+        onPress={() =>
+          navigation.navigate('GeofenceScreen', {intial: location})
+        }>
         <Text style={styles.noGeofenceText}>Create Zone</Text>
       </TouchableOpacity>
     );
