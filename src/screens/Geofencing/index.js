@@ -56,12 +56,7 @@ const GeofenceScreen = ({navigation, route}) => {
     latitudeDelta: 0.015,
     longitudeDelta: 0.015,
   };
-  const initialRegion2 = {
-    ...route?.params?.intial,
-    latitudeDelta: 0.015,
-    longitudeDelta: 0.015,
-  };
-  console.log('-=0-=00=00=0-0=', initialRegion2);
+
   const mapRef = useRef(null);
   const mutation = useMutation({
     mutationFn: async payload =>
@@ -194,11 +189,8 @@ const GeofenceScreen = ({navigation, route}) => {
         mapType="satellite"
         zoomTapEnabled={!geofence.type}
         toolbarEnabled={true}
-        initialRegion={initialRegion2}
+        initialRegion={initialRegion}
         style={styles.map}>
-        {!searchedLocation && (
-          <Marker coordinate={initialRegion2} pinColor="red" />
-        )}
         {searchedLocation && (
           <Marker
             coordinate={{

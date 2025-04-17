@@ -272,16 +272,17 @@ const HomeScreen = ({navigation, liveLocation}) => {
       const lat = parseFloat(latestLocation.latitude);
       const long = parseFloat(latestLocation.longitude);
       if (!isNaN(lat) && !isNaN(long)) {
-        const newLocation = {latitude: lat, longitude: long};
-        locationRef.current = newLocation;
-        setLastLocation(newLocation);
+        const tempLocation = {latitude: lat, longitude: long};
+        locationRef.current = tempLocation;
+        setLastLocation(tempLocation);
+        setLastLocation(tempLocation);
         if (!location) {
-          setLocation(newLocation);
+          setLocation(tempLocation);
           setMapKey(prevKey => prevKey + 1);
         }
       }
     }
-  }, [locationData, location]);
+  }, [locationData]);
 
   if (!devId && !deviceId) {
     return (
@@ -361,7 +362,7 @@ const HomeScreen = ({navigation, liveLocation}) => {
       <View style={{flex: 1}}>
         <CustomMapCard
           deviceData={deviceData}
-          location={location || lastLocation}
+          location={location}
           isGeoFenceLoading={isGeoFenceLoading}
           geoFenceData={geoFenceData}
           selectedGeoFence={selectedGeoFence}
