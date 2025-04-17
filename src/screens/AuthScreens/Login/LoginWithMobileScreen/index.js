@@ -27,8 +27,13 @@ import {useMutation} from '@tanstack/react-query';
 import fetcher from '../../../../utils/ApiService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Utility function to remove '+' from country code for verification
+const stripPlusFromCountryCode = countryCode => {
+  return countryCode.replace(/^\+/, ''); // Remove leading '+' if present
+};
+
 const LoginWithMobileScreen = ({navigation}) => {
-  const {t, i18n} = useTranslation();
+  const {t} = useTranslation();
   const theme = useSelector(
     state => state.theme.themes[state.theme.currentTheme],
   );
@@ -36,8 +41,11 @@ const LoginWithMobileScreen = ({navigation}) => {
   const [isModalVisible, setModalVisible] = useState(false);
   const [otp, setOtp] = useState(['', '', '', '']);
   const num = otp.join('');
+  const styles = loginStyles(theme);
 
-  const Styles = loginStyles(theme);
+  // Default country code (can be replaced with a selector if needed)
+  const countryCode = '+91';
+  const countryCodeWithoutPlus = stripPlusFromCountryCode(countryCode);
 
   const otpRefs = useRef([]);
 
@@ -45,27 +53,32 @@ const LoginWithMobileScreen = ({navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: '/auth/sendOtp',
-        data: {
-          purpose: 'LOGIN',
-          contact: phoneNumber,
-        },
+        url: `/sms/send-sms?number=${countryCode}${phoneNumber}&purpose=LOGIN&type=PHONE`,
       });
     },
     onSuccess: data => {
       console.log('OTP sent successfully:', data);
+      setModalVisible(true);
     },
     onError: error => {
       console.error('Failed to send OTP:', error);
+      Alert.alert('Error', 'Failed to send OTP. Please try again.');
     },
   });
+
   const verifyOtpMutation = useMutation({
     mutationFn: async () => {
+      console.log(
+        'Verifying OTP:',
+        num,
+        'for',
+        `${countryCodeWithoutPlus}${phoneNumber}`,
+      );
       return fetcher({
         method: 'POST',
         url: 'auth/verifyOTP',
         data: {
-          contact: phoneNumber,
+          contact: `${countryCodeWithoutPlus}${phoneNumber}`, // Use country code without '+'
           otp: num,
           purpose: 'LOGIN',
         },
@@ -77,6 +90,7 @@ const LoginWithMobileScreen = ({navigation}) => {
       await AsyncStorage.setItem('authToken', data?.data?.token);
       console.log('Token stored successfully:', data?.data?.token);
       Alert.alert('Success', 'Phone verified successfully!');
+      setModalVisible(false);
       navigation.replace('AddDeviceScreen');
     },
     onError: error => {
@@ -86,39 +100,50 @@ const LoginWithMobileScreen = ({navigation}) => {
   });
 
   const handleSubmit = () => {
+    if (phoneNumber.length !== 10) {
+      Alert.alert('Error', 'Please enter a valid 10-digit phone number.');
+      return;
+    }
     sendOtpMutation.mutate();
-    setModalVisible(true);
   };
+
   const handleVerify = () => {
-    if (otp.length < 4) {
+    if (num.length !== 4) {
       Alert.alert('Error', 'Please enter a valid 4-digit OTP.');
       return;
     }
     verifyOtpMutation.mutate();
   };
+
+  const handleResendOtp = () => {
+    if (phoneNumber.length !== 10) {
+      Alert.alert('Error', 'Please enter a valid 10-digit phone number.');
+      return;
+    }
+    sendOtpMutation.mutate();
+  };
+
   const handleOtpChange = (text, index) => {
     const newOtp = [...otp];
     newOtp[index] = text;
     setOtp(newOtp);
 
     if (text.length === 1 && index < otp.length - 1) {
-      const nextInput = index + 1;
-      otpRefs.current[nextInput].focus();
+      otpRefs.current[index + 1].focus();
     }
     if (text.length === 0 && index > 0) {
-      const prevInput = index - 1;
-      otpRefs.current[prevInput].focus();
+      otpRefs.current[index - 1].focus();
     }
   };
 
   const handlePhoneNumber = text => {
-    setPhoneNumber(text);
+    setPhoneNumber(text.replace(/[^0-9]/g, '')); // Allow only digits
   };
 
   return (
     <MainBackground>
       <ScrollView
-        contentContainerStyle={{flexGrow: 1, justifyContent: 'space-between'}}
+        contentContainerStyle={{flexGrow: 1}}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}>
         <View style={{flex: 1, justifyContent: 'space-between'}}>
@@ -128,19 +153,19 @@ const LoginWithMobileScreen = ({navigation}) => {
               backPress={() => navigation.goBack()}
             />
             <Spacing height={DimensionConstants.twentyFour} />
-            <Text style={Styles.signInText}>
+            <Text style={styles.signInText}>
               {t('Sign in to your Account')}
             </Text>
             <Spacing height={DimensionConstants.twentyFour} />
-            <Text style={Styles.enterMailText}>
-              {t('Enter your email and password to get started.')}
+            <Text style={styles.enterMailText}>
+              {t('Enter your phone number to get started.')}
             </Text>
             <Spacing height={DimensionConstants.twentyFour} />
-            <View style={Styles.textInputView}>
-              <MailIcon marginRight={DimensionConstants.eight} />
+            <View style={styles.textInputView}>
+              <Text style={styles.countryCodeText}>{countryCode}</Text>
               <TextInput
                 style={{flex: 1}}
-                placeholder="Phone number"
+                placeholder={t('Phone number')}
                 keyboardType="phone-pad"
                 value={phoneNumber}
                 onChangeText={handlePhoneNumber}
@@ -153,12 +178,12 @@ const LoginWithMobileScreen = ({navigation}) => {
             <CustomButton text={t('Login')} onPress={handleSubmit} />
             <Spacing height={DimensionConstants.sixteen} />
             <TouchableOpacity onPress={() => navigation.goBack()}>
-              <Text style={Styles.loginWithPhone}>Login with email</Text>
+              <Text style={styles.loginWithPhone}>{t('Login with email')}</Text>
             </TouchableOpacity>
           </View>
 
           <View>
-            <Text style={Styles.continue}>or continue with</Text>
+            <Text style={styles.continue}>{t('or continue with')}</Text>
             <CustomButton
               textColor={theme.blackText}
               borderColor={theme.buttonBorder}
@@ -176,25 +201,29 @@ const LoginWithMobileScreen = ({navigation}) => {
               />
             ) : null}
             <Spacing height={DimensionConstants.twentyFour} />
-            <Text style={Styles.terms}>
-              By clicking login you agree to recognates{' '}
-              <Text style={Styles.termBlue}>Terms of use </Text>
-              and <Text style={Styles.termBlue}>Privacy policy</Text>
+            <Text style={styles.terms}>
+              {t('By clicking login you agree to recognates')}{' '}
+              <Text style={styles.termBlue}>{t('Terms of use')}</Text>{' '}
+              {t('and')}{' '}
+              <Text style={styles.termBlue}>{t('Privacy policy')}</Text>
             </Text>
           </View>
 
           <CustomModal
             isVisible={isModalVisible}
             onClose={() => setModalVisible(false)}>
-            <View style={Styles.modalContent}>
-              <Text style={Styles.modalTitle}>Verify Phone Number</Text>
-
-              <View style={Styles.otpContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>{t('Verify Phone Number')}</Text>
+              <Text style={styles.enterMailText}>
+                {t('Enter the OTP sent to')} {countryCode} {phoneNumber}
+              </Text>
+              <Spacing height={DimensionConstants.sixteen} />
+              <View style={styles.otpContainer}>
                 {otp.map((digit, index) => (
                   <TextInput
                     key={index}
                     ref={el => (otpRefs.current[index] = el)}
-                    style={Styles.otpInput}
+                    style={styles.otpInput}
                     value={digit}
                     onChangeText={text => handleOtpChange(text, index)}
                     keyboardType="numeric"
@@ -203,10 +232,14 @@ const LoginWithMobileScreen = ({navigation}) => {
                   />
                 ))}
               </View>
-              <Text style={Styles.enterMailText}>
-                OTP not received?{' '}
-                <Text style={Styles.resetWord}>Resend OTP</Text>
+              {/* <Spacing height={DimensionConstants.sixteen} /> */}
+              <Text style={styles.enterMailText}>
+                {t('OTP not received?')}{' '}
+                <Text style={styles.resetWord} onPress={handleResendOtp}>
+                  {t('Resend OTP')}
+                </Text>
               </Text>
+              <Spacing height={DimensionConstants.sixteen} />
             </View>
             <View
               style={{flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -215,11 +248,12 @@ const LoginWithMobileScreen = ({navigation}) => {
                 textColor={theme.text}
                 borderColor={theme.borderColor}
                 color={theme.background}
-                text={'Cancel'}
+                text={t('Cancel')}
+                onPress={() => setModalVisible(false)}
               />
               <CustomButton
                 width={width / 2.25}
-                text={'Verify'}
+                text={t('Verify')}
                 onPress={handleVerify}
               />
             </View>

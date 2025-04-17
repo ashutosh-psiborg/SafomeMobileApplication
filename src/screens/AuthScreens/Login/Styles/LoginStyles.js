@@ -4,6 +4,7 @@ import {StyleSheet} from 'react-native';
 export const loginStyles = theme =>
   StyleSheet.create({
     modalContent: {
+      flex: 1,
       padding: DimensionConstants.twenty,
       alignItems: 'center',
     },

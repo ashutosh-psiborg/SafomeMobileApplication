@@ -46,7 +46,7 @@ const VerifyPhoneOtpScreen = ({navigation}) => {
     mutationFn: async () => {
       return fetcher({
         method: 'POST',
-        url: `sms/send-sms?number=${countryCode}${user.phoneNumber}&purpose=REGISTRATION&type=PHONE`,
+        url: `sms/send-sms?number=+${user.phoneNumber}&purpose=REGISTRATION&type=PHONE`,
       });
     },
     onSuccess: data => {
@@ -75,7 +75,7 @@ const VerifyPhoneOtpScreen = ({navigation}) => {
         method: 'POST',
         url: 'auth/verifyOTP',
         data: {
-          contact: `${countryCodeWithoutPlus}${user.phoneNumber}`, // Use country code without '+'
+          contact: `${user.phoneNumber}`, // Use country code without '+'
           purpose: 'REGISTRATION',
           otp: code,
         },

@@ -18,6 +18,17 @@ import DeviceCallIcon from '../../../assets/icons/DeviceCallIcon';
 import CountryIcon from '../../../assets/icons/CountryIcon';
 import FullNameIcon from '../../../assets/icons/FullNameIcon';
 
+// Utility function to extract numeric country code (e.g., "+91" from "India (+91)")
+const extractCountryCode = countryCodeStr => {
+  const match = countryCodeStr.match(/\(([^)]+)\)/); // Extract text inside parentheses
+  return match ? match[1] : '+91'; // Fallback to '+91' if extraction fails
+};
+
+// Utility function to remove '+' from country code
+const stripPlusFromCountryCode = countryCode => {
+  return countryCode.replace(/^\+/, ''); // Remove leading '+' if present
+};
+
 const RegisterScreen = ({navigation}) => {
   const {
     control,
@@ -35,24 +46,25 @@ const RegisterScreen = ({navigation}) => {
   );
   const styles = RegisterStyles(theme);
   const dispatch = useDispatch();
+
   const fields = [
     {
       name: 'fullName',
       icon: <FullNameIcon />,
-      placeholder: 'Full name',
+      placeholder: t('Full name'),
       maxLength: 20,
       keyboardType: 'default',
     },
     {
       name: 'email',
-      placeholder: 'Email address',
+      placeholder: t('Email address'),
       icon: <MailIcon />,
       maxLength: 50,
       keyboardType: 'email-address',
     },
     {
       name: 'phoneNumber',
-      placeholder: 'Phone Number',
+      placeholder: t('Phone Number'),
       icon: <DeviceCallIcon viewBoxSize={24} size={24} />,
       maxLength: 10,
       keyboardType: 'phone-pad',
@@ -62,25 +74,17 @@ const RegisterScreen = ({navigation}) => {
         {label: 'Australia (+61)', value: 'Australia (+61)'},
       ],
     },
-    // {
-    //   name: 'country',
-    //   placeholder: 'Country',
-    //   options: [
-    //     {label: 'India', value: 'India'},
-    //     {label: 'Australia', value: 'Australia'},
-    //   ],
-    //   icon: <CountryIcon />,
-    // },
   ];
 
-  // const onSubmit = async data => {
-  //   dispatch(setUserData({...data, countryCode}));
-  //   navigation.navigate('VerifyMailOtpScreen');
-  // };
   const onSubmit = data => {
+    const numericCountryCode = extractCountryCode(countryCode); // e.g., "+91"
+    const countryCodeWithoutPlus = stripPlusFromCountryCode(numericCountryCode); // e.g., "91"
+    const combinedPhoneNumber = `${countryCodeWithoutPlus}${data.phoneNumber}`; // e.g., "917903341259"
+
     const formPayload = {
       ...data,
-      countryCode: countryCode,
+      phoneNumber: combinedPhoneNumber, // Store combined phone number
+      countryCode, // Keep original countryCode for display
     };
     console.log('||||', formPayload);
 
