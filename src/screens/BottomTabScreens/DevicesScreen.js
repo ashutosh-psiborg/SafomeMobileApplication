@@ -144,14 +144,41 @@ const DevicesScreen = ({navigation}) => {
 
   return (
     <MainBackground style={styles.mainBackground}>
-      {isLoading ? (
-        <Loader />
-      ) : (
-        <View style={{flex: 1}}>
-          <LogoHeader
-            title="Device"
-            onPress={() => navigation.navigate('NotificationScreen')}
-          />
+      <View style={{flex: 1}}>
+        <LogoHeader
+          title="Device"
+          onPress={() => navigation.navigate('NotificationScreen')}
+        />
+        {isLoading ? (
+          <Loader />
+        ) : !deviceId ? (
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Spacing height={DimensionConstants.fifteen} />
+            <CustomCard style={styles.deviceCard}>
+              <View style={styles.emptyDeviceContainer}>
+                <Text style={styles.emptyDeviceText}>Select device first</Text>
+                <TouchableOpacity
+                  style={styles.selectDeviceButton}
+                  onPress={() => navigation.navigate('AddRemoveDeviceScreen')}>
+                  <Text style={styles.selectDeviceButtonText}>
+                    Go to Manage Devices
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </CustomCard>
+          </ScrollView>
+        ) : error ? (
+          <ScrollView showsVerticalScrollIndicator={false}>
+            <Spacing height={DimensionConstants.fifteen} />
+            <CustomCard style={styles.deviceCard}>
+              <View style={styles.emptyDeviceContainer}>
+                <Text style={styles.emptyDeviceText}>
+                  Failed to load device details
+                </Text>
+              </View>
+            </CustomCard>
+          </ScrollView>
+        ) : (
           <ScrollView showsVerticalScrollIndicator={false}>
             <Spacing height={DimensionConstants.fifteen} />
             <CustomCard style={styles.deviceCard}>
@@ -171,26 +198,9 @@ const DevicesScreen = ({navigation}) => {
                           {data?.data?.batteryPer || 85}%
                         </Text>
                       </View>
-                      {/* <View style={styles.statusItem}>
-                        <Text style={styles.label}>Status:</Text>
-                        <Text style={[styles.value, {color: theme.primary}]}>
-                          {data?.data?.isConnected
-                            ? 'Connected'
-                            : 'Disconnected'}
-                        </Text>
-                      </View> */}
                     </View>
                   </View>
                 </View>
-                {/* <CustomButton
-                  text={appStrings?.device?.sync?.text}
-                  color={'#F4D9DC'}
-                  height={DimensionConstants.thirtyFive}
-                  width={DimensionConstants.ninety}
-                  textColor={'#FE605D'}
-                  onPress={() => refetch()}
-                  style={styles.syncButton}
-                /> */}
               </View>
 
               <View style={styles.divider} />
@@ -263,12 +273,11 @@ const DevicesScreen = ({navigation}) => {
               ))}
             </CustomCard>
           </ScrollView>
-        </View>
-      )}
+        )}
+      </View>
     </MainBackground>
   );
 };
-
 const styles = StyleSheet.create({
   mainBackground: {
     backgroundColor: '#F2F7FC',
@@ -439,6 +448,28 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     color: '#fff',
     marginRight: DimensionConstants.five,
+  },
+  emptyDeviceContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: DimensionConstants.twenty,
+  },
+  emptyDeviceText: {
+    fontSize: DimensionConstants.sixteen,
+    fontWeight: '500',
+    color: '#666666',
+    marginBottom: DimensionConstants.fifteen,
+  },
+  selectDeviceButton: {
+    backgroundColor: '#007bff',
+    paddingVertical: DimensionConstants.ten,
+    paddingHorizontal: DimensionConstants.twenty,
+    borderRadius: DimensionConstants.eight,
+  },
+  selectDeviceButtonText: {
+    fontSize: DimensionConstants.fourteen,
+    fontWeight: '500',
+    color: '#FFFFFF',
   },
 });
 

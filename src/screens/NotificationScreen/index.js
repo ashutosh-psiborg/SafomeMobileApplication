@@ -7,11 +7,11 @@ import {
   StatusBar,
   Animated,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import React, {useState, useRef, useCallback, useEffect} from 'react';
 import MainBackground from '../../components/MainBackground';
 import CustomHeader from '../../components/CustomHeader';
-import BlackSettingsIcon from '../../assets/icons/BlackSettingsIcon';
 import {DimensionConstants} from '../../constants/DimensionConstants';
 import Spacing from '../../components/Spacing';
 import CustomCard from '../../components/CustomCard';
@@ -36,6 +36,12 @@ const NotificationScreen = ({navigation}) => {
   const [countdown, setCountdown] = useState(3);
   const timerRef = useRef(null);
   const [isSnoozed, setIsSnoozed] = useState({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [notifications, setNotifications] = useState([]);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [isDataProcessed, setIsDataProcessed] = useState(false);
+  const limit = 25;
 
   const buttons = ['All', 'SOS', 'GeoFence', 'Battery'];
 
@@ -48,6 +54,9 @@ const NotificationScreen = ({navigation}) => {
           );
           if (storedDeviceId) {
             setDeviceId(storedDeviceId);
+            setCurrentPage(1);
+            setNotifications([]); // Clear notifications on device change
+            setIsDataProcessed(false); // Reset processing state
           }
         } catch (error) {
           console.error('Failed to retrieve device ID:', error);
@@ -58,20 +67,39 @@ const NotificationScreen = ({navigation}) => {
   );
 
   const {
-    data: notificationData,
+    data,
     isLoading,
     error,
     refetch: allNotificationRefetch,
   } = useQuery({
-    queryKey: ['notifications', deviceId],
+    queryKey: ['notifications', deviceId, currentPage, selectedButton],
     queryFn: () =>
       fetcher({
         method: 'GET',
-        url: `/notification/getAll?device=${deviceId}`,
+        url: `/notification/getAll?page=${currentPage}&limit=${limit}&device=${deviceId}`,
       }),
     enabled: !!deviceId,
-    select: data => data?.data?.results || [],
+    select: data => ({
+      results: data?.data?.results || [],
+      totalPages: data?.data?.totalPages || 1,
+    }),
   });
+
+  useEffect(() => {
+    if (data) {
+      console.log('API Response:', {
+        currentPage,
+        totalPages: data.totalPages,
+        resultsLength: data.results.length,
+      });
+      setTotalPages(data.totalPages);
+      if (currentPage === 1) {
+        setNotifications(data.results);
+      } else {
+        setNotifications(prev => [...prev, ...data.results]);
+      }
+    }
+  }, [data, currentPage]);
 
   const {
     data: getSnooze,
@@ -92,11 +120,19 @@ const NotificationScreen = ({navigation}) => {
   useEffect(() => {
     const result = {};
     getSnooze?.forEach(item => {
-      const type = item.notificationType;
-      result[type] = item.value; // Store the snooze duration (value) for each type
+      result[item.notificationType] = item.value;
     });
     setIsSnoozed(result);
   }, [getSnooze]);
+
+  // Set isDataProcessed when both notifications and snooze data are fully processed
+  useEffect(() => {
+    if (!isLoading && !getSnoozeLoading && data && getSnooze && deviceId) {
+      setIsDataProcessed(true);
+    } else {
+      setIsDataProcessed(false);
+    }
+  }, [isLoading, getSnoozeLoading, data, getSnooze, deviceId]);
 
   const deleteNotificationMutation = useMutation({
     mutationFn: notificationId =>
@@ -124,10 +160,13 @@ const NotificationScreen = ({navigation}) => {
     onSuccess: () => {
       queryClient.invalidateQueries(['notifications', deviceId]);
       getSnoozeRefetch();
+      setCurrentPage(1);
+      setNotifications([]);
+      setIsDataProcessed(true); // Ensure loader doesn't reappear
     },
     onError: err => {
-      console.error('Error deleting notification:', err);
-      Alert.alert('Error', 'Failed to delete notification. Please try again.');
+      console.error('Error deleting all notifications:', err);
+      Alert.alert('Error', 'Failed to delete notifications. Please try again.');
     },
   });
 
@@ -151,20 +190,11 @@ const NotificationScreen = ({navigation}) => {
 
   const snoozeNotificationMutation = useMutation({
     mutationFn: ({notificationId, duration, type}) => {
-      const hours = {
-        '1hr': 1,
-        '12hr': 12,
-        '24hr': 24,
-        always: 24 * 7,
-      };
+      const hours = {'1hr': 1, '12hr': 12, '24hr': 24, always: 24 * 7};
       return fetcher({
         method: 'PATCH',
         url: '/notification/snooze',
-        data: {
-          deviceId: deviceId,
-          notificationType: type,
-          value: hours[duration],
-        },
+        data: {deviceId, notificationType: type, value: hours[duration]},
       });
     },
     onSuccess: () => {
@@ -182,11 +212,7 @@ const NotificationScreen = ({navigation}) => {
       fetcher({
         method: 'PATCH',
         url: '/notification/snooze',
-        data: {
-          deviceId: deviceId,
-          notificationType: type,
-          value: 0, // Set to 0 to unsnooze
-        },
+        data: {deviceId, notificationType: type, value: 0},
       }),
     onSuccess: () => {
       queryClient.invalidateQueries(['notifications', deviceId]);
@@ -201,13 +227,12 @@ const NotificationScreen = ({navigation}) => {
     },
   });
 
-  const filteredNotifications =
-    notificationData?.filter(notification => {
-      if (selectedButton === 0) return true;
-      return notification.type === buttons[selectedButton];
-    }) || [];
+  const filteredNotifications = notifications.filter(notification => {
+    if (selectedButton === 0) return true;
+    return notification.type === buttons[selectedButton];
+  });
 
-  const unreadCount = notificationData?.filter(n => !n.isRead).length || 0;
+  const unreadCount = notifications.filter(n => !n.isRead).length;
 
   const finalizeDelete = id => {
     setUndoVisible(false);
@@ -312,26 +337,14 @@ const NotificationScreen = ({navigation}) => {
       <View style={[styles.actionContainer, styles.snoozeAction]}>
         <Text style={styles.snoozeTitle}>Snooze for:</Text>
         <View style={styles.snoozeOptionsContainer}>
-          <TouchableOpacity
-            style={styles.snoozeOption}
-            onPress={() => handleSnooze(id, '1hr', type)}>
-            <Text style={styles.snoozeOptionText}>1hr</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.snoozeOption}
-            onPress={() => handleSnooze(id, '12hr', type)}>
-            <Text style={styles.snoozeOptionText}>12hr</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.snoozeOption}
-            onPress={() => handleSnooze(id, '24hr', type)}>
-            <Text style={styles.snoozeOptionText}>24hr</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.snoozeOption}
-            onPress={() => handleSnooze(id, 'always', type)}>
-            <Text style={styles.snoozeOptionText}>Always</Text>
-          </TouchableOpacity>
+          {['1hr', '12hr', '24hr', 'always'].map(duration => (
+            <TouchableOpacity
+              key={duration}
+              style={styles.snoozeOption}
+              onPress={() => handleSnooze(id, duration, type)}>
+              <Text style={styles.snoozeOptionText}>{duration}</Text>
+            </TouchableOpacity>
+          ))}
         </View>
       </View>
     );
@@ -339,7 +352,7 @@ const NotificationScreen = ({navigation}) => {
 
   const renderRightActions = id => (
     <View style={[styles.actionContainer, styles.deleteAction]}>
-      {undoVisible ? (
+      {undoVisible && pendingDelete === id ? (
         <TouchableOpacity onPress={handleUndo} style={styles.undoButton}>
           <Text style={styles.undoText}>Undo {countdown}</Text>
         </TouchableOpacity>
@@ -406,21 +419,46 @@ const NotificationScreen = ({navigation}) => {
     );
   };
 
+  const handleScroll = ({nativeEvent}) => {
+    const {contentOffset, contentSize, layoutMeasurement} = nativeEvent;
+    const isCloseToBottom =
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - 100;
+
+    if (isCloseToBottom && currentPage < totalPages && !isFetchingMore) {
+      console.log('Triggering next page:', currentPage + 1);
+      setIsFetchingMore(true);
+      setCurrentPage(prev => prev + 1);
+    }
+  };
+
+  useEffect(() => {
+    if (isFetchingMore && !isLoading) {
+      allNotificationRefetch().finally(() => {
+        setIsFetchingMore(false);
+        console.log('Fetch complete for page:', currentPage);
+      });
+    }
+  }, [isFetchingMore, allNotificationRefetch, isLoading]);
+
+  // Show full-screen loader only for initial data fetch or when data is not processed
   if (
-    isLoading ||
-    getSnoozeLoading ||
-    deleteNotificationMutation.isLoading ||
-    markReadMutation.isLoading ||
-    snoozeNotificationMutation.isLoading ||
-    unsnoozeNotificationMutation.isLoading
+    !isDataProcessed ||
+    (isLoading && !isFetchingMore) ||
+    (getSnoozeLoading && !isFetchingMore)
   ) {
     return (
       <MainBackground noPadding style={styles.background}>
+        <CustomHeader
+          title={'Notifications'}
+          backPress={() => navigation.goBack()}
+          backgroundColor={'#fff'}
+        />
         <Loader />
       </MainBackground>
     );
   }
 
+  // Handle errors after loading
   if (error || getSnoozeError) {
     return (
       <MainBackground noPadding style={styles.background}>
@@ -444,7 +482,10 @@ const NotificationScreen = ({navigation}) => {
           backPress={() => navigation.goBack()}
           backgroundColor={'#fff'}
         />
-        <ScrollView showsVerticalScrollIndicator={false}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          onScroll={handleScroll}
+          scrollEventThrottle={16}>
           <View style={styles.container}>
             <View style={styles.buttonContainer}>
               {buttons.map((button, index) => (
@@ -454,7 +495,13 @@ const NotificationScreen = ({navigation}) => {
                     styles.button,
                     selectedButton === index && styles.selectedButton,
                   ]}
-                  onPress={() => setSelectedButton(index)}>
+                  onPress={() => {
+                    setSelectedButton(index);
+                    setCurrentPage(1);
+                    setNotifications([]);
+                    setIsDataProcessed(false); // Reset for new filter
+                    console.log('Filter changed to:', button);
+                  }}>
                   <Text
                     style={[
                       styles.buttonText,
@@ -540,6 +587,19 @@ const NotificationScreen = ({navigation}) => {
                 </Animated.View>
               ))
             )}
+
+            {(isFetchingMore || isLoading) && (
+              <View style={styles.loadingMoreContainer}>
+                <ActivityIndicator size="small" color="#0279E1" />
+                <Text style={styles.loadingMoreText}>Loading more...</Text>
+              </View>
+            )}
+
+            {currentPage >= totalPages && filteredNotifications.length > 0 && (
+              <View style={styles.endOfListContainer}>
+                <Text style={styles.endOfListText}>No more notifications</Text>
+              </View>
+            )}
           </View>
         </ScrollView>
       </MainBackground>
@@ -548,12 +608,8 @@ const NotificationScreen = ({navigation}) => {
 };
 
 const styles = StyleSheet.create({
-  background: {
-    backgroundColor: '#F2F7FC',
-  },
-  container: {
-    padding: DimensionConstants.ten,
-  },
+  background: {backgroundColor: '#F2F7FC'},
+  container: {padding: DimensionConstants.ten},
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -583,10 +639,7 @@ const styles = StyleSheet.create({
     fontSize: DimensionConstants.twelve,
     fontWeight: '600',
   },
-  selectedButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-  },
+  selectedButtonText: {color: '#fff', fontWeight: '700'},
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -608,11 +661,7 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
     marginLeft: 8,
   },
-  countText: {
-    color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
-  },
+  countText: {color: '#fff', fontSize: 12, fontWeight: '600'},
   card: {
     borderRadius: DimensionConstants.twelve,
     marginBottom: DimensionConstants.twelve,
@@ -620,28 +669,15 @@ const styles = StyleSheet.create({
     height: DimensionConstants.ninety,
     justifyContent: 'center',
   },
-  unreadCard: {
-    backgroundColor: 'rgba(237, 247, 255, 1)',
-  },
+  unreadCard: {backgroundColor: 'rgba(237, 247, 255, 1)'},
   readCard: {},
-  snoozedCard: {
-    opacity: 0.6,
-    backgroundColor: '#f9f9f9',
-  },
   notificationContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  notificationLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  textContainer: {
-    marginLeft: DimensionConstants.sixteen,
-    flex: 1,
-  },
+  notificationLeft: {flexDirection: 'row', alignItems: 'center', flex: 1},
+  textContainer: {marginLeft: DimensionConstants.sixteen, flex: 1},
   notificationTitle: {
     fontSize: DimensionConstants.sixteen,
     fontWeight: '600',
@@ -668,29 +704,9 @@ const styles = StyleSheet.create({
     marginTop: 8,
     justifyContent: 'space-between',
   },
-  timeContainer: {
-    flexDirection: 'column',
-  },
   notificationTime: {
     fontSize: DimensionConstants.twelve,
     color: 'rgba(0, 0, 0, 0.5)',
-  },
-  snoozeDuration: {
-    fontSize: DimensionConstants.ten,
-    color: '#889CA3',
-    fontStyle: 'italic',
-    marginTop: 2,
-  },
-  categoryChip: {
-    backgroundColor: '#0279E1',
-    paddingHorizontal: DimensionConstants.ten,
-    paddingVertical: DimensionConstants.five,
-    borderRadius: 12,
-  },
-  categoryText: {
-    fontSize: 12,
-    color: '#ffffff',
-    fontWeight: '600',
   },
   actionContainer: {
     justifyContent: 'center',
@@ -739,10 +755,7 @@ const styles = StyleSheet.create({
     fontSize: DimensionConstants.twelve,
     fontWeight: '600',
   },
-  deleteAction: {
-    backgroundColor: '#FF310C',
-    width: 100,
-  },
+  deleteAction: {backgroundColor: '#FF310C', width: 100},
   actionButton: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -761,38 +774,26 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: 40,
   },
-  emptyText: {
-    marginTop: 16,
-    fontSize: 16,
-    color: '#889CA3',
-    fontWeight: '500',
-  },
-  undoContainer: {
-    position: 'absolute',
-    bottom: 20,
-    right: 20,
-    backgroundColor: '#FF310C',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 24,
+  emptyText: {marginTop: 16, fontSize: 16, color: '#889CA3', fontWeight: '500'},
+  undoButton: {flexDirection: 'row', alignItems: 'center'},
+  undoText: {color: '#fff', fontWeight: '600', fontSize: 14},
+  loadingMoreContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {width: 0, height: 2},
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 5,
-    zIndex: 99,
+    justifyContent: 'center',
+    padding: DimensionConstants.ten,
   },
-  undoButton: {
-    flexDirection: 'row',
+  loadingMoreText: {
+    marginLeft: DimensionConstants.ten,
+    fontSize: DimensionConstants.fourteen,
+    color: '#0279E1',
+  },
+  endOfListContainer: {
     alignItems: 'center',
+    justifyContent: 'center',
+    padding: DimensionConstants.ten,
   },
-  undoText: {
-    color: '#fff',
-    fontWeight: '600',
-    fontSize: 14,
-  },
+  endOfListText: {fontSize: DimensionConstants.fourteen, color: '#889CA3'},
 });
 
 export default NotificationScreen;

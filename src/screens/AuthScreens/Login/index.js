@@ -160,7 +160,10 @@ const LoginScreen = ({navigation}) => {
     onError: error => {
       const errorMessage =
         error?.response?.data?.message || 'Failed to login. Please try again.';
-      Alert.alert('Error', errorMessage);
+      Alert.alert(
+        'Error',
+        error?.response?.data?.message || 'Failed to login. Please try again.',
+      );
     },
   });
 
