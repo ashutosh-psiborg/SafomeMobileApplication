@@ -81,7 +81,7 @@ export default function PlanDetail({navigation}) {
   };
 
   return (
-    <>
+    <SafeAreaView style={{backgroundColor: theme.background, flex: 1}}>
       <CustomHeader
         backPress={() => navigation.goBack()}
         title="Plan Details"
@@ -167,7 +167,7 @@ export default function PlanDetail({navigation}) {
           </ScrollView>
         )}
       </MainBackground>
-    </>
+    </SafeAreaView>
   );
 }
 

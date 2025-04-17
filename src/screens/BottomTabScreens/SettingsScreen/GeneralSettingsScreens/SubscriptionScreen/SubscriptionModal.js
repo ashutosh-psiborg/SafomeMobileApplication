@@ -33,7 +33,10 @@ const SubscriptionModal = ({visible, onClose, modalPlans, navigation}) => {
             style={styles.gradientBackground}>
             <TouchableOpacity
               onPress={onClose}
-              style={{alignItems: 'flex-end'}}>
+              style={{
+                alignItems: 'flex-end',
+                padding: DimensionConstants.ten,
+              }}>
               <CrossIcon />
             </TouchableOpacity>
             <Text style={styles.modalTitle}>
@@ -82,18 +85,24 @@ const SubscriptionModal = ({visible, onClose, modalPlans, navigation}) => {
                 </Text>
               </TouchableOpacity>
             </View>
-            <CustomButton
-              text={`Subscribe Now ₹ ${modalPlans?.price}`}
-              onPress={() =>
-                navigation.replace('BuySubscription', {plan: modalPlans})
-              }
-            />
-            <CustomButton
-              onPress={onClose}
-              text={'See all plans'}
-              textColor={'#000000'}
-              color={'#ffffff'}
-            />
+            <View
+              style={{
+                paddingHorizontal: 10,
+                paddingBottom: 10,
+              }}>
+              <CustomButton
+                text={`Subscribe Now ₹ ${modalPlans?.price}`}
+                onPress={() =>
+                  navigation.replace('BuySubscription', {plan: modalPlans})
+                }
+              />
+              <CustomButton
+                onPress={onClose}
+                text={'See all plans'}
+                textColor={'#000000'}
+                color={'#ffffff'}
+              />
+            </View>
           </LinearGradient>
         </KeyboardAvoidingView>
       </View>
@@ -116,15 +125,17 @@ const styles = StyleSheet.create({
   gradientBackground: {
     flex: 1,
     borderRadius: DimensionConstants.twelve,
-    padding: DimensionConstants.sixteen,
+    marginHorizontal: DimensionConstants.ten,
   },
   modalTitle: {
     fontSize: DimensionConstants.thirty,
     fontWeight: '600',
     marginBottom: DimensionConstants.sixteen,
+    paddingHorizontal: DimensionConstants.ten,
   },
   cardContainer: {
     flex: 1,
+    paddingHorizontal: DimensionConstants.ten,
   },
   planContainer: {
     padding: DimensionConstants.twelve,

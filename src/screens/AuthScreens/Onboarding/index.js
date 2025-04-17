@@ -69,7 +69,7 @@ const OnboardingScreen = ({navigation}) => {
         <Text style={styles.text}>{item.textOne}</Text>
         <Text style={styles.text}>{item.textTwo}</Text>
         <Text style={styles.text}>{item.textThree}</Text>
-        <Spacing height={DimensionConstants.twentyTwo} />
+        {/* <Spacing height={DimensionConstants.twentyTwo} /> */}
         <CustomButton text={t('Next')} onPress={handleNext} />
       </View>
     </View>
